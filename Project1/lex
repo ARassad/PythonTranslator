@@ -10,6 +10,9 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 %x COMMENT
 %x CCOMMENT
 %x HEXDECIMAL
+%x HEXDECIMALC
+%x HEXDECIMALCC
+
 %%
 
 %{
@@ -26,11 +29,40 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 <ONECOMMENT>[\/\n]	{printf("COMMENT : %s\n", comment); BEGIN(INITIAL);}
 
 \"\"\"			{BEGIN(COMMENT);}
-<COMMENT>[^\"{3}] 
-<COMMENT>\"{3}	{BEGIN(INITIAL);}
+<COMMENT>\\n		strcat(buffer,"\n");
+<COMMENT>\\\"	strcat(buffer,"\"");
+<COMMENT>\\\\	strcat(buffer,"\\");
+<COMMENT>\\\'	strcat(buffer,"\'");
+<COMMENT>\'		strcat(buffer,"\'");
+<COMMENT>\\newline
+<COMMENT>\\a		strcat(buffer,"\a");
+<COMMENT>\\b		strcat(buffer,"\b");
+<COMMENT>\\f		strcat(buffer,"\f");
+<COMMENT>\\r		strcat(buffer,"\r");
+<COMMENT>\\t		strcat(buffer,"\t");
+<COMMENT>\\v		strcat(buffer,"\v");
+<COMMENT>\\x		{BEGIN(HEXDECIMALC);}
+<HEXDECIMALC>[0-9]+	{strcat(buffer, yytext); BEGIN(COMMENT);}
+<COMMENT>[^\"\\\n\'\a\b\f\r\t\v]+		strcat(buffer,yytext);
+<COMMENT>\"\"\" 		{printf("COMMENT literal: %s\n",buffer); BEGIN(INITIAL);}
+
 \'{3}		{BEGIN(CCOMMENT);}
-<CCOMMENT>[^\'{3}]
-<CCOMMENT>\'{3}	{BEGIN(INITIAL);}
+<CCOMMENT>\\n		strcat(buffer,"\n");
+<CCOMMENT>\\\"	strcat(buffer,"\"");
+<CCOMMENT>\\\\	strcat(buffer,"\\");
+<CCOMMENT>\\\'	strcat(buffer,"\'");
+<CCOMMENT>\'		strcat(buffer,"\'");
+<CCOMMENT>\\newline
+<CCOMMENT>\\a		strcat(buffer,"\a");
+<CCOMMENT>\\b		strcat(buffer,"\b");
+<CCOMMENT>\\f		strcat(buffer,"\f");
+<CCOMMENT>\\r		strcat(buffer,"\r");
+<CCOMMENT>\\t		strcat(buffer,"\t");
+<CCOMMENT>\\v		strcat(buffer,"\v");
+<CCOMMENT>\\x		{BEGIN(HEXDECIMALC);}
+<HEXDECIMALCC>[0-9]+	{strcat(buffer, yytext); BEGIN(CCOMMENT);}
+<CCOMMENT>[^\"\\\n\'\a\b\f\r\t\v]+		strcat(buffer,yytext);
+<CCOMMENT>\'\'\' 		{printf("COMMENT literal: %s\n",buffer); BEGIN(INITIAL);}
 
 ^[ ]+		calcIndentation(indentStack, &indexTop, strlen(yytext));
 ^[\t]+		calcIndentation(indentStack, &indexTop, strlen(yytext)*4);
