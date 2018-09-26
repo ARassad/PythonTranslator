@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+void calcIndentation(int* indentStack, int* indexTop, int len);
 %}
 %option noyywrap
 %option never-interactive
@@ -16,27 +17,25 @@
 	int indentStack[1000];
 	indentStack[0] = 0;
 	char buffer[1000];
+	char comment[1000];
+	comment[0] = 0;
 %}
 
-^[ ]+		{
-				int len = strlen(yytext);
-				if( len > indentStack[indexTop] )
-				{
-					indexTop++;
-					indentStack[indexTop] = len;
-					printf("INDENT : %d\n", len);
-				}
-				else if( len < indentStack[indexTop])
-				{
-					while(len < indentStack[indexTop])
-						indexTop--;
-						
-					if (len != indentStack[indexTop])
-						printf("Error: inconsistent dedent %d\n", len);
-					else
-						printf("DEDENT : %d\n", len);
-				}		
-			}
+#	{comment[0] = 0; BEGIN(ONECOMMENT);}
+<ONECOMMENT>[^\/\n] strcat(comment, yytext);
+<ONECOMMENT>[\/\n]	{printf("COMMENT : %s\n", comment); BEGIN(INITIAL);}
+
+\"\"\"			{BEGIN(COMMENT);}
+<COMMENT>[^\"{3}] 
+<COMMENT>\"{3}	{BEGIN(INITIAL);}
+\'{3}		{BEGIN(CCOMMENT);}
+<CCOMMENT>[^\'{3}]
+<CCOMMENT>\'{3}	{BEGIN(INITIAL);}
+
+^[ ]+		calcIndentation(indentStack, &indexTop, strlen(yytext));
+^[\t]+		calcIndentation(indentStack, &indexTop, strlen(yytext)*4);
+^[ \t]{2,}	printf("Error mixing tab and spacers\n");
+
 \"				{BEGIN(STRING);buffer[0] = 0;}
 <STRING>\\n		strcat(buffer,"\n");
 <STRING>\\\"	strcat(buffer,"\"");
@@ -54,15 +53,7 @@
 <HEXDECIMAL>[0-9]+	{strcat(buffer, yytext); BEGIN(STRING);}
 <STRING>[^\"\\\n\'\a\b\f\r\t\v]+		strcat(buffer,yytext);
 <STRING>\" 		{printf("String literal %s\n",buffer); BEGIN(INITIAL);}
-#			{BEGIN(ONECOMMENT);}
-<ONECOMMENT>[^\/\n]
-<ONECOMMENT>[\/\n]	{BEGIN(INITIAL);}
-\"\"\"			{BEGIN(COMMENT);}
-<COMMENT>[^\"{3}] 
-<COMMENT>\"{3}	{BEGIN(INITIAL);}
-\'{3}		{BEGIN(CCOMMENT);}
-<CCOMMENT>[^\'{3}]
-<CCOMMENT>\'{3}	{BEGIN(INITIAL);}
+
 False    	printf("Keyword : %s\n", yytext);
 if     	 	printf("Keyword : %s\n", yytext);
 import     	printf("Keyword : %s\n", yytext);
@@ -136,10 +127,39 @@ finally     printf("Keyword : %s\n", yytext);
 >>=     	printf("Oper : %s\n", yytext);
 \<\<=   	printf("Oper : %s\n", yytext);
 \*\*=     	printf("Oper : %s\n", yytext);
+
 [0-9]*([0-9]\.|\.[0-9])[0-9]* printf("Float : %f\n", atof(yytext));
 [0-9]+ 		printf("Number : %d\n", atoi(yytext));
 [A-Za-z_][A-Za-z0-9_]*	printf("Identifier : %s\n", yytext);
 %%
+
+void calcIndentation(int* indentStack, int* indexTop, int len)
+{
+	if( len > indentStack[*indexTop] )
+	{
+		(*indexTop)++;
+		indentStack[*indexTop] = len;
+		printf("INDENT : %d\n", len);
+	}
+	else if( len < indentStack[*indexTop])
+	{
+		int dedentCount = *indexTop;
+		while(len < indentStack[dedentCount])
+			dedentCount--;
+			
+		if (len != indentStack[dedentCount])
+			printf("Error: inconsistent dedent %d\n", len);
+		else
+		{
+			while(*indexTop > dedentCount)
+			{
+				printf("DEDENT : %d\n", indentStack[*indexTop]);
+				(*indexTop)--;
+			}
+		}
+	}		
+}
+
 int main(int argc, char *argv[])
 {
 	yyin = fopen(argv[1], "r");
