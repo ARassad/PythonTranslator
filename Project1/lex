@@ -5,6 +5,7 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 %}
 %option noyywrap
 %option never-interactive
+%option yylineno
 %x ONECOMMENT
 %x STRING
 %x COMMENT
