@@ -36,18 +36,30 @@
 						printf("DEDENT : %d\n", len);
 				}		
 			}
+\"				{BEGIN(STRING);buffer[0] = 0;}
+<STRING>\\n		strcat(buffer,"\n");
+<STRING>\\\"	strcat(buffer,"\"");
+<STRING>\\\\	strcat(buffer,"\\");
+<STRING>\\\'	strcat(buffer,"\'");
+<STRING>\'		strcat(buffer,"\'");
+<STRING>\\newline
+<STRING>\\a		strcat(buffer,"\a");
+<STRING>\\b		strcat(buffer,"\b");
+<STRING>\\f		strcat(buffer,"\f");
+<STRING>\\r		strcat(buffer,"\r");
+<STRING>\\t		strcat(buffer,"\t");
+<STRING>\\v		strcat(buffer,"\v");
+<STRING>[^\"\\\n\'\a\b\f\r\t\v]+		strcat(buffer,yytext);
+<STRING>\" 		{printf("String literal %s\n",buffer); BEGIN(INITIAL);}
 #			{BEGIN(ONECOMMENT);}
 <ONECOMMENT>[^\/\n]
 <ONECOMMENT>[\/\n]	{BEGIN(INITIAL);}
-
 \"\"\"			{BEGIN(COMMENT);}
 <COMMENT>[^\"{3}] 
 <COMMENT>\"{3}	{BEGIN(INITIAL);}
-
 \'{3}		{BEGIN(CCOMMENT);}
 <CCOMMENT>[^\'{3}]
 <CCOMMENT>\'{3}	{BEGIN(INITIAL);}
-
 False    	printf("Keyword : %s\n", yytext);
 if     	 	printf("Keyword : %s\n", yytext);
 import     	printf("Keyword : %s\n", yytext);
