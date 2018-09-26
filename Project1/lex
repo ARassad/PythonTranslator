@@ -15,6 +15,7 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 %x HEXDECIMALCC
 %x HEXDECIMALCCC
 %x STRINGS
+%x DEDENT0
 %%
 
 %{
@@ -35,7 +36,7 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 
 #	{comment[0] = 0; BEGIN(ONECOMMENT);}
 <ONECOMMENT>[^\/\n] strcat(comment, yytext);
-<ONECOMMENT>[\/\n]	{printf("COMMENT : %s\n", comment); BEGIN(INITIAL);}
+<ONECOMMENT>[\/\n]	{printf("COMMENT(%s)\n", comment); BEGIN(DEDENT0);}
 
 \"\"\"			{BEGIN(COMMENT);}
 <COMMENT>\\n		strcat(buffer,"\n");
@@ -53,7 +54,7 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 <COMMENT>\\x		{BEGIN(HEXDECIMALC);}
 <HEXDECIMALC>[0-9]+	{strcat(buffer, yytext); BEGIN(COMMENT);}
 <COMMENT>[^\"\\\n\'\a\b\f\r\t\v]+		strcat(buffer,yytext);
-<COMMENT>\"\"\" 		{printf("COMMENT literal: %s\n",buffer); BEGIN(INITIAL);}
+<COMMENT>\"\"\" 		{printf("COMMENT literal(%s)\n",buffer); BEGIN(INITIAL);}
 
 \'{3}		{BEGIN(CCOMMENT);}
 <CCOMMENT>\\n		strcat(buffer,"\n");
@@ -71,20 +72,35 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 <CCOMMENT>\\x		{BEGIN(HEXDECIMALC);}
 <HEXDECIMALCC>[0-9]+	{strcat(buffer, yytext); BEGIN(CCOMMENT);}
 <CCOMMENT>[^\"\\\n\'\a\b\f\r\t\v]+		strcat(buffer,yytext);
-<CCOMMENT>\'\'\' 		{printf("COMMENT literal: %s\n",buffer); BEGIN(INITIAL);}
+<CCOMMENT>\'\'\' 		{printf("COMMENT literal(%s)\n",buffer); BEGIN(INITIAL);}
 
-^[ ]+		{
+<DEDENT0>^[ \t]*\n			printf("EMPTYSTRING\n");
+<DEDENT0>^[ ]+ {
 				if( !(isLogicalString || parenthesesOpenCount || squarebracketsOpenCount || curlybracesOpenCount))
+				{
 					calcIndentation(indentStack, &indexTop, strlen(yytext));
+					BEGIN(INITIAL);
+				}
 			}
-^[\t]+		{
+<DEDENT0>^[\t]+		{
 				if( !(isLogicalString || parenthesesOpenCount || squarebracketsOpenCount || curlybracesOpenCount))
+				{
 					calcIndentation(indentStack, &indexTop, strlen(yytext)*4);
+					BEGIN(INITIAL);
+				}
 			}
-			
-^[ \t]{2,}	{
+<DEDENT0>^[ \t]{2,}	{
 				if( !(isLogicalString || parenthesesOpenCount || squarebracketsOpenCount || curlybracesOpenCount))
-					printf("Error mixing tab and spacers\n");
+				{
+					printf("Error mixing tab and spacers on line %d\n", yylineno);
+				}
+			}
+<DEDENT0>""/. {
+				if( !(isLogicalString || parenthesesOpenCount || squarebracketsOpenCount || curlybracesOpenCount))
+				{
+					calcIndentation(indentStack, &indexTop, 0);
+					BEGIN(INITIAL);
+				}
 			}
 
 \"				{BEGIN(STRING);buffer[0] = 0;}
@@ -104,7 +120,7 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 <STRING>\\x		{BEGIN(HEXDECIMAL);}
 <HEXDECIMAL>[0-9]+	{strcat(buffer, yytext); BEGIN(STRING);}
 <STRING>[^\"\\\n\'\a\b\f\r\t\v]+		strcat(buffer,yytext);
-<STRING>\" 		{printf("String literal %s\n",buffer); BEGIN(INITIAL);}
+<STRING>\" 		{printf("String literal(%s)\n",buffer); BEGIN(INITIAL);}
 
 \'				{BEGIN(STRINGS);buffer[0] = 0;}
 <STRINGS>\n		{printf("Error in string %d - String literal not closed\n",yylineno);BEGIN(INITIAL);}
@@ -123,85 +139,85 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 <STRINGS>\\x		{BEGIN(HEXDECIMALCCC);}
 <HEXDECIMALCCC>[0-9]+	{strcat(buffer, yytext); BEGIN(STRINGS);}
 <STRINGS>[^\"\\\n\'\a\b\f\r\t\v]+		strcat(buffer,yytext);
-<STRINGS>\' 		{printf("String literal %s\n",buffer); BEGIN(INITIAL);}
+<STRINGS>\' 		{printf("String literal(%s)\n",buffer); BEGIN(INITIAL);}
 
-False    	printf("Keyword : %s\n", yytext);
-if     	 	printf("Keyword : %s\n", yytext);
-import     	printf("Keyword : %s\n", yytext);
-from     	printf("Keyword : %s\n", yytext);
-in     		printf("Keyword : %s\n", yytext);
-is     		printf("Keyword : %s\n", yytext);
-as     		printf("Keyword : %s\n", yytext);
-lambda     	printf("Keyword : %s\n", yytext);
-not     	printf("Keyword : %s\n", yytext);
-or     		printf("Keyword : %s\n", yytext);
-pass     	printf("Keyword : %s\n", yytext);
-raise     	printf("Keyword : %s\n", yytext);
-return     	printf("Keyword : %s\n", yytext);
-try     	printf("Keyword : %s\n", yytext);
-while     	printf("Keyword : %s\n", yytext);
-with     	printf("Keyword : %s\n", yytext);
-None     	printf("Keyword : %s\n", yytext);
-True     	printf("Keyword : %s\n", yytext);
-and     	printf("Keyword : %s\n", yytext);
-assert     	printf("Keyword : %s\n", yytext);
-break     	printf("Keyword : %s\n", yytext);
-class     	printf("Keyword : %s\n", yytext);
-continue    printf("Keyword : %s\n", yytext);
-def     	printf("Keyword : %s\n", yytext);
-elif     	printf("Keyword : %s\n", yytext);
-else     	printf("Keyword : %s\n", yytext);
-except     	printf("Keyword : %s\n", yytext);
-finally     printf("Keyword : %s\n", yytext);
-\+    		printf("Oper : %s\n", yytext);
--     		printf("Oper : %s\n", yytext);
-\*     		printf("Oper : %s\n", yytext);
-\*\*     	printf("Oper : %s\n", yytext);
-\/     		printf("Oper : %s\n", yytext);
-\/\/     	printf("Oper : %s\n", yytext);
-\%    		printf("Oper : %s\n", yytext);
-@     		printf("Oper : %s\n", yytext);
-\<\<     	printf("Oper : %s\n", yytext);
->>     		printf("Oper : %s\n", yytext);
-&   		printf("Oper : %s\n", yytext);
-\|     		printf("Oper : %s\n", yytext);
-\^    		printf("Oper : %s\n", yytext);
-~     		printf("Oper : %s\n", yytext);
->     		printf("Oper : %s\n", yytext);
-\<     		printf("Oper : %s\n", yytext);
-\<=     	printf("Oper : %s\n", yytext);
-\>=     	printf("Oper : %s\n", yytext);
-==    		printf("Oper : %s\n", yytext);
-!=     		printf("Oper : %s\n", yytext);
-\(     		{printf("Oper : %s\n", yytext); parenthesesOpenCount++;}
-\)     		{printf("Oper : %s\n", yytext); parenthesesOpenCount--;}
-\[     		{printf("Oper : %s\n", yytext); squarebracketsOpenCount++;}
-\]     		{printf("Oper : %s\n", yytext); squarebracketsOpenCount--;}
-\{    		{printf("Oper : %s\n", yytext); curlybracesOpenCount++;}
-\}     		{printf("Oper : %s\n", yytext); curlybracesOpenCount--;}
-,     		printf("Oper : %s\n", yytext);
-:     		printf("Oper : %s\n", yytext);
-\.     		printf("Oper : %s\n", yytext);
-\;     		printf("Oper : %s\n", yytext);
-\=    		printf("Oper : %s\n", yytext);
-->     		printf("Oper : %s\n", yytext);
-\+=     	printf("Oper : %s\n", yytext);
--=     		printf("Oper : %s\n", yytext);
-\*=     	printf("Oper : %s\n", yytext);
-\/=     	printf("Oper : %s\n", yytext);
-\/\/=    	printf("Oper : %s\n", yytext);
-%=     		printf("Oper : %s\n", yytext);
-@=     		printf("Oper : %s\n", yytext);
-\&=     	printf("Oper : %s\n", yytext);
-\|=     	printf("Oper : %s\n", yytext);
-\^=     	printf("Oper : %s\n", yytext);
->>=     	printf("Oper : %s\n", yytext);
-\<\<=   	printf("Oper : %s\n", yytext);
-\*\*=     	printf("Oper : %s\n", yytext);
+False    	printf("Keyword(%s)\n", yytext);
+if     	 	printf("Keyword(%s)\n", yytext);
+import     	printf("Keyword(%s)\n", yytext);
+from     	printf("Keyword(%s)\n", yytext);
+in     		printf("Keyword(%s)\n", yytext);
+is     		printf("Keyword(%s)\n", yytext);
+as     		printf("Keyword(%s)\n", yytext);
+lambda     	printf("Keyword(%s)\n", yytext);
+not     	printf("Keyword(%s)\n", yytext);
+or     		printf("Keyword(%s)\n", yytext);
+pass     	printf("Keyword(%s)\n", yytext);
+raise     	printf("Keyword(%s)\n", yytext);
+return     	printf("Keyword(%s)\n", yytext);
+try     	printf("Keyword(%s)\n", yytext);
+while     	printf("Keyword(%s)\n", yytext);
+with     	printf("Keyword(%s)\n", yytext);
+None     	printf("Keyword(%s)\n", yytext);
+True     	printf("Keyword(%s)\n", yytext);
+and     	printf("Keyword(%s)\n", yytext);
+assert     	printf("Keyword(%s)\n", yytext);
+break     	printf("Keyword(%s)\n", yytext);
+class     	printf("Keyword(%s)\n", yytext);
+continue    printf("Keyword(%s)\n", yytext);
+def     	printf("Keyword(%s)\n", yytext);
+elif     	printf("Keyword(%s)\n", yytext);
+else     	printf("Keyword(%s)\n", yytext);
+except     	printf("Keyword(%s)\n", yytext);
+finally     printf("Keyword(%s)\n", yytext);
+\+    		printf("Operator(%s)\n", yytext);
+-     		printf("Operator(%s)\n", yytext);
+\*     		printf("Operator(%s)\n", yytext);
+\*\*     	printf("Operator(%s)\n", yytext);
+\/     		printf("Operator(%s)\n", yytext);
+\/\/     	printf("Operator(%s)\n", yytext);
+\%    		printf("Operator(%s)\n", yytext);
+@     		printf("Operator(%s)\n", yytext);
+\<\<     	printf("Operator(%s)\n", yytext);
+>>     		printf("Operator(%s)\n", yytext);
+&   		printf("Operator(%s)\n", yytext);
+\|     		printf("Operator(%s)\n", yytext);
+\^    		printf("Operator(%s)\n", yytext);
+~     		printf("Operator(%s)\n", yytext);
+>     		printf("Operator(%s)\n", yytext);
+\<     		printf("Operator(%s)\n", yytext);
+\<=     	printf("Operator(%s)\n", yytext);
+\>=     	printf("Operator(%s)\n", yytext);
+==    		printf("Operator(%s)\n", yytext);
+!=     		printf("Operator(%s)\n", yytext);
+\(     		{printf("Operator(%s)\n", yytext); parenthesesOpenCount++;}
+\)     		{printf("Operator(%s)\n", yytext); parenthesesOpenCount--;}
+\[     		{printf("Operator(%s)\n", yytext); squarebracketsOpenCount++;}
+\]     		{printf("Operator(%s)\n", yytext); squarebracketsOpenCount--;}
+\{    		{printf("Operator(%s)\n", yytext); curlybracesOpenCount++;}
+\}     		{printf("Operator(%s)\n", yytext); curlybracesOpenCount--;}
+,     		printf("Operator(%s)\n", yytext);
+:     		printf("Operator(%s)\n", yytext);
+\.     		printf("Operator(%s)\n", yytext);
+\;     		printf("Operator(%s)\n", yytext);
+\=    		printf("Operator(%s)\n", yytext);
+->     		printf("Operator(%s)\n", yytext);
+\+=     	printf("Operator(%s)\n", yytext);
+-=     		printf("Operator(%s)\n", yytext);
+\*=     	printf("Operator(%s)\n", yytext);
+\/=     	printf("Operator(%s)\n", yytext);
+\/\/=    	printf("Operator(%s)\n", yytext);
+%=     		printf("Operator(%s)\n", yytext);
+@=     		printf("Operator(%s)\n", yytext);
+\&=     	printf("Operator(%s)\n", yytext);
+\|=     	printf("Operator(%s)\n", yytext);
+\^=     	printf("Operator(%s)\n", yytext);
+>>=     	printf("Operator(%s)\n", yytext);
+\<\<=   	printf("Operator(%s)\n", yytext);
+\*\*=     	printf("Operator(%s)\n", yytext);
 
-[0-9]*([0-9]\.|\.[0-9])[0-9]* printf("Float : %f\n", atof(yytext));
-[0-9]+ 		printf("Number : %d\n", atoi(yytext));
-[A-Za-z_][A-Za-z0-9_]*	printf("Identifier : %s\n", yytext);
+[0-9]*([0-9]\.|\.[0-9])[0-9]* printf("Float(%f)\n", atof(yytext));
+[0-9]+ 		printf("Number(%d)\n", atoi(yytext));
+[A-Za-z_][A-Za-z0-9_]*	printf("Identifier(%s)\n", yytext);
 
 \\\s*\n		{printf("BACKSLASH CONCATINATE FISICAL STRINGS TO LOGICAL STRING\n"); isLogicalString = 1;}
 \n 			{
@@ -209,8 +225,13 @@ finally     printf("Keyword : %s\n", yytext);
 				{
 					printf("NEWLINE\n");
 					isLogicalString = 0;
+					BEGIN(DEDENT0);
 				}
 			}
+			
+[ ]		{;}
+
+<<EOF>> {calcIndentation(indentStack, &indexTop, 0); yyterminate();}
 %%
 
 void calcIndentation(int* indentStack, int* indexTop, int len)
@@ -219,7 +240,7 @@ void calcIndentation(int* indentStack, int* indexTop, int len)
 	{
 		(*indexTop)++;
 		indentStack[*indexTop] = len;
-		printf("INDENT : %d\n", len);
+		printf("INDENT(%d->%d)\n", indentStack[(*indexTop)-1], indentStack[(*indexTop)]);
 	}
 	else if( len < indentStack[*indexTop])
 	{
@@ -233,7 +254,7 @@ void calcIndentation(int* indentStack, int* indexTop, int len)
 		{
 			while(*indexTop > dedentCount)
 			{
-				printf("DEDENT : %d\n", indentStack[*indexTop]);
+				printf("DEDENT(%d->%d)\n", indentStack[*indexTop], indentStack[(*indexTop)-1]);
 				(*indexTop)--;
 			}
 		}
