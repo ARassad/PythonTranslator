@@ -22,7 +22,14 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 	char buffer[1000];
 	char comment[1000];
 	comment[0] = 0;
+	
+	int parenthesesOpenCount = 0;
+	int squarebracketsOpenCount = 0;
+	int curlybracesOpenCount = 0;
+	int isLogicalString = 0;
 %}
+
+^\s*\n			printf("EMPTYSTRING\n");
 
 #	{comment[0] = 0; BEGIN(ONECOMMENT);}
 <ONECOMMENT>[^\/\n] strcat(comment, yytext);
@@ -64,9 +71,19 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 <CCOMMENT>[^\"\\\n\'\a\b\f\r\t\v]+		strcat(buffer,yytext);
 <CCOMMENT>\'\'\' 		{printf("COMMENT literal: %s\n",buffer); BEGIN(INITIAL);}
 
-^[ ]+		calcIndentation(indentStack, &indexTop, strlen(yytext));
-^[\t]+		calcIndentation(indentStack, &indexTop, strlen(yytext)*4);
-^[ \t]{2,}	printf("Error mixing tab and spacers\n");
+^[ ]+		{
+				if( !(isLogicalString || parenthesesOpenCount || squarebracketsOpenCount || curlybracesOpenCount))
+					calcIndentation(indentStack, &indexTop, strlen(yytext));
+			}
+^[\t]+		{
+				if( !(isLogicalString || parenthesesOpenCount || squarebracketsOpenCount || curlybracesOpenCount))
+					calcIndentation(indentStack, &indexTop, strlen(yytext)*4);
+			}
+			
+^[ \t]{2,}	{
+				if( !(isLogicalString || parenthesesOpenCount || squarebracketsOpenCount || curlybracesOpenCount))
+					printf("Error mixing tab and spacers\n");
+			}
 
 \"				{BEGIN(STRING);buffer[0] = 0;}
 <STRING>\\n		strcat(buffer,"\n");
@@ -124,7 +141,7 @@ finally     printf("Keyword : %s\n", yytext);
 @     		printf("Oper : %s\n", yytext);
 \<\<     	printf("Oper : %s\n", yytext);
 >>     		printf("Oper : %s\n", yytext);
-&     		printf("Oper : %s\n", yytext);
+&   		printf("Oper : %s\n", yytext);
 \|     		printf("Oper : %s\n", yytext);
 \^    		printf("Oper : %s\n", yytext);
 ~     		printf("Oper : %s\n", yytext);
@@ -134,12 +151,12 @@ finally     printf("Keyword : %s\n", yytext);
 \>=     	printf("Oper : %s\n", yytext);
 ==    		printf("Oper : %s\n", yytext);
 !=     		printf("Oper : %s\n", yytext);
-\(     		printf("Oper : %s\n", yytext);
-\)     		printf("Oper : %s\n", yytext);
-\[     		printf("Oper : %s\n", yytext);
-\]     		printf("Oper : %s\n", yytext);
-\{    		printf("Oper : %s\n", yytext);
-\}     		printf("Oper : %s\n", yytext);
+\(     		{printf("Oper : %s\n", yytext); parenthesesOpenCount++;}
+\)     		{printf("Oper : %s\n", yytext); parenthesesOpenCount--;}
+\[     		{printf("Oper : %s\n", yytext); squarebracketsOpenCount++;}
+\]     		{printf("Oper : %s\n", yytext); squarebracketsOpenCount--;}
+\{    		{printf("Oper : %s\n", yytext); curlybracesOpenCount++;}
+\}     		{printf("Oper : %s\n", yytext); curlybracesOpenCount--;}
 ,     		printf("Oper : %s\n", yytext);
 :     		printf("Oper : %s\n", yytext);
 \.     		printf("Oper : %s\n", yytext);
@@ -163,6 +180,15 @@ finally     printf("Keyword : %s\n", yytext);
 [0-9]*([0-9]\.|\.[0-9])[0-9]* printf("Float : %f\n", atof(yytext));
 [0-9]+ 		printf("Number : %d\n", atoi(yytext));
 [A-Za-z_][A-Za-z0-9_]*	printf("Identifier : %s\n", yytext);
+
+\\\s*\n		{printf("BACKSLASH CONCATINATE FISICAL STRINGS TO LOGICAL STRING\n"); isLogicalString = 1;}
+\n 			{
+				if( parenthesesOpenCount == 0 && squarebracketsOpenCount == 0 && curlybracesOpenCount == 0)
+				{
+					printf("NEWLINE\n");
+					isLogicalString = 0;
+				}
+			}
 %%
 
 void calcIndentation(int* indentStack, int* indexTop, int len)
