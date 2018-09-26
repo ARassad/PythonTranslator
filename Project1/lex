@@ -88,6 +88,7 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 			}
 
 \"				{BEGIN(STRING);buffer[0] = 0;}
+<STRING>\n		{printf("Error in string %d - String literal not closed\n",yylineno);BEGIN(INITIAL);}
 <STRING>\\n		strcat(buffer,"\n");
 <STRING>\\\"	strcat(buffer,"\"");
 <STRING>\\\\	strcat(buffer,"\\");
@@ -106,7 +107,8 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 <STRING>\" 		{printf("String literal %s\n",buffer); BEGIN(INITIAL);}
 
 \'				{BEGIN(STRINGS);buffer[0] = 0;}
-<STRINGS>\\n		strcat(buffer,"\n");
+<STRINGS>\n		{printf("Error in string %d - String literal not closed\n",yylineno);BEGIN(INITIAL);}
+<STRINGS>\\n	strcat(buffer,"\n");
 <STRINGS>\\\"	strcat(buffer,"\"");
 <STRINGS>\\\\	strcat(buffer,"\\");
 <STRINGS>\\\'	strcat(buffer,"\'");
