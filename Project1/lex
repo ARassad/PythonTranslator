@@ -2,15 +2,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 %}
-
 %option noyywrap
 %option never-interactive
-
+%x ONECOMMENT
+%x STRING
+%x COMMENT
+%x CCOMMENT
 %%
+
 %{
 	int indexTop = 0;
 	int indentStack[1000];
 	indentStack[0] = 0;
+	char buffer[1000];
 %}
 
 ^[ ]+		{
@@ -32,35 +36,46 @@
 						printf("DEDENT : %d\n", len);
 				}		
 			}
-False    	printf("Key : %s\n", yytext);
-if     	 	printf("Key : %s\n", yytext);
-import     	printf("Key : %s\n", yytext);
-from     	printf("Key : %s\n", yytext);
-in     		printf("Key : %s\n", yytext);
-is     		printf("Key : %s\n", yytext);
-as     		printf("Key : %s\n", yytext);
-lambda     	printf("Key : %s\n", yytext);
-not     	printf("Key : %s\n", yytext);
-or     		printf("Key : %s\n", yytext);
-pass     	printf("Key : %s\n", yytext);
-raise     	printf("Key : %s\n", yytext);
-return     	printf("Key : %s\n", yytext);
-try     	printf("Key : %s\n", yytext);
-while     	printf("Key : %s\n", yytext);
-with     	printf("Key : %s\n", yytext);
-None     	printf("Key : %s\n", yytext);
-True     	printf("Key : %s\n", yytext);
-and     	printf("Key : %s\n", yytext);
-assert     	printf("Key : %s\n", yytext);
-break     	printf("Key : %s\n", yytext);
-class     	printf("Key : %s\n", yytext);
-continue    printf("Key : %s\n", yytext);
-def     	printf("Key : %s\n", yytext);
-elif     	printf("Key : %s\n", yytext);
-else     	printf("Key : %s\n", yytext);
-except     	printf("Key : %s\n", yytext);
-finally     printf("Key : %s\n", yytext);
+#			{BEGIN(ONECOMMENT);}
+<ONECOMMENT>[^\/\n]
+<ONECOMMENT>[\/\n]	{BEGIN(INITIAL);}
 
+\"\"\"			{BEGIN(COMMENT);}
+<COMMENT>[^\"{3}] 
+<COMMENT>\"{3}	{BEGIN(INITIAL);}
+
+\'{3}		{BEGIN(CCOMMENT);}
+<CCOMMENT>[^\'{3}]
+<CCOMMENT>\'{3}	{BEGIN(INITIAL);}
+
+False    	printf("Keyword : %s\n", yytext);
+if     	 	printf("Keyword : %s\n", yytext);
+import     	printf("Keyword : %s\n", yytext);
+from     	printf("Keyword : %s\n", yytext);
+in     		printf("Keyword : %s\n", yytext);
+is     		printf("Keyword : %s\n", yytext);
+as     		printf("Keyword : %s\n", yytext);
+lambda     	printf("Keyword : %s\n", yytext);
+not     	printf("Keyword : %s\n", yytext);
+or     		printf("Keyword : %s\n", yytext);
+pass     	printf("Keyword : %s\n", yytext);
+raise     	printf("Keyword : %s\n", yytext);
+return     	printf("Keyword : %s\n", yytext);
+try     	printf("Keyword : %s\n", yytext);
+while     	printf("Keyword : %s\n", yytext);
+with     	printf("Keyword : %s\n", yytext);
+None     	printf("Keyword : %s\n", yytext);
+True     	printf("Keyword : %s\n", yytext);
+and     	printf("Keyword : %s\n", yytext);
+assert     	printf("Keyword : %s\n", yytext);
+break     	printf("Keyword : %s\n", yytext);
+class     	printf("Keyword : %s\n", yytext);
+continue    printf("Keyword : %s\n", yytext);
+def     	printf("Keyword : %s\n", yytext);
+elif     	printf("Keyword : %s\n", yytext);
+else     	printf("Keyword : %s\n", yytext);
+except     	printf("Keyword : %s\n", yytext);
+finally     printf("Keyword : %s\n", yytext);
 \+    		printf("Oper : %s\n", yytext);
 -     		printf("Oper : %s\n", yytext);
 \*     		printf("Oper : %s\n", yytext);
@@ -106,12 +121,10 @@ finally     printf("Key : %s\n", yytext);
 >>=     	printf("Oper : %s\n", yytext);
 \<\<=   	printf("Oper : %s\n", yytext);
 \*\*=     	printf("Oper : %s\n", yytext);
-
 [0-9]*([0-9]\.|\.[0-9])[0-9]* printf("Float : %f\n", atof(yytext));
 [0-9]+ 		printf("Number : %d\n", atoi(yytext));
 [A-Za-z_][A-Za-z0-9_]*	printf("Identifier : %s\n", yytext);
 %%
-
 int main(int argc, char *argv[])
 {
 	yyin = fopen(argv[1], "r");
