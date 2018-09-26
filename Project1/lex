@@ -12,7 +12,8 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 %x HEXDECIMAL
 %x HEXDECIMALC
 %x HEXDECIMALCC
-
+%x HEXDECIMALCCC
+%x STRINGS
 %%
 
 %{
@@ -102,6 +103,24 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 <HEXDECIMAL>[0-9]+	{strcat(buffer, yytext); BEGIN(STRING);}
 <STRING>[^\"\\\n\'\a\b\f\r\t\v]+		strcat(buffer,yytext);
 <STRING>\" 		{printf("String literal %s\n",buffer); BEGIN(INITIAL);}
+
+\'				{BEGIN(STRINGS);buffer[0] = 0;}
+<STRINGS>\\n		strcat(buffer,"\n");
+<STRINGS>\\\"	strcat(buffer,"\"");
+<STRINGS>\\\\	strcat(buffer,"\\");
+<STRINGS>\\\'	strcat(buffer,"\'");
+<STRINGS>\"		strcat(buffer,"\'");
+<STRINGS>\\newline
+<STRINGS>\\a		strcat(buffer,"\a");
+<STRINGS>\\b		strcat(buffer,"\b");
+<STRINGS>\\f		strcat(buffer,"\f");
+<STRINGS>\\r		strcat(buffer,"\r");
+<STRINGS>\\t		strcat(buffer,"\t");
+<STRINGS>\\v		strcat(buffer,"\v");
+<STRINGS>\\x		{BEGIN(HEXDECIMALCCC);}
+<HEXDECIMALCCC>[0-9]+	{strcat(buffer, yytext); BEGIN(STRINGS);}
+<STRINGS>[^\"\\\n\'\a\b\f\r\t\v]+		strcat(buffer,yytext);
+<STRINGS>\' 		{printf("String literal %s\n",buffer); BEGIN(INITIAL);}
 
 False    	printf("Keyword : %s\n", yytext);
 if     	 	printf("Keyword : %s\n", yytext);
