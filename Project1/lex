@@ -8,6 +8,7 @@
 %x STRING
 %x COMMENT
 %x CCOMMENT
+%x HEXDECIMAL
 %%
 
 %{
@@ -49,6 +50,8 @@
 <STRING>\\r		strcat(buffer,"\r");
 <STRING>\\t		strcat(buffer,"\t");
 <STRING>\\v		strcat(buffer,"\v");
+<STRING>\\x		{BEGIN(HEXDECIMAL);}
+<HEXDECIMAL>[0-9]+	{strcat(buffer, yytext); BEGIN(STRING);}
 <STRING>[^\"\\\n\'\a\b\f\r\t\v]+		strcat(buffer,yytext);
 <STRING>\" 		{printf("String literal %s\n",buffer); BEGIN(INITIAL);}
 #			{BEGIN(ONECOMMENT);}
