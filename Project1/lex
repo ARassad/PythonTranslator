@@ -170,6 +170,7 @@ elif     	printf("Keyword(%s)\n", yytext);
 else     	printf("Keyword(%s)\n", yytext);
 except     	printf("Keyword(%s)\n", yytext);
 finally     printf("Keyword(%s)\n", yytext);
+yield		printf("Keyword(%s)\n", yytext);
 \+    		printf("Operator(%s)\n", yytext);
 -     		printf("Operator(%s)\n", yytext);
 \*     		printf("Operator(%s)\n", yytext);
