@@ -74,8 +74,9 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 <CCOMMENT>[^\"\\\n\'\a\b\f\r\t\v]+		strcat(buffer,yytext);
 <CCOMMENT>\'\'\' 		{printf("COMMENT literal(%s)\n",buffer); BEGIN(INITIAL);}
 
+<DEDENT0>^[ \t]*#		{comment[0] = 0; BEGIN(ONECOMMENT);}
 <DEDENT0>^[ \t]*\n			printf("EMPTYSTRING\n");
-<DEDENT0>^[ ]+ {
+<DEDENT0>^[ ]+  {
 				if( !(isLogicalString || parenthesesOpenCount || squarebracketsOpenCount || curlybracesOpenCount))
 				{
 					calcIndentation(indentStack, &indexTop, strlen(yytext));
