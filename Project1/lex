@@ -231,7 +231,7 @@ yield		printf("Keyword(%s)\n", yytext);
 				}
 			}
 			
-[ ]		{;}
+[ \t]		{;}
 
 <<EOF>> {calcIndentation(indentStack, &indexTop, 0); yyterminate();}
 %%
