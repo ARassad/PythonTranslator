@@ -8,8 +8,8 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 %option yylineno
 %x ONECOMMENT
 %x STRING
-%x COMMENT
-%x CCOMMENT
+%x DOUBLELONGSTRING
+%x LONGSTRING
 %x HEXDECIMAL
 %x HEXDECIMALC
 %x HEXDECIMALCC
@@ -28,10 +28,9 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 	int indexTop = 0;
 	int indentStack[1000];
 	indentStack[0] = 0;
-	char buffer[1000];
 	char comment[1000];
 	comment[0] = 0;
-	
+	char hex[3];
 	int parenthesesOpenCount = 0;
 	int squarebracketsOpenCount = 0;
 	int curlybracesOpenCount = 0;
@@ -40,45 +39,37 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 
 ^\s*\n			printf("EMPTYSTRING\n");
 
-#	{comment[0] = 0; BEGIN(ONECOMMENT);}
-<ONECOMMENT>[^\/\n] strcat(comment, yytext);
-<ONECOMMENT>[\/\n]	{printf("COMMENT(%s)\n", comment); BEGIN(DEDENT0);}
+#	{BEGIN(ONECOMMENT); comment[0] = 0;}
+<ONECOMMENT>[^\\\n]+ strcat(comment, yytext);
+<ONECOMMENT>[\\\n]	{printf("COMMENT : %s\n",comment); BEGIN(INITIAL);}
 
-\"\"\"			{BEGIN(COMMENT);}
-<COMMENT>\\n		strcat(buffer,"\n");
-<COMMENT>\\\"	strcat(buffer,"\"");
-<COMMENT>\\\\	strcat(buffer,"\\");
-<COMMENT>\\\'	strcat(buffer,"\'");
-<COMMENT>\'		strcat(buffer,"\'");
-<COMMENT>\\newline
-<COMMENT>\\a		strcat(buffer,"\a");
-<COMMENT>\\b		strcat(buffer,"\b");
-<COMMENT>\\f		strcat(buffer,"\f");
-<COMMENT>\\r		strcat(buffer,"\r");
-<COMMENT>\\t		strcat(buffer,"\t");
-<COMMENT>\\v		strcat(buffer,"\v");
-<COMMENT>\\x		{BEGIN(HEXDECIMALC);}
-<HEXDECIMALC>[0-9]+	{strcat(buffer, yytext); BEGIN(COMMENT);}
-<COMMENT>[^\"\\\n\'\a\b\f\r\t\v]+		strcat(buffer,yytext);
-<COMMENT>\"\"\" 		{printf("COMMENT literal(%s)\n",buffer); BEGIN(INITIAL);}
 
-\'{3}		{BEGIN(CCOMMENT);}
-<CCOMMENT>\\n		strcat(buffer,"\n");
-<CCOMMENT>\\\"	strcat(buffer,"\"");
-<CCOMMENT>\\\\	strcat(buffer,"\\");
-<CCOMMENT>\\\'	strcat(buffer,"\'");
-<CCOMMENT>\'		strcat(buffer,"\'");
-<CCOMMENT>\\newline
-<CCOMMENT>\\a		strcat(buffer,"\a");
-<CCOMMENT>\\b		strcat(buffer,"\b");
-<CCOMMENT>\\f		strcat(buffer,"\f");
-<CCOMMENT>\\r		strcat(buffer,"\r");
-<CCOMMENT>\\t		strcat(buffer,"\t");
-<CCOMMENT>\\v		strcat(buffer,"\v");
-<CCOMMENT>\\x		{BEGIN(HEXDECIMALC);}
-<HEXDECIMALCC>[0-9]+	{strcat(buffer, yytext); BEGIN(CCOMMENT);}
-<CCOMMENT>[^\"\\\n\'\a\b\f\r\t\v]+		strcat(buffer,yytext);
-<CCOMMENT>\'\'\' 		{printf("COMMENT literal(%s)\n",buffer); BEGIN(INITIAL);}
+\"\"\"													{BEGIN(DOUBLELONGSTRING); comment[0] = 0;}
+<DOUBLELONGSTRING>\\n											strcat(comment,"\n");
+<DOUBLELONGSTRING,STRING,LONGSTRING>\\\"						strcat(comment,"\"");
+<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\\\				strcat(comment,"\\");
+<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\\'				strcat(comment,"\'");
+<DOUBLELONGSTRING,STRING,LONGSTRING>\'							strcat(comment,"\'");
+<DOUBLELONGSTRING,STRINGS,LONGSTRING>\"							strcat(comment,"\"");
+<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\newline
+<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\a					strcat(comment,"\a");
+<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\b					strcat(comment,"\b");
+<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\f					strcat(comment,"\f");
+<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\r					strcat(comment,"\r");
+<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\t					strcat(comment,"\t");
+<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\v					strcat(comment,"\v");
+<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\x([0-9a-fA-F]){2}	{
+																	hex[0] = strtol(yytext + 2,0,16);
+																	hex[1] = 0;
+																	strcat(comment,hex);
+																}
+<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>[^\"\\\n\'\a\b\f\r\t\v\x]+		strcat(comment,yytext);
+<DOUBLELONGSTRING>\"\"\" 		{printf("LONGSTRING literal: %s\n",comment); BEGIN(INITIAL);}
+
+\'{3}									{BEGIN(LONGSTRING); comment[0] = 0;}
+<LONGSTRING>\\n							strcat(comment,"\n");
+<LONGSTRING,STRINGS>\\\'				strcat(comment,"\'");
+<LONGSTRING>\'\'\' 						{printf("LONGSTRING literal: %s\n",comment); BEGIN(INITIAL);}
 
 <DEDENT0>^[ \t]*#		{comment[0] = 0; BEGIN(ONECOMMENT);}
 <DEDENT0>^[ \t]*\n			printf("EMPTYSTRING\n");
@@ -110,43 +101,13 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 				}
 			}
 
-\"				{BEGIN(STRING);buffer[0] = 0;}
-<STRING>\n		{printf("Error in string %d - String literal not closed\n",yylineno);BEGIN(INITIAL);}
-<STRING>\\n		strcat(buffer,"\n");
-<STRING>\\\"	strcat(buffer,"\"");
-<STRING>\\\\	strcat(buffer,"\\");
-<STRING>\\\'	strcat(buffer,"\'");
-<STRING>\'		strcat(buffer,"\'");
-<STRING>\\newline
-<STRING>\\a		strcat(buffer,"\a");
-<STRING>\\b		strcat(buffer,"\b");
-<STRING>\\f		strcat(buffer,"\f");
-<STRING>\\r		strcat(buffer,"\r");
-<STRING>\\t		strcat(buffer,"\t");
-<STRING>\\v		strcat(buffer,"\v");
-<STRING>\\x		{BEGIN(HEXDECIMAL);}
-<HEXDECIMAL>[0-9]+	{strcat(buffer, yytext); BEGIN(STRING);}
-<STRING>[^\"\\\n\'\a\b\f\r\t\v]+		strcat(buffer,yytext);
-<STRING>\" 		{printf("String literal(%s)\n",buffer); BEGIN(INITIAL);}
+\"						{BEGIN(STRING);comment[0] = 0;}
+<STRING,STRINGS>\n		{printf("Error in string %d - String literal not closed",yylineno);BEGIN(INITIAL);}
+<STRING>\" 				{printf("String literal %s\n",comment); BEGIN(INITIAL);}
 
-\'				{BEGIN(STRINGS);buffer[0] = 0;}
-<STRINGS>\n		{printf("Error in string %d - String literal not closed\n",yylineno);BEGIN(INITIAL);}
-<STRINGS>\\n	strcat(buffer,"\n");
-<STRINGS>\\\"	strcat(buffer,"\"");
-<STRINGS>\\\\	strcat(buffer,"\\");
-<STRINGS>\\\'	strcat(buffer,"\'");
-<STRINGS>\"		strcat(buffer,"\'");
-<STRINGS>\\newline
-<STRINGS>\\a		strcat(buffer,"\a");
-<STRINGS>\\b		strcat(buffer,"\b");
-<STRINGS>\\f		strcat(buffer,"\f");
-<STRINGS>\\r		strcat(buffer,"\r");
-<STRINGS>\\t		strcat(buffer,"\t");
-<STRINGS>\\v		strcat(buffer,"\v");
-<STRINGS>\\x		{BEGIN(HEXDECIMALCCC);}
-<HEXDECIMALCCC>[0-9]+	{strcat(buffer, yytext); BEGIN(STRINGS);}
-<STRINGS>[^\"\\\n\'\a\b\f\r\t\v]+		strcat(buffer,yytext);
-<STRINGS>\' 		{printf("String literal(%s)\n",buffer); BEGIN(INITIAL);}
+\'					{BEGIN(STRINGS);comment[0] = 0;}
+<STRINGS>\' 		{printf("String literal %s\n",comment); BEGIN(INITIAL);}
+
 
 False    	printf("Keyword(%s)\n", yytext);
 if     	 	printf("Keyword(%s)\n", yytext);
