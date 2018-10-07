@@ -16,6 +16,12 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 %x HEXDECIMALCCC
 %x STRINGS
 %x DEDENT0
+
+INT 		[0-9]+
+NUMEXP		(e|E)(\-|\+)?{INT}
+FLOAT		([0-9]*([0-9]\.|\.[0-9])[0-9]*({NUMEXP})?|{INT}({NUMEXP}))
+IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
+
 %%
 
 %{
@@ -217,9 +223,9 @@ yield		printf("Keyword(%s)\n", yytext);
 \<\<=   	printf("Operator(%s)\n", yytext);
 \*\*=     	printf("Operator(%s)\n", yytext);
 
-[0-9]*([0-9]\.|\.[0-9])[0-9]* printf("Float(%f)\n", atof(yytext));
-[0-9]+ 		printf("Number(%d)\n", atoi(yytext));
-[A-Za-z_][A-Za-z0-9_]*	printf("Identifier(%s)\n", yytext);
+{FLOAT}			printf("Float(%f)\n", atof(yytext));
+{INT} 			printf("Number(%d)\n", atoi(yytext));
+{IDENTIFIER}	printf("Identifier(%s)\n", yytext);
 
 \\\s*\n		{printf("BACKSLASH CONCATINATE FISICAL STRINGS TO LOGICAL STRING\n"); isLogicalString = 1;}
 \n 			{

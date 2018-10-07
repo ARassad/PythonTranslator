@@ -116,10 +116,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="lex.yy.c" />
+    <ClInclude Include="unistd.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="unistd.h" />
+    <ClCompile Include="lex.yy.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
