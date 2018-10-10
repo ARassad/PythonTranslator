@@ -188,7 +188,7 @@ yield		printf("Keyword(%s)\n", yytext);
 {INT} 			printf("Number(%d)\n", atoi(yytext));
 {IDENTIFIER}	printf("Identifier(%s)\n", yytext);
 
-\\\s*\n		{printf("BACKSLASH CONCATINATE FISICAL STRINGS TO LOGICAL STRING\n"); isLogicalString = 1;}
+\\\s*\n		{printf("BACKSLASH\n"); isLogicalString = 1;}
 \n 			{
 				if( parenthesesOpenCount == 0 && squarebracketsOpenCount == 0 && curlybracesOpenCount == 0)
 				{
