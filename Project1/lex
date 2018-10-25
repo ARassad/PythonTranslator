@@ -124,6 +124,7 @@ raise     	printf("Keyword(%s)\n", yytext);
 return     	printf("Keyword(%s)\n", yytext);
 try     	printf("Keyword(%s)\n", yytext);
 while     	printf("Keyword(%s)\n", yytext);
+for     	printf("Keyword(%s)\n", yytext);
 with     	printf("Keyword(%s)\n", yytext);
 None     	printf("Keyword(%s)\n", yytext);
 True     	printf("Keyword(%s)\n", yytext);

@@ -142,21 +142,21 @@ expression  : expression OR expression
 			| FLOAT
 			| STRING
 			| ID 
-			| array
-			| expression '=' expression
-			;
-
-array		: '[' arguments ']'
+			| '[' arguments ']'
 			| expression '[' expression ']'
 			| expression '[' array_slice ']'
 			;
-			
+
+assign_expression	: assign_expression '=' assign_expression
+					| expression
+					;
+						
 arguments	: arg_value
 			| arguments arg_value
 			;
 			
 arg_value	: expression
-			| ',' expression
+			| expression ','
 			|
 			;
 
@@ -168,7 +168,7 @@ arr_slic_dim: expression
 			| 
 			;
 			
-statement	:	expression
+statement	: expression
 			;
 
 statement_list  : statement NEWLINE
@@ -178,11 +178,32 @@ statement_list  : statement NEWLINE
 suite		: NEWLINE INDENT statement_list DEDENT
 			;
 				
-function_definition : DEF ID '(' arguments ')' ':'
-					: DEF ID '(' arguments ')' ARROW expression ':'
+function_definition : DEF ID '(' parameters ')' ':' suite
+					: DEF ID '(' parameters ')' ARROW expression ':' suite
 					;
 
-			
+parameters	: parameter
+			| parameters parameter
+			;
+					
+parameter	: ID 
+			| ID ':' expression
+			| parameter ','
+			;
+
+class_definition	: CLASS ID ':' suite
+					| CLASS ID '(' class_parents ')' ':' suite
+					;
+					
+class_parents		: class_parent
+					| class_parents class_parent
+					;
+
+class_parent		: ID
+					: class_parent ','
+					;
+
+
 %%
 
 void yyerror(char const *s)
