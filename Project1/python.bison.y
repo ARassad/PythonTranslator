@@ -112,7 +112,6 @@ expression  : expression OR expression
 			| expression NOT IN expression %prec NOT_IN
 			| expression IS expression
 			| expression IS NOT expression %prec IS_NOT
-			| expression '=' expression
 			| expression PLUS_ASSIGN expression
 			| expression MINUS_ASSIGN expression
 			| expression MULT_ASSIGN expression
@@ -144,20 +143,27 @@ expression  : expression OR expression
 			| STRING
 			| ID 
 			| array
+			| expression '=' expression
 			;
 
-array		: expression '[' expression ']'
-			| '[' array_values ']'
+array		: '[' arguments ']'
+			| expression '[' expression ']'
 			| expression '[' array_slice ']'
 			;
 			
-array_values: expression ','
-			| array_values ',' expression
+arguments	: arg_value
+			| arguments arg_value
+			;
+			
+arg_value	: expression
+			| ',' expression
+			|
 			;
 
 array_slice : arr_slic_dim ':' arr_slic_dim ':' arr_slic_dim
 			| arr_slic_dim ':' arr_slic_dim
-
+			;
+			
 arr_slic_dim: expression 
 			| 
 			;
@@ -169,10 +175,12 @@ statement_list  : statement NEWLINE
 				| statement_list statement NEWLINE
 				;
 
-suite		: statement NEWLINE
-			| NEWLINE INDENT statement_list DEDENT
+suite		: NEWLINE INDENT statement_list DEDENT
 			;
 				
+function_definition : DEF ID '(' arguments ')' ':'
+					: DEF ID '(' arguments ')' ARROW expression ':'
+					;
 
 			
 %%
