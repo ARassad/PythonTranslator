@@ -169,6 +169,7 @@ arr_slic_dim: expression
 			;
 			
 statement	:	expression
+			|	condition_statement
 			;
 
 statement_list  : statement NEWLINE
@@ -182,7 +183,17 @@ function_definition : DEF ID '(' arguments ')' ':'
 					: DEF ID '(' arguments ')' ARROW expression ':'
 					;
 
-			
+condition_statement : IF expression ':' suite
+					| IF expression ':' suite elif_statement_list
+					| IF expression ':' suite elif_statement_list ELSE ':' suite 
+					| IF expression ':' suite ELSE ':' suite
+
+elif_statement 		: ELIF expression ':' suite
+					;
+					
+elif_statement_list : elif_statement NEWLINE
+					| elif_statement_list elif_statement NEWLINE 
+					;
 %%
 
 void yyerror(char const *s)
