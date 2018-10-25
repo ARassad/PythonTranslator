@@ -20,6 +20,7 @@
 	struct Statement *stmt;
 	struct StatementList *stmtList;
 	struct ConditionStatement *condStmt;
+	struct ElifStatement *elifStmt;
 	struct WhileStatement *whileStmt;
 	struct ForStatement *forStmt;
 	struct ClassDefinition *classDef;
@@ -27,6 +28,7 @@
 	struct ImportStatement *impStmt;
 	struct LambdaStatement *lmbdStmt;
 	struct GeneratorStatement *genStmt;
+	struct TryStatement *tryStmt;
 }
 
 %type <prog> program
@@ -34,6 +36,7 @@
 %type <stmt> statement
 %type <stmtList> statement_list
 %type <condStmt> condition_statement
+%type <elifStmt> elif_statement
 %type <whileStmt> while_statement
 %type <forStmt> for_statement
 %type <classDef> class_definition
@@ -41,6 +44,7 @@
 %type <impStmt> import_statement
 %type <lmbdStmt> lambda_statement
 %type <genStmt> generator_statement
+%type <tryStmt> try_statement
 
 %token <int_value> INT
 %token <float_value> FLOAT
@@ -61,6 +65,7 @@
 %token RETURN
 %token TRY
 %token WHILE
+%token FOR
 %token WITH
 %token NONE
 %token TRUE
@@ -194,6 +199,32 @@ elif_statement 		: ELIF expression ':' suite
 elif_statement_list : elif_statement NEWLINE
 					| elif_statement_list elif_statement NEWLINE 
 					;
+
+while_statement 	: WHILE expression ':' suite
+					;
+
+for_statement 		: FOR expression IN expression ':' suite
+					;
+					
+try_statement 		: try_except 
+					| try_finally
+					;
+					
+try_except			: TRY ':' suite except_list_statement
+					| TRY ':' suite except_list_statement ELSE ':' suite
+					| TRY ':' suite except_list_statement FINALLY ':' suite
+					| TRY ':' suite except_list_statement ELSE ':' suite FINALLY ':' suite
+					;
+					
+
+except_statement		: EXCEPT ':' suite 
+						| EXCEPT expression AS ID ':' suite
+						
+except_list_statement	: except_statement NEWLINE 
+						| except_list_statement except_statement NEWLINE
+						;
+try_finally 			: TRY ':' suite FINALLY ':' suite
+
 %%
 
 void yyerror(char const *s)
