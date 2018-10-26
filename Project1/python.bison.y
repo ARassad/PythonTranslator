@@ -240,12 +240,17 @@ try_except			: TRY ':' suite except_list_statement
 
 except_statement		: EXCEPT ':' suite 
 						| EXCEPT expression AS ID ':' suite
+						;
 						
 except_list_statement	: except_statement NEWLINE 
 						| except_list_statement except_statement NEWLINE
 						;
+						
 try_finally 			: TRY ':' suite FINALLY ':' suite
+						;
 
+generator_statement : '[' expression FOR expression in expression ']'
+					| '[' expression FOR expression in expression IF expression']'
 %%
 
 void yyerror(char const *s)
