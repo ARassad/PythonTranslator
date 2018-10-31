@@ -171,8 +171,13 @@ arr_slic_dim: expression
 			| 
 			;
 			
-statement	:	expression
-			|	condition_statement
+statement	: expression
+			| condition_statement
+			| function_definition
+			| class_definition
+			| while_statement
+			| for_statement
+			| try_statement
 			;
 
 statement_list  : statement NEWLINE
@@ -220,32 +225,28 @@ elif_statement_list : elif_statement NEWLINE
 					;
 
 while_statement 	: WHILE expression ':' suite
+					| WHILE expression ':' suite ELSE suite
 					;
 
 for_statement 		: FOR expression IN expression ':' suite
+					| FOR expression IN expression ':' suite ELSE suite
 					;
 					
-try_statement 		: try_except 
-					| try_finally
-					;
-					
-try_except			: TRY ':' suite except_list_statement
+try_statement		: TRY ':' suite FINALLY ':' suite
+					| TRY ':' suite except_list_statement
 					| TRY ':' suite except_list_statement ELSE ':' suite
 					| TRY ':' suite except_list_statement FINALLY ':' suite
 					| TRY ':' suite except_list_statement ELSE ':' suite FINALLY ':' suite
 					;
-					
 
-except_statement		: EXCEPT ':' suite 
-						| EXCEPT expression AS ID ':' suite
-						;
+except_statement	: EXCEPT ':' suite 
+					| EXCEPT expression AS ID ':' suite
+					;
 						
 except_list_statement	: except_statement NEWLINE 
 						| except_list_statement except_statement NEWLINE
 						;
 						
-try_finally 			: TRY ':' suite FINALLY ':' suite
-						;
 %%
 
 void yyerror(char const *s)
