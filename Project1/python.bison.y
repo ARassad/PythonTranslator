@@ -93,7 +93,7 @@
 %left IN NOT_IN
 %left IS IS_NOT
 %right '=' PLUS_ASSIGN MINUS_ASSIGN MULT_ASSIGN POW_ASSIGN DIV_ASSIGN MOD_ASSIGN
-%left '<' LESSER_EQUAL '>' GREATER_EQUAL  NOT_EQUAL EQUAL
+%left '<' LESSER_EQUAL '>' GREATER_EQUAL NOT_EQUAL EQUAL
 %left LEFT_SHIFT RIGHT_SHIFT
 %left '+' '-'
 %left '*' '/' '%' FLOOR_DIV
@@ -146,20 +146,18 @@ expression  : expression OR expression
 			| INT
 			| FLOAT
 			| STRING
-			| ID 
 			| '[' arguments ']'
 			| expression '[' expression ']'
 			| expression '[' array_slice ']'
+			| expression '=' expression
+			| '[' expression FOR ID IN expression ']'
+			| '[' expression FOR ID IN expression IF expression ']'
 			;
 
-assign_expression	: assign_expression '=' assign_expression
-					| expression
-					;
-						
 arguments	: arg_value
 			| arguments arg_value
 			;
-			
+
 arg_value	: expression
 			| expression ','
 			|
@@ -248,9 +246,6 @@ except_list_statement	: except_statement NEWLINE
 						
 try_finally 			: TRY ':' suite FINALLY ':' suite
 						;
-
-generator_statement : '[' expression FOR expression in expression ']'
-					| '[' expression FOR expression in expression IF expression']'
 %%
 
 void yyerror(char const *s)
