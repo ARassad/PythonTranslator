@@ -1,6 +1,7 @@
 #ifndef TREE_STRUCTS
 #define TREE_STRUCTS
 
+//----------Expression---------------------
 enum ExpressionType 
 {
 	ET_UNDEFINED,
@@ -44,8 +45,9 @@ enum ExpressionType
 	ET_ARRAY_APPEAL,
 	ET_ARRAY_SLICE,
 	ET_ARRAY_SLICE_ARGUMENTS,
-	ET_ASSIGN
-	ET_ARRAY_GENERATOR
+	ET_ASSIGN,
+	ET_ARRAY_GENERATOR,
+	ET_FUNC_PARAM
 };
 
 struct Expression 
@@ -60,21 +62,38 @@ struct Expression
 	struct Expression* middle;
 	struct Expression* right;
 	
-	struct Arguments* args;
+	struct Expression* identifier;
+	
+	struct List* exprs;
 };
 
-struct Arguments
+//--------------------List---------------------------
+enum ListType
 {
-	struct Expression* value;
-	struct Arguments* next;
-}
+	LT_UNDEFINED,
+	
+	LT_ELEMENT,
+	
+	LT_EXPR_ARRAY_INITIAL_ARGUMENTS,
+	LT_EXPR_FUNCTION_PARAMS,
+	LT_EXPR_CLASS_PARENTS,
+	
+	LT_STATEMENT_LIST,
+	LT_STMT_ELIF_LIST,
+	LT_STMT_EXCEPT_LIST
+};
 
-struct StatementList
+struct List
 {
-	struct Statement* stmt;
-	struct StatementList* next;
-}
+	enum ExpressionListType type;
+	
+	struct Expression* expr_value;
+	struct Statement* stmt_value;
+	
+	struct List* next;
+};
 
+//------------------Statement-------------
 enum StatementType 
 {
 	ST_UNDEFINED,
@@ -87,7 +106,8 @@ enum StatementType
 	ST_TRY,
 	ST_WITH
 	ST_ELIF_LISTS,
-	ST_ELIF
+	ST_ELIF,
+	ST_EXCEPT
 };
 
 struct Statement 
@@ -96,12 +116,12 @@ struct Statement
 	
 	struct Expression* expr;
 	
-	struct StatementList* firstSuite;
-	struct StatementList* secondSuite;
+	struct List* firstSuite;
+	struct List* secondSuite;
+	struct List* thirdSuite;
 	
-	struct StatementList* stmtList;
+	struct List* stmtList;
 	
-	
+	struct Expression* identifier;
 };
-
 #endif
