@@ -1,4 +1,6 @@
 %{
+#include "python.bison_tab.h"
+#include "tree_struct.h"
 #include <stdio.h>
 #include <stdlib.h>
 void calcIndentation(int* indentStack, int* indexTop, int len);
@@ -10,10 +12,6 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 %x STRING
 %x DOUBLELONGSTRING
 %x LONGSTRING
-%x HEXDECIMAL
-%x HEXDECIMALC
-%x HEXDECIMALCC
-%x HEXDECIMALCCC
 %x STRINGS
 %x DEDENT0
 
@@ -37,11 +35,11 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 	int isLogicalString = 0;
 %}
 
-^\s*\n			printf("EMPTYSTRING\n");
+^\s*\n			{;}
 
-#	{BEGIN(ONECOMMENT); comment[0] = 0;}
-<ONECOMMENT>[^\\\n]+ strcat(comment, yytext);
-<ONECOMMENT>[\\\n]	{printf("COMMENT : %s\n",comment); BEGIN(INITIAL);}
+#	{BEGIN(ONECOMMENT);}
+<ONECOMMENT>[^\\\n]+ {;}
+<ONECOMMENT>[\\\n]	{ BEGIN(INITIAL);}
 
 
 \"\"\"													{BEGIN(DOUBLELONGSTRING); comment[0] = 0;}
@@ -64,15 +62,23 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 																	strcat(comment,hex);
 																}
 <DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>[^\"\\\n\'\a\b\f\r\t\v\x]+		strcat(comment,yytext);
-<DOUBLELONGSTRING>\"\"\" 		{printf("LONGSTRING literal: %s\n",comment); BEGIN(INITIAL);}
+<DOUBLELONGSTRING>\"\"\" 		{
+									strcat(yylval.string_value, comment); 
+									BEGIN(INITIAL);
+									return STRING;
+								}
 
 \'{3}									{BEGIN(LONGSTRING); comment[0] = 0;}
 <LONGSTRING>\\n							strcat(comment,"\n");
 <LONGSTRING,STRINGS>\\\'				strcat(comment,"\'");
-<LONGSTRING>\'\'\' 						{printf("LONGSTRING literal: %s\n",comment); BEGIN(INITIAL);}
+<LONGSTRING>\'\'\' 						{
+											strcat(yylval.string_value, comment);
+											BEGIN(INITIAL);
+											return STRING;
+										}
 
-<DEDENT0>^[ \t]*#		{comment[0] = 0; BEGIN(ONECOMMENT);}
-<DEDENT0>^[ \t]*\n			printf("EMPTYSTRING\n");
+<DEDENT0>^[ \t]*#		{BEGIN(ONECOMMENT);}
+<DEDENT0>^[ \t]*\n		{;}
 <DEDENT0>^[ ]+  {
 				if( !(isLogicalString || parenthesesOpenCount || squarebracketsOpenCount || curlybracesOpenCount))
 				{
@@ -103,91 +109,99 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 
 \"						{BEGIN(STRING);comment[0] = 0;}
 <STRING,STRINGS>\n		{printf("Error in string %d - String literal not closed",yylineno);BEGIN(INITIAL);}
-<STRING>\" 				{printf("String literal %s\n",comment); BEGIN(INITIAL);}
+<STRING>\" 				{
+							strcat(yylval.string_value, comment);
+							BEGIN(INITIAL);
+							return STRING;
+						}
 
 \'					{BEGIN(STRINGS);comment[0] = 0;}
-<STRINGS>\' 		{printf("String literal %s\n",comment); BEGIN(INITIAL);}
+<STRINGS>\' 		{
+						strcat(yylval.string_value, comment);
+						BEGIN(INITIAL);
+						return STRING;
+					}
 
 
-False    	printf("Keyword(%s)\n", yytext);
-if     	 	printf("Keyword(%s)\n", yytext);
-import     	printf("Keyword(%s)\n", yytext);
-from     	printf("Keyword(%s)\n", yytext);
-in     		printf("Keyword(%s)\n", yytext);
-is     		printf("Keyword(%s)\n", yytext);
-as     		printf("Keyword(%s)\n", yytext);
-lambda     	printf("Keyword(%s)\n", yytext);
-not     	printf("Keyword(%s)\n", yytext);
-or     		printf("Keyword(%s)\n", yytext);
-pass     	printf("Keyword(%s)\n", yytext);
-raise     	printf("Keyword(%s)\n", yytext);
-return     	printf("Keyword(%s)\n", yytext);
-try     	printf("Keyword(%s)\n", yytext);
-while     	printf("Keyword(%s)\n", yytext);
-for     	printf("Keyword(%s)\n", yytext);
-with     	printf("Keyword(%s)\n", yytext);
-None     	printf("Keyword(%s)\n", yytext);
-True     	printf("Keyword(%s)\n", yytext);
-and     	printf("Keyword(%s)\n", yytext);
-assert     	printf("Keyword(%s)\n", yytext);
-break     	printf("Keyword(%s)\n", yytext);
-class     	printf("Keyword(%s)\n", yytext);
-continue    printf("Keyword(%s)\n", yytext);
-def     	printf("Keyword(%s)\n", yytext);
-elif     	printf("Keyword(%s)\n", yytext);
-else     	printf("Keyword(%s)\n", yytext);
-except     	printf("Keyword(%s)\n", yytext);
-finally     printf("Keyword(%s)\n", yytext);
-yield		printf("Keyword(%s)\n", yytext);
-\+    		printf("Operator(%s)\n", yytext);
--     		printf("Operator(%s)\n", yytext);
-\*     		printf("Operator(%s)\n", yytext);
-\*\*     	printf("Operator(%s)\n", yytext);
-\/     		printf("Operator(%s)\n", yytext);
-\/\/     	printf("Operator(%s)\n", yytext);
-\%    		printf("Operator(%s)\n", yytext);
-@     		printf("Operator(%s)\n", yytext);
-\<\<     	printf("Operator(%s)\n", yytext);
->>     		printf("Operator(%s)\n", yytext);
-&   		printf("Operator(%s)\n", yytext);
-\|     		printf("Operator(%s)\n", yytext);
-\^    		printf("Operator(%s)\n", yytext);
-~     		printf("Operator(%s)\n", yytext);
->     		printf("Operator(%s)\n", yytext);
-\<     		printf("Operator(%s)\n", yytext);
-\<=     	printf("Operator(%s)\n", yytext);
-\>=     	printf("Operator(%s)\n", yytext);
-==    		printf("Operator(%s)\n", yytext);
-!=     		printf("Operator(%s)\n", yytext);
-\(     		{printf("Operator(%s)\n", yytext); parenthesesOpenCount++;}
-\)     		{printf("Operator(%s)\n", yytext); parenthesesOpenCount--;}
-\[     		{printf("Operator(%s)\n", yytext); squarebracketsOpenCount++;}
-\]     		{printf("Operator(%s)\n", yytext); squarebracketsOpenCount--;}
-\{    		{printf("Operator(%s)\n", yytext); curlybracesOpenCount++;}
-\}     		{printf("Operator(%s)\n", yytext); curlybracesOpenCount--;}
-,     		printf("Operator(%s)\n", yytext);
-:     		printf("Operator(%s)\n", yytext);
-\.     		printf("Operator(%s)\n", yytext);
-\;     		printf("Operator(%s)\n", yytext);
-\=    		printf("Operator(%s)\n", yytext);
-->     		printf("Operator(%s)\n", yytext);
-\+=     	printf("Operator(%s)\n", yytext);
--=     		printf("Operator(%s)\n", yytext);
-\*=     	printf("Operator(%s)\n", yytext);
-\/=     	printf("Operator(%s)\n", yytext);
-\/\/=    	printf("Operator(%s)\n", yytext);
-%=     		printf("Operator(%s)\n", yytext);
-@=     		printf("Operator(%s)\n", yytext);
-\&=     	printf("Operator(%s)\n", yytext);
-\|=     	printf("Operator(%s)\n", yytext);
-\^=     	printf("Operator(%s)\n", yytext);
->>=     	printf("Operator(%s)\n", yytext);
-\<\<=   	printf("Operator(%s)\n", yytext);
-\*\*=     	printf("Operator(%s)\n", yytext);
+False    	{ return FALSE; }
+if     	 	{ return IF; }
+import     	{ return IMPORT; }
+from     	{ return FROM; }
+in     		{ return IN; }
+is     		{ return IS; }
+as     		{ return AS; }
+lambda     	{ return LAMBDA; }
+not     	{ return NOT; }
+or     		{ return OR; }
+pass     	{ return PASS; }
+raise     	{ return RAISE; }
+return     	{ return RETURN; }
+try     	{ return TRY; }
+while     	{ return WHILE; }
+for     	{ return FOR; }
+with     	{ return WITH; }
+None     	{ return NONE; }
+True     	{ return TRUE; }
+and     	{ return AND; }
+assert     	{ return ASSERT; }
+break     	{ return BREAK; }
+class     	{ return CLASS; }
+continue    { return CONTINUE; }
+def     	{ return DEF; }
+elif     	{ return ELIF; }
+else     	{ return ELSE; }
+except     	{ return EXCEPT; }
+finally     { return FINALLY; }
+yield		{ return YIELD; }
+\+    		{ return '+'; }
+-     		{ return '-'; }
+\*     		{ return '*'; }
+\*\*     	{ return POW; }
+\/     		{ return '/'; }
+\/\/     	{ return FLOOR_DIV; }
+\%    		{ return '%'; }
+@     		{ return '@'; }
+\<\<     	{ return LEFT_SHIFT; }
+>>     		{ return RIGHT_SHIFT; }
+&   		{ return '&'; }
+\|     		{ return '|'; }
+\^    		{ return '^'; }
+~     		{ return '~'; }
+>     		{ return '>'; }
+\<     		{ return '<'; }
+\<=     	{ return LESSER_EQUAL; }
+\>=     	{ return GREATER_EQUAL; }
+==    		{ return EQUAL; }
+!=     		{ return NOT_EQUAL; }
+\(     		{ parenthesesOpenCount++; return '('; }
+\)     		{ parenthesesOpenCount--; return ')'; }
+\[     		{ squarebracketsOpenCount++; return '['; }
+\]     		{ squarebracketsOpenCount--; return ']'; }
+\{    		{ curlybracesOpenCount++; return '{'; }
+\}     		{ curlybracesOpenCount--; return '}'; }
+,     		{ return ','; }
+:     		{ return ':'; }
+\.     		{ return '.'; }
+\;     		{ return ';'; }
+\=    		{ return '='; }
+->     		{ return ARROW; }
+\+=     	{ return PLUS_ASSIGN; }
+-=     		{ return MINUS_ASSIGN; }
+\*=     	{ return MULT_ASSIGN; }
+\/=     	{ return DIV_ASSIGN; }
+\/\/=    	{ return -1; }
+%=     		{ return MOD_ASSIGN; }
+@=     		{ return -1; }
+\&=     	{ return -1; }
+\|=     	{ return -1; }
+\^=     	{ return -1; }
+>>=     	{ return -1; }
+\<\<=   	{ return -1; }
+\*\*=     	{ return POW_ASSIGN; }
 
-{FLOAT}			printf("Float(%f)\n", atof(yytext));
-{INT} 			printf("Number(%d)\n", atoi(yytext));
-{IDENTIFIER}	printf("Identifier(%s)\n", yytext);
+{FLOAT}			{ yylval.float_value = atof(yytext); return FLOAT; }
+{INT} 			{ yylval.int_value = atoi(yytext); return INT; }
+{IDENTIFIER}	{ strcat(yylval.string_value, yytext); return ID; }
 
 \\\s*\n		{printf("BACKSLASH\n"); isLogicalString = 1;}
 \n 			{
