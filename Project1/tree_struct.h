@@ -84,10 +84,10 @@ enum ListType
 	LT_STMT_ELIF_LIST,
 	LT_STMT_EXCEPT_LIST
 };
-
+	 
 struct List
 {
-	enum ExpressionListType type;
+	enum ListType type;
 	
 	struct Expression* expr_value;
 	struct Statement* stmt_value;
