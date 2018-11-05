@@ -2,8 +2,9 @@
 	#include "tree_struct.h"
 	#include <stdio.h>
 	#include <malloc.h>
-	
 	void yyerror(char const *s);
+	void printTree(void);
+	void printStmt(int parentID, struct Statement* stmt);
 	extern int yylex(void);
 	struct Expression* createExpression(enum ExpressionType type, struct Expression* left, struct Expression* middle, struct Expression* right, struct List* exprs, int intVal, float floatVal, char* strVal, struct Expression* id);
 	struct Expression* createBaseTypeExpression(enum ExpressionType type, int intVal, float floatVal, char* strVal);
@@ -19,10 +20,9 @@
 	struct Statement* createWhileStatement(struct Expression* condition, struct List* mainSuite, struct List* elseSuite);
 	struct Statement* createForStatement(struct Expression* identifier, struct Expression* condition, struct List* mainSuite, struct List* elseSuite);
 	struct Statement* createTryStatement(struct List* mainSuite, struct List* elseSuite, struct List* finallySuite, struct List* excepts);
-	
+	struct Statement* createReturnStatement(struct Expression* expr);
 	struct List* head;
 %}
-
 %union {
 	int int_value;
 	float float_value;
@@ -32,7 +32,6 @@
 	struct Statement* stmt;
 	struct List* list;
 }
-
 %type <expr> expression
 %type <expr> identifier
 %type <expr> arg_value
@@ -373,4 +372,225 @@ struct Statement* createTryStatement(struct List* mainSuite, struct List* elseSu
 struct Statement* createReturnStatement(struct Expression* expr)
 {
 	return createStatement(ST_RETURN, expr, NULL, NULL, NULL, NULL, NULL);
+}
+void printTree()
+{
+	struct List* H = head;
+	printf("resultGraph\n{");
+	int id = 0;
+	int maxId = 0;
+
+	printf("%d label[%s]", id, H->stmt_value->type);
+	while (H!= NULL)
+	{
+		printStmt(0, H->stmt_value, &maxId);
+		H= H->next;
+	}
+	printf("}");
+}
+void printStmt(int parentID, struct Statement* stmt, int* maxId)
+{
+	
+}
+void printExpr(int parentID, struct Expression* expr, int* maxId)
+{
+	*(maxId)++;
+	switch (expr->type)
+	{
+		case ET_UNDEFINED:
+		{
+			break;
+		}
+		case ET_OR:
+		{
+			break;
+		}
+		case ET_AND:
+		{
+			break;
+		}
+		case ET_NOT:
+		{
+			break;
+		}
+		case ET_IN:
+		{
+			break;
+		}
+		case ET_NOT_IN:
+		{
+			break;
+		}
+		case ET_IS:
+		{
+			break;
+		}
+		case ET_IS_NOT:
+		{
+			break;
+		}
+		case ET_PLUS_ASSIGN:
+		{
+			break;
+		}
+		case ET_MINUS_ASSIGN:
+		{
+			break;
+		}
+		case ET_MULT_ASSIGN:
+		{
+			break;
+		}
+		case ET_POW_ASSIGN:
+		{
+			break;
+		}
+		case ET_DIV_ASSIGN:
+		{
+			break;
+		}
+		case ET_MOD_ASSIGN:
+		{
+			break;
+		}
+		case ET_LESSER:
+		{
+			break;
+		}
+		case ET_LESSER_EQUAL:
+		{
+			break;
+		}
+		case ET_GREATER:
+		{
+			break;
+		}
+		case ET_GREATER_EQUAL:
+		{
+			break;
+		}
+		case ET_NOT_EQUAL:
+		{
+			break;
+		}
+		case ET_EQUAL:
+		{
+			break;
+		}
+		case ET_LEFT_SHIFT:
+		{
+			break;
+		}
+		case ET_RIGHT_SHIFT:
+		{
+			break;
+		}
+		case ET_PLUS:
+		{
+			break;
+		}
+		case ET_MINUS:
+		{
+			break;
+		}
+		case ET_MULT:
+		{
+			break;
+		}
+		case ET_DIV:
+		{
+			break;
+		}
+		case ET_MOD:
+		{
+			break;
+		}
+		case ET_FLOOR_DIV:
+		{
+			break;
+		}
+		case ET_UPLUS:
+		{
+			break;
+		}
+		case ET_UMINUS:
+		{
+			break;
+		}
+		case ET_POW:
+		{
+			break;
+		}
+		case ET_DOT:
+		{
+			break;
+		}
+		case ET_PARENTHNESES:
+		{
+			break;
+		}
+		case ET_ID:
+		{
+			break;
+		}
+		case ET_INT:
+		{
+			printf("%d", maxId);
+			printf("label[%d]\n", expr->intVal);
+			printf("%d--%d]\n", parentID, maxId);
+			break;
+		}
+		case ET_FLOAT:
+		{
+			printf("%d", maxId);
+			printf("label[%f]\n", expr->floatVal);
+			printf("%d--%d\n", parentID, maxId);
+			break;
+		}
+		case ET_STRING:
+		{
+			printf("%d", maxId);
+			printf("label[%s]\n", expr->strVal);
+			printf("%d--%d\n", parentID, maxId);
+			break;
+		}
+		case ET_SQUARE_BRACKETS:
+		{
+			break;
+		}
+		case ET_ARRAY_APPEAL:
+		{
+			break;
+		}
+		case ET_ARRAY_SLICE:
+		{
+			break;
+		}
+		case ET_ARRAY_SLICE_ARGUMENTS:
+		{
+			break;
+		}
+		case ET_ASSIGN:
+		{
+			break;
+		}
+		case ET_ARRAY_GENERATOR:
+		{
+			break;
+		}
+		case ET_FUNC_PARAM:
+		{
+			break;
+		}
+		case ET_FUNC_CALL:
+		{
+			break;
+		}
+		case ET_RETURN:
+		{
+			break;
+		}
+		default:
+			break;
+	}
 }
