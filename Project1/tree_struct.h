@@ -104,7 +104,7 @@ enum StatementType
 	ST_WHILE,
 	ST_FOR,
 	ST_TRY,
-	ST_WITH
+	ST_WITH,
 	ST_ELIF_LISTS,
 	ST_ELIF,
 	ST_EXCEPT

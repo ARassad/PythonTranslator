@@ -3,6 +3,7 @@
 #include "tree_struct.h"
 #include <stdio.h>
 #include <stdlib.h>
+extern int yyparse(void);
 void calcIndentation(int* indentStack, int* indexTop, int len);
 %}
 %option noyywrap
@@ -248,6 +249,6 @@ void calcIndentation(int* indentStack, int* indexTop, int len)
 int main(int argc, char *argv[])
 {
 	yyin = fopen(argv[1], "r");
-	yylex();
+	yyparse();
 	return 0;
 }

@@ -5,10 +5,9 @@
 	
 	void yyerror(char const *s);
 	extern int yylex(void);
-	
 	struct Expression* createExpression(enum ExpressionType type, struct Expression* left, struct Expression* middle, struct Expression* right, struct List* exprs, int intVal, float floatVal, char* strVal, struct Expression* id);
 	struct Expression* createBaseTypeExpression(enum ExpressionType type, int intVal, float floatVal, char* strVal);
-	struct Expression* createBinaryExpression(enum ExpressionType struct Expression* left, struct Expression* right);
+	struct Expression* createBinaryExpression(enum ExpressionType type, struct Expression* left, struct Expression* right);
 	
 	struct List* createList(enum ExpressionListType type, struct Expression* expr, struct Statement* stmt);
 	struct List* appendToList(enum List* list, struct Expression* expr, struct Statement* stmt);
@@ -278,7 +277,7 @@ struct Expression* createBaseTypeExpression(enum ExpressionType type, int intVal
 	return createExpression(type, NULL, NULL, NULL, NULL, intVal, floatVal, strVal, NULL);
 }
 
-struct Expression* createBinaryExpression(enum ExpressionType struct Expression *left, struct Expression *right)
+struct Expression* createBinaryExpression(enum ExpressionType type,struct Expression *left, struct Expression *right)
 {
 	return createExpression(type, left, NULL, right, NULL, 0, 0.0, NULL, NULL);
 }
@@ -312,9 +311,9 @@ struct List* createList(enum ExpressionListType type, struct Expression* expr, s
 struct List* appendToList(enum List* list, struct Expression* expr, struct Statement* stmt)
 {
 	struct List* cur = list;
-	while(cur.next != NULL)
-		cur = cur.next;
-	cur.next = createExpressionList(LT_ELEMENT, expr, stmt);
+	while(cur->next != NULL)
+		cur = cur->next;
+	cur->next = createExpressionList(LT_ELEMENT, expr, stmt);
 	
 	return list;
 }
