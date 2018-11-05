@@ -10,7 +10,7 @@
 	struct Expression* createBinaryExpression(enum ExpressionType type, struct Expression* left, struct Expression* right);
 	
 	struct List* createList(enum ExpressionListType type, struct Expression* expr, struct Statement* stmt);
-	struct List* appendToList(enum List* list, struct Expression* expr, struct Statement* stmt);
+	struct List* appendToList(struct List* list, struct Expression* expr, struct Statement* stmt);
 	
 	struct Statement* createStatement(enum StatementType type, struct Expression* expr, struct List* firstSuite, struct List* secondSuite, struct List* thirdSuite, struct List* stmtList, struct Expression* identifier);
 	struct Statement* createFuncDefStatement(struct Expression* identifier, struct List* params, struct Expression* returnType, struct List* suite);
@@ -308,7 +308,7 @@ struct List* createList(enum ExpressionListType type, struct Expression* expr, s
 	return result;
 }
 
-struct List* appendToList(enum List* list, struct Expression* expr, struct Statement* stmt)
+struct List* appendToList(struct List* list, struct Expression* expr, struct Statement* stmt)
 {
 	struct List* cur = list;
 	while(cur->next != NULL)
