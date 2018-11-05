@@ -104,8 +104,10 @@
 %left OR
 %left AND
 %left NOT
-%left IN NOT_IN
-%left IS IS_NOT
+%left IN
+%left NOT_IN
+%left IS
+%left IS_NOT
 %right '=' PLUS_ASSIGN MINUS_ASSIGN MULT_ASSIGN POW_ASSIGN DIV_ASSIGN MOD_ASSIGN
 %left '<' LESSER_EQUAL '>' GREATER_EQUAL NOT_EQUAL EQUAL
 %left LEFT_SHIFT RIGHT_SHIFT
@@ -128,9 +130,9 @@ expression  : expression OR expression									{ $$ = createBinaryExpression(ET_
 			| expression AND expression									{ $$ = createBinaryExpression(ET_AND, $1, $3); }
 			| NOT expression											{ $$ = createBinaryExpression(ET_NOT, NULL, $2); }
 			| expression IN expression									{ $$ = createBinaryExpression(ET_IN, $1, $3); }
-			| expression NOT IN expression %prec NOT_IN					{ $$ = createBinaryExpression(ET_NOT_IN, $1, $4); }
+			| expression NOT_IN expression								{ $$ = createBinaryExpression(ET_NOT_IN, $1, $3); }
 			| expression IS expression									{ $$ = createBinaryExpression(ET_IS, $1, $3); }
-			| expression IS NOT expression %prec IS_NOT					{ $$ = createBinaryExpression(ET_IS_NOT, $1, $4); }
+			| expression IS_NOT expression								{ $$ = createBinaryExpression(ET_IS_NOT, $1, $3); }
 			| expression PLUS_ASSIGN expression							{ $$ = createBinaryExpression(ET_PLUS_ASSIGN, $1, $3); }
 			| expression MINUS_ASSIGN expression						{ $$ = createBinaryExpression(ET_MINUS_ASSIGN, $1, $3); }
 			| expression MULT_ASSIGN expression							{ $$ = createBinaryExpression(ET_MULT_ASSIGN, $1, $3); }
