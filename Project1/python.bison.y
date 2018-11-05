@@ -50,6 +50,7 @@
 %type <stmt> for_statement
 %type <stmt> try_statement
 %type <stmt> except_statement
+%type <stmt> return_statement
 
 %type <list> program
 %type <list> arguments
@@ -169,6 +170,7 @@ expression  : expression OR expression									{ $$ = createBinaryExpression(ET_
 			| expression '=' expression									{ $$ = createBinaryExpression(ET_ASSIGN, $1, $3); }
 			| '[' expression FOR identifier IN expression ']'			{ $$ = createExpression(ET_ARRAY_GENERATOR, $2, $6, NULL, NULL, 0, 0.0, NULL, $4); }
 			| '[' expression FOR identifier IN expression IF expression ']'		{ $$ = createExpression(ET_ARRAY_GENERATOR, $2, $6, $8, NULL, 0, 0.0, NULL, $4); }
+			| expression '(' arguments ')'								{ $$ = createExpression(ET_FUNC_CALL, $1, NULL, NULL, $3, 0, 0.0, NULL, NULL); }
 			;
 
 identifier  : ID														{ $$ = createBaseTypeExpression(ET_ID, 	0, 0.0, $1); }
@@ -192,20 +194,24 @@ arr_slic_dim: expression 												{ $$ = $1; }
 			;
 			
 statement	: expression												{ $$ = createStatement(ST_EXPRESSION, $1, NULL, NULL, NULL, NULL, NULL); }
-			| condition_statement										{ $$ = $1 }
-			| function_definition										{ $$ = $1 }
-			| class_definition											{ $$ = $1 }
-			| while_statement											{ $$ = $1 }
-			| for_statement												{ $$ = $1 }
-			| try_statement												{ $$ = $1 }
+			| condition_statement										{ $$ = $1; }
+			| function_definition										{ $$ = $1; }
+			| class_definition											{ $$ = $1; }
+			| while_statement											{ $$ = $1; }
+			| for_statement												{ $$ = $1; }
+			| try_statement												{ $$ = $1; }
+			| return_statement											{ $$ = $1; }
 			;
 
 statement_list  : statement NEWLINE										{ $$ = createList(LT_STATEMENT_LIST, NULL, $1); }
 				| statement_list statement NEWLINE						{ $$ = appendToList($1, NULL, $2); }
 				;
 
-suite		: NEWLINE INDENT statement_list DEDENT						{ $$ = $3 }
+suite		: NEWLINE INDENT statement_list DEDENT						{ $$ = $3; }
 			;
+			
+return_statement	: RETURN expression									{ $$ = createReturnStatement($2); }
+					;
 				
 function_definition : DEF identifier '(' parameters ')' ':' suite					{ $$ = createFuncDefStatement($2, $4, NULL, $7); }
 					| DEF identifier '(' parameters ')' ARROW expression ':' suite	{ $$ = createFuncDefStatement($2, $4, $7, $9); }
@@ -362,4 +368,9 @@ struct Statement* createForStatement(struct Expression* identifier, struct Expre
 struct Statement* createTryStatement(struct List* mainSuite, struct List* elseSuite, struct List* finallySuite, struct List* excepts)
 {
 	return createStatement(ST_TRY, NULL, mainSuite, elseSuite, finallySuite, excepts, NULL);
+}
+
+struct Statement* createReturnStatement(struct Expression* expr)
+{
+	return createStatement(ST_RETURN, expr, NULL, NULL, NULL, NULL, NULL);
 }

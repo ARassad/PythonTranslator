@@ -47,7 +47,9 @@ enum ExpressionType
 	ET_ARRAY_SLICE_ARGUMENTS,
 	ET_ASSIGN,
 	ET_ARRAY_GENERATOR,
-	ET_FUNC_PARAM
+	ET_FUNC_PARAM,
+	ET_FUNC_CALL,
+	ET_RETURN
 };
 
 struct Expression 
@@ -107,7 +109,8 @@ enum StatementType
 	ST_WITH,
 	ST_ELIF_LISTS,
 	ST_ELIF,
-	ST_EXCEPT
+	ST_EXCEPT,
+	ST_RETURN
 };
 
 struct Statement 
