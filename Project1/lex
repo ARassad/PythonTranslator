@@ -4,7 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 extern int yyparse(void);
-void calcIndentation(int* indentStack, int* indexTop, int len);
+void calcIndentation(int* indentStack, int* indexTop, int len, struct DedentStruct* dedents);
+struct DedentStruct
+{
+	int DedentType;
+	int count;
+};
 %}
 %option noyywrap
 %option never-interactive
@@ -15,6 +20,7 @@ void calcIndentation(int* indentStack, int* indexTop, int len);
 %x LONGSTRING
 %x STRINGS
 %x DEDENT0
+%x DEDENT_OUTPUT
 
 INT 		[0-9]+
 NUMEXP		(e|E)(\-|\+)?{INT}
@@ -34,7 +40,22 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 	int squarebracketsOpenCount = 0;
 	int curlybracesOpenCount = 0;
 	int isLogicalString = 0;
+	
+	struct DedentStruct dedents;
+	int isEOF = 0;
 %}
+
+<DEDENT_OUTPUT> {
+						if (dedents.count > 0){
+							dedents.count--;
+							return dedents.DedentType;
+						}
+						else if (isEOF) {
+							yyterminate();
+						}
+						else 
+							BEGIN(INITIAL);
+					}
 
 ^\s*\n			{;}
 
@@ -83,15 +104,15 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 <DEDENT0>^[ ]+  {
 				if( !(isLogicalString || parenthesesOpenCount || squarebracketsOpenCount || curlybracesOpenCount))
 				{
-					calcIndentation(indentStack, &indexTop, strlen(yytext));
-					BEGIN(INITIAL);
+					calcIndentation(indentStack, &indexTop, strlen(yytext), &dedents);
+					BEGIN(DEDENT_OUTPUT);
 				}
 			}
 <DEDENT0>^[\t]+		{
 				if( !(isLogicalString || parenthesesOpenCount || squarebracketsOpenCount || curlybracesOpenCount))
 				{
-					calcIndentation(indentStack, &indexTop, strlen(yytext)*4);
-					BEGIN(INITIAL);
+					calcIndentation(indentStack, &indexTop, strlen(yytext)*4, &dedents);
+					BEGIN(DEDENT_OUTPUT);
 				}
 			}
 <DEDENT0>^[ \t]{2,}	{
@@ -103,8 +124,8 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 <DEDENT0>""/. {
 				if( !(isLogicalString || parenthesesOpenCount || squarebracketsOpenCount || curlybracesOpenCount))
 				{
-					calcIndentation(indentStack, &indexTop, 0);
-					BEGIN(INITIAL);
+					calcIndentation(indentStack, &indexTop, 0, &dedents);
+					BEGIN(DEDENT_OUTPUT);
 				}
 			}
 
@@ -216,16 +237,22 @@ yield		{ return YIELD; }
 			
 [ \t]		{;}
 
-<<EOF>> {calcIndentation(indentStack, &indexTop, 0); yyterminate();}
+<<EOF>> {
+			calcIndentation(indentStack, &indexTop, 0, &dedents);
+			if ( dedents.count > 0)
+				BEGIN(DEDENT_OUTPUT);
+			isEOF = 1;
+		}
 %%
 
-void calcIndentation(int* indentStack, int* indexTop, int len)
+void calcIndentation(int* indentStack, int* indexTop, int len, struct DedentStruct* dedents)
 {
 	if( len > indentStack[*indexTop] )
 	{
 		(*indexTop)++;
 		indentStack[*indexTop] = len;
-		printf("INDENT(%d->%d)\n", indentStack[(*indexTop)-1], indentStack[(*indexTop)]);
+		(*dedents).count = 1;
+		(*dedents).DedentType = INDENT;
 	}
 	else if( len < indentStack[*indexTop])
 	{
@@ -237,9 +264,11 @@ void calcIndentation(int* indentStack, int* indexTop, int len)
 			printf("Error: inconsistent dedent %d\n", len);
 		else
 		{
+			(*dedents).count = 0;
+			(*dedents).DedentType = DEDENT;
 			while(*indexTop > dedentCount)
 			{
-				printf("DEDENT(%d->%d)\n", indentStack[*indexTop], indentStack[(*indexTop)-1]);
+				(*dedents).count += 1;
 				(*indexTop)--;
 			}
 		}

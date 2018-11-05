@@ -158,9 +158,9 @@ expression  : expression OR expression									{ $$ = createBinaryExpression(ET_
 			| expression '.' expression									{ $$ = createBinaryExpression(ET_DOT, $1, $3); }
 			| '(' expression ')'										{ $$ = $2; }
 			| identifier												{ $$ = $1; }
-			| INT														{ $$ = createBaseTypeExpression(ET_INT, 0, 0.0, int_value); }
-			| FLOAT														{ $$ = createBaseTypeExpression(ET_FLOAT, 0, 0.0, float_value); }
-			| STRING													{ $$ = createBaseTypeExpression(ET_STRING, 0, 0.0, string_value); }
+			| INT														{ $$ = createBaseTypeExpression(ET_INT, $1, 0.0, NULL); }
+			| FLOAT														{ $$ = createBaseTypeExpression(ET_FLOAT, 0, $1, NULL); }
+			| STRING													{ $$ = createBaseTypeExpression(ET_STRING, 0, 0.0, $1); }
 			| '[' arguments ']'											{ $$ = createExpression(ET_SQUARE_BRACKETS, NULL, NULL, NULL, $2, 0, 0.0, NULL, NULL); }
 			| expression '[' expression ']'								{ $$ = createBinaryExpression(ET_ARRAY_APPEAL, $1, $3); }
 			| expression '[' array_slice ']'							{ $$ = createBinaryExpression(ET_ARRAY_SLICE, $1, $3); }
@@ -169,7 +169,7 @@ expression  : expression OR expression									{ $$ = createBinaryExpression(ET_
 			| '[' expression FOR identifier IN expression IF expression ']'		{ $$ = createExpression(ET_ARRAY_GENERATOR, $2, $6, $8, NULL, 0, 0.0, NULL, $4); }
 			;
 
-identifier  : ID														{ $$ = createBaseTypeExpression(ET_ID, 	0, 0.0, string_value); }
+identifier  : ID														{ $$ = createBaseTypeExpression(ET_ID, 	0, 0.0, $1); }
 			;
 			
 arguments	: arg_value													{ $$ = createList(LT_EXPR_ARRAY_INITIAL_ARGUMENTS, $1, NULL); }
@@ -313,7 +313,7 @@ struct List* appendToList(struct List* list, struct Expression* expr, struct Sta
 	struct List* cur = list;
 	while(cur->next != NULL)
 		cur = cur->next;
-	cur->next = createExpressionList(LT_ELEMENT, expr, stmt);
+	cur->next = createList(LT_ELEMENT, expr, stmt);
 	
 	return list;
 }
