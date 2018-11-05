@@ -19,6 +19,8 @@
 	struct Statement* createWhileStatement(struct Expression* condition, struct List* mainSuite, struct List* elseSuite);
 	struct Statement* createForStatement(struct Expression* identifier, struct Expression* condition, struct List* mainSuite, struct List* elseSuite);
 	struct Statement* createTryStatement(struct List* mainSuite, struct List* elseSuite, struct List* finallySuite, struct List* excepts);
+	
+	struct List* head;
 %}
 
 %union {
@@ -122,7 +124,7 @@
 
 %%
 
-program : statement_list 				{ $$ = $1; }
+program : statement_list 				{ $$ = head = $1; }
 		;
 		
 expression  : expression OR expression									{ $$ = createBinaryExpression(ET_OR, $1, $3); }
