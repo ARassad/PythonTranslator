@@ -234,9 +234,9 @@ yield		{ return YIELD; }
 \n 			{
 				if( parenthesesOpenCount == 0 && squarebracketsOpenCount == 0 && curlybracesOpenCount == 0)
 				{
-					printf("NEWLINE\n");
 					isLogicalString = 0;
 					BEGIN(DEDENT0);
+					return NEWLINE;
 				}
 			}
 			
