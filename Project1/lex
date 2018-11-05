@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 extern int yyparse(void);
+extern void printTree(void);
 void calcIndentation(int* indentStack, int* indexTop, int len, struct DedentStruct* dedents);
 struct DedentStruct
 {
@@ -85,6 +86,7 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 																}
 <DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>[^\"\\\n\'\a\b\f\r\t\v\x]+		strcat(comment,yytext);
 <DOUBLELONGSTRING>\"\"\" 		{
+									yylval.string_value=(char *)malloc(strlen(yytext)+1);
 									strcat(yylval.string_value, comment); 
 									BEGIN(INITIAL);
 									return STRING;
@@ -94,6 +96,7 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 <LONGSTRING>\\n							strcat(comment,"\n");
 <LONGSTRING,STRINGS>\\\'				strcat(comment,"\'");
 <LONGSTRING>\'\'\' 						{
+											yylval.string_value=(char *)malloc(strlen(yytext)+1);
 											strcat(yylval.string_value, comment);
 											BEGIN(INITIAL);
 											return STRING;
@@ -132,6 +135,7 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 \"						{BEGIN(STRING);comment[0] = 0;}
 <STRING,STRINGS>\n		{printf("Error in string %d - String literal not closed",yylineno);BEGIN(INITIAL);}
 <STRING>\" 				{
+							yylval.string_value=(char *)malloc(strlen(yytext)+1);
 							strcat(yylval.string_value, comment);
 							BEGIN(INITIAL);
 							return STRING;
@@ -139,6 +143,7 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 
 \'					{BEGIN(STRINGS);comment[0] = 0;}
 <STRINGS>\' 		{
+						yylval.string_value=(char *)malloc(strlen(yytext)+1);
 						strcat(yylval.string_value, comment);
 						BEGIN(INITIAL);
 						return STRING;
@@ -223,7 +228,7 @@ yield		{ return YIELD; }
 
 {FLOAT}			{ yylval.float_value = atof(yytext); return FLOAT; }
 {INT} 			{ yylval.int_value = atoi(yytext); return INT; }
-{IDENTIFIER}	{ strcat(yylval.string_value, yytext); return ID; }
+{IDENTIFIER}	{ yylval.string_value=(char *)malloc(strlen(yytext)+1); strcat(yylval.string_value, yytext); return ID; }
 
 \\\s*\n		{printf("BACKSLASH\n"); isLogicalString = 1;}
 \n 			{
@@ -279,5 +284,7 @@ int main(int argc, char *argv[])
 {
 	yyin = fopen(argv[1], "r");
 	yyparse();
+	//freopen("resultGraph.gv","w",stdout);
+	printTree();
 	return 0;
 }
