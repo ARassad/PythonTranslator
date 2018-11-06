@@ -228,7 +228,7 @@ yield		{ return YIELD; }
 
 {FLOAT}			{ yylval.float_value = atof(yytext); return FLOAT; }
 {INT} 			{ yylval.int_value = atoi(yytext); return INT; }
-{IDENTIFIER}	{ yylval.string_value=(char *)malloc(strlen(yytext)+1); strcat(yylval.string_value, yytext); return ID; }
+{IDENTIFIER}	{ yylval.string_value=(char *)malloc(strlen(yytext)+1); strcpy(yylval.string_value, yytext); return ID; }
 
 \\\s*\n		{printf("BACKSLASH\n"); isLogicalString = 1;}
 \n 			{
@@ -244,9 +244,9 @@ yield		{ return YIELD; }
 
 <<EOF>> {
 			calcIndentation(indentStack, &indexTop, 0, &dedents);
-			if ( dedents.count > 0)
-				BEGIN(DEDENT_OUTPUT);
+			BEGIN(DEDENT_OUTPUT);
 			isEOF = 1;
+			return END_OF_FILE;
 		}
 %%
 
@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
 {
 	yyin = fopen(argv[1], "r");
 	yyparse();
-	//freopen("resultGraph.gv","w",stdout);
+	freopen("resultGraph.txt","w",stdout);
 	printTree();
 	return 0;
 }
