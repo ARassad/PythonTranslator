@@ -37,11 +37,9 @@
 }
 %type <expr> expression
 %type <expr> identifier
-%type <expr> arg_value
 %type <expr> array_slice
 %type <expr> arr_slic_dim
 %type <expr> parameter
-%type <expr> class_parent
 
 %type <stmt> statement
 %type <stmt> function_definition
@@ -55,10 +53,13 @@
 %type <stmt> return_statement
 
 %type <list> program
+%type <list> arguments_e
 %type <list> arguments
 %type <list> statement_list
 %type <list> suite
+%type <list> parameters_e
 %type <list> parameters
+%type <list> class_parents_e
 %type <list> class_parents
 %type <list> elif_statement_list
 %type <list> except_list_statement
@@ -167,25 +168,25 @@ expression  : expression OR expression									{ $$ = createBinaryExpression(ET_
 			| INT														{ $$ = createBaseTypeExpression(ET_INT, $1, 0.0, NULL); }
 			| FLOAT														{ $$ = createBaseTypeExpression(ET_FLOAT, 0, $1, NULL); }
 			| STRING													{ $$ = createBaseTypeExpression(ET_STRING, 0, 0.0, $1); }
-			| '[' arguments ']'											{ $$ = createExpression(ET_SQUARE_BRACKETS, NULL, NULL, NULL, $2, 0, 0.0, NULL, NULL); }
-			| expression '[' expression ']'								{ $$ = createBinaryExpression(ET_ARRAY_APPEAL, $1, $3); }
-			| expression '[' array_slice ']'							{ $$ = createBinaryExpression(ET_ARRAY_SLICE, $1, $3); }
-			| expression '=' expression									{ $$ = createBinaryExpression(ET_ASSIGN, $1, $3); }
-			| '[' expression FOR identifier IN expression ']'			{ $$ = createExpression(ET_ARRAY_GENERATOR, $2, $6, NULL, NULL, 0, 0.0, NULL, $4); }
+			| '[' arguments_e ']'												{ $$ = createExpression(ET_SQUARE_BRACKETS, NULL, NULL, NULL, $2, 0, 0.0, NULL, NULL); }
+			| expression '[' expression ']'										{ $$ = createBinaryExpression(ET_ARRAY_APPEAL, $1, $3); }
+			| expression '[' array_slice ']'									{ $$ = createBinaryExpression(ET_ARRAY_SLICE, $1, $3); }
+			| expression '=' expression											{ $$ = createBinaryExpression(ET_ASSIGN, $1, $3); }
+			| '[' expression FOR identifier IN expression ']'					{ $$ = createExpression(ET_ARRAY_GENERATOR, $2, $6, NULL, NULL, 0, 0.0, NULL, $4); }
 			| '[' expression FOR identifier IN expression IF expression ']'		{ $$ = createExpression(ET_ARRAY_GENERATOR, $2, $6, $8, NULL, 0, 0.0, NULL, $4); }
-			| expression '(' arguments ')'								{ $$ = createExpression(ET_FUNC_CALL, $1, NULL, NULL, $3, 0, 0.0, NULL, NULL); }
+			| expression '(' arguments_e ')'									{ $$ = createExpression(ET_FUNC_CALL, $1, NULL, NULL, $3, 0, 0.0, NULL, NULL); }
 			;
 
 identifier  : ID														{ $$ = createBaseTypeExpression(ET_ID, 	0, 0.0, $1); }
 			;
-			
-arguments	: arg_value													{ $$ = createList(LT_EXPR_ARRAY_INITIAL_ARGUMENTS, $1, NULL); }
-			| arguments arg_value										{ $$ = appendToList($1, $2, NULL); }
+
+arguments_e	: arguments													{ $$ = $1; }
+			| arguments ','												{ $$ = $1; }
+			| 															{ $$ = NULL; }
 			;
 
-arg_value	: expression												{ $$ = $1; }
-			| expression ','											{ $$ = $1; }
-			|															{ $$ = NULL; }
+arguments	: expression												{ $$ = createList(LT_EXPR_ARRAY_INITIAL_ARGUMENTS, $1, NULL); }
+			| arguments ',' expression									{ $$ = appendToList($1, $3, NULL); }
 			;
 
 array_slice : arr_slic_dim ':' arr_slic_dim ':' arr_slic_dim			{ $$ = createExpression(ET_ARRAY_SLICE_ARGUMENTS, $1, $3, $5, NULL, 0, 0.0, NULL, NULL); }
@@ -196,7 +197,7 @@ arr_slic_dim: expression 												{ $$ = $1; }
 			| 															{ $$ = NULL; }
 			;
 			
-statement	: expression												{ $$ = createStatement(ST_EXPRESSION, $1, NULL, NULL, NULL, NULL, NULL); }
+statement	: expression NEWLINE										{ $$ = createStatement(ST_EXPRESSION, $1, NULL, NULL, NULL, NULL, NULL); }
 			| condition_statement										{ $$ = $1; }
 			| function_definition										{ $$ = $1; }
 			| class_definition											{ $$ = $1; }
@@ -204,10 +205,11 @@ statement	: expression												{ $$ = createStatement(ST_EXPRESSION, $1, NULL
 			| for_statement												{ $$ = $1; }
 			| try_statement												{ $$ = $1; }
 			| return_statement											{ $$ = $1; }
+			| statement NEWLINE											{ $$ = $1; }
 			;
 
-statement_list  : statement NEWLINE										{ $$ = createList(LT_STATEMENT_LIST, NULL, $1); }
-				| statement_list statement NEWLINE						{ $$ = appendToList($1, NULL, $2); }
+statement_list  : statement 										{ $$ = createList(LT_STATEMENT_LIST, NULL, $1); }
+				| statement_list statement 							{ $$ = appendToList($1, NULL, $2); }
 				;
 
 suite		: NEWLINE INDENT statement_list DEDENT						{ $$ = $3; }
@@ -216,29 +218,35 @@ suite		: NEWLINE INDENT statement_list DEDENT						{ $$ = $3; }
 return_statement	: RETURN expression									{ $$ = createReturnStatement($2); }
 					;
 				
-function_definition : DEF identifier '(' parameters ')' ':' suite					{ $$ = createFuncDefStatement($2, $4, NULL, $7); }
-					| DEF identifier '(' parameters ')' ARROW expression ':' suite	{ $$ = createFuncDefStatement($2, $4, $7, $9); }
+function_definition : DEF identifier '(' parameters_e ')' ':' suite							{ $$ = createFuncDefStatement($2, $4, NULL, $7); }
+					| DEF identifier '(' parameters_e ')' ARROW expression ':' suite			{ $$ = createFuncDefStatement($2, $4, $7, $9); }
 					;
 
+parameters_e	: parameters											{ $$ = $1; }
+				| parameters ','										{ $$ = $1; }
+				|														{ $$ = NULL; }
+				;
+					
 parameters	: parameter													{ $$ = createList(LT_EXPR_FUNCTION_PARAMS, $1, NULL); }
-			| parameters parameter										{ $$ = appendToList($1, $2, NULL); }
+			| parameters ',' parameter									{ $$ = appendToList($1, $3, NULL); }
 			;
 					
 parameter	: identifier 												{ $$ = $1; }
 			| identifier ':' expression									{ $$ = createExpression(ET_FUNC_PARAM, $3, NULL, NULL, NULL, 0, 0.0, NULL, $1); }
-			| parameter ',' 											{ $$ = $1; }
+			| identifier '=' expression									{ $$ = createExpression(ET_FUNC_PARAM_DEFAULT, $3, NULL, NULL, NULL, 0, 0.0, NULL, $1); }
 			;
 
-class_definition	: CLASS identifier ':' suite						{ $$ = createClassDefStatement($2, NULL, $4)}
-					| CLASS identifier '(' class_parents ')' ':' suite	{ $$ = createClassDefStatement($2, $4, $7)}
+class_definition	: CLASS identifier ':' suite							{ $$ = createClassDefStatement($2, NULL, $4)}
+					| CLASS identifier '(' class_parents_e ')' ':' suite	{ $$ = createClassDefStatement($2, $4, $7)}
 					;
 					
-class_parents		: class_parent										{ $$ = createList(LT_EXPR_CLASS_PARENTS, $1, NULL); }			
-					| class_parents class_parent						{ $$ = appendToList($1, $2, NULL); }
+class_parents_e		: class_parents										{ $$ = $1; }
+					| class_parents	','									{ $$ = $1; }
+					|													{ $$ = NULL; }
 					;
-
-class_parent		: identifier										{ $$ = $1; }
-					| class_parent ','									{ $$ = $1; }
+					
+class_parents		: identifier										{ $$ = createList(LT_EXPR_CLASS_PARENTS, $1, NULL); }			
+					| class_parents ',' identifier						{ $$ = appendToList($1, $3, NULL); }
 					;
 
 condition_statement : IF expression ':' suite										{ $$ = createConditionStatement($2, $4, NULL, NULL); }
@@ -247,8 +255,8 @@ condition_statement : IF expression ':' suite										{ $$ = createConditionSta
 					| IF expression ':' suite ELSE ':' suite					 	{ $$ = createConditionStatement($2, $4, NULL, $7); }
 					;
 
-elif_statement_list : elif_statement NEWLINE										{ $$ = createList(LT_STMT_ELIF_LIST, NULL, $1); }
-					| elif_statement_list elif_statement NEWLINE					{ $$ = appendToList($1, NULL, $2); }
+elif_statement_list : elif_statement 												{ $$ = createList(LT_STMT_ELIF_LIST, NULL, $1); }
+					| elif_statement_list elif_statement 							{ $$ = appendToList($1, NULL, $2); }
 					;
 			
 elif_statement 		: ELIF expression ':' suite										{ $$ = createStatement(ST_ELIF, $2, $4, NULL, NULL, NULL, NULL); }
@@ -269,8 +277,8 @@ try_statement		: TRY ':' suite FINALLY ':' suite											{ $$ = createTryState
 					| TRY ':' suite except_list_statement ELSE ':' suite FINALLY ':' suite		{ $$ = createTryStatement($3, $7, $10, $4); }
 					;
 
-except_list_statement	: except_statement NEWLINE 								{ $$ = createList(LT_STMT_EXCEPT_LIST, NULL, $1); }
-						| except_list_statement except_statement NEWLINE		{ $$ = appendToList($1, NULL, $2); }
+except_list_statement	: except_statement 										{ $$ = createList(LT_STMT_EXCEPT_LIST, NULL, $1); }
+						| except_list_statement except_statement				{ $$ = appendToList($1, NULL, $2); }
 						;
 					
 except_statement	: EXCEPT ':' suite 											{ $$ = createStatement(ST_EXCEPT, NULL, $3, NULL, NULL, NULL, NULL); }
