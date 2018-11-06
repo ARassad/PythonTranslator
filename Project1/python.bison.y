@@ -129,7 +129,7 @@
 
 %%
 
-program : statement_list 				{ $$ = head = $1; }
+program : statement_list												{ $$ = head = $1; printf("START"); }
 		;
 		
 expression  : expression OR expression									{ $$ = createBinaryExpression(ET_OR, $1, $3); }
@@ -303,6 +303,7 @@ struct Expression* createBinaryExpression(enum ExpressionType type,struct Expres
 
 struct Expression* createExpression(enum ExpressionType type, struct Expression* left, struct Expression* middle, struct Expression* right, struct List* exprs, int intVal, float floatVal, char* strVal, struct Expression* id)
 {
+	printf("Expression %d \n", type);
 	struct Expression* result = (struct Expression*)malloc(sizeof(struct Expression));
 	result->type = type;
 	result->left = left;
@@ -318,6 +319,7 @@ struct Expression* createExpression(enum ExpressionType type, struct Expression*
 
 struct List* createList(enum ExpressionListType type, struct Expression* expr, struct Statement* stmt)
 { 
+	printf("List %d \n", type);
 	struct List* result = (struct List*)malloc(sizeof(struct List));
 	result->type = type;
 	result->expr_value = expr;
@@ -339,6 +341,7 @@ struct List* appendToList(struct List* list, struct Expression* expr, struct Sta
 
 struct Statement* createStatement(enum StatementType type, struct Expression* expr, struct List* firstSuite, struct List* secondSuite, struct List* thirdSuite, struct List* stmtList, struct Expression* identifier)
 {
+	printf("Statement %d \n", type);
 	struct Statement* result = (struct Statement*)malloc(sizeof(struct Statement));
 	result->type = type;
 	result->expr = expr;

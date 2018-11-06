@@ -43,20 +43,18 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 	int isLogicalString = 0;
 	
 	struct DedentStruct dedents;
-	int isEOF = 0;
+	int firstEOF = 0;
 %}
 
-<DEDENT_OUTPUT> {
+<DEDENT_OUTPUT>""/. {	
 						if (dedents.count > 0){
+							printf("DENT %d\n", dedents.DedentType);
 							dedents.count--;
 							return dedents.DedentType;
 						}
-						else if (isEOF) {
-							yyterminate();
-						}
-						else 
+						else	
 							BEGIN(INITIAL);
-					}
+				}
 
 ^\s*\n			{;}
 
@@ -243,10 +241,18 @@ yield		{ return YIELD; }
 [ \t]		{;}
 
 <<EOF>> {
+			
 			calcIndentation(indentStack, &indexTop, 0, &dedents);
-			BEGIN(DEDENT_OUTPUT);
-			isEOF = 1;
-			return END_OF_FILE;
+			
+			if (dedents.count > 0) {
+				printf("DENT FINISH %d\n", dedents.DedentType);
+				dedents.count--;
+				return dedents.DedentType;
+			}
+			else if (firstEOF == 0) {
+				firstEOF = 1;
+				yyterminate();
+			}				
 		}
 %%
 
