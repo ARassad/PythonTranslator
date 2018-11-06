@@ -3,8 +3,8 @@
 #include "tree_struct.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "printTree.h"
 extern int yyparse(void);
-extern void printTree(void);
 void calcIndentation(int* indentStack, int* indexTop, int len, struct DedentStruct* dedents);
 struct DedentStruct
 {
