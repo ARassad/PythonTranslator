@@ -25,10 +25,26 @@ void printList(int parentID, struct List* list, int* maxId)
 
 		case LT_ELEMENT:
 		{
+			printf("%d [label = \"List_Element\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			if (list->stmt_value != NULL)
+				printStmt(currentId, list->stmt_value, maxId);
+			else if (list->expr_value != NULL)
+			{
+				printExpr(currentId, list->expr_value, maxId);
+			}
+			if (list->next != NULL)
+				printList(currentId, list->next, maxId);
 			break;
 		}
 		case LT_EXPR_ARRAY_INITIAL_ARGUMENTS:
 		{
+			printf("%d [label = \"ARRAY_ARGUMENTS\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			struct Expression* expr = list->expr_value;
+			printExpr(currentId, expr, maxId);
+			if (list->next != NULL)
+				printList(currentId, list->next, maxId);
 			break;
 		}
 		case LT_EXPR_FUNCTION_PARAMS:
@@ -43,6 +59,12 @@ void printList(int parentID, struct List* list, int* maxId)
 		}
 		case LT_EXPR_CLASS_PARENTS:
 		{
+			printf("%d [label = \"CLASS_PARENTS_list\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			struct Expression* expr = list->expr_value;
+			printExpr(currentId, expr, maxId);
+			if (list->next != NULL)
+				printList(currentId, list->next, maxId);
 			break;
 		}
 		case LT_STATEMENT_LIST:
@@ -161,22 +183,30 @@ void printStmt(int parentID, struct Statement* stmt, int* maxId)
 		}
 		case ST_TRY:
 		{
-			break;
-		}
-		case ST_WITH:
-		{
-			break;
-		}
-		case ST_ELIF_LISTS:
-		{
+			printf("%d [label=\"try\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printList(currentId, stmt->firstSuite, maxId);
+			printList(currentId, stmt->secondSuite, maxId);
+			printList(currentId, stmt->thirdSuite, maxId);
 			break;
 		}
 		case ST_ELIF:
 		{
+			printf("%d [label=\"elif\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printList(currentId, stmt->firstSuite, maxId);
+			printList(currentId, stmt->secondSuite, maxId);
 			break;
 		}
 		case ST_EXCEPT:
 		{
+			printf("%d [label=\"elif\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			if(stmt->firstSuite != NULL)
+				printList(currentId, stmt->firstSuite, maxId);
+			printList(currentId, stmt->secondSuite, maxId);
+			if (stmt->identifier != NULL)
+				printExpr(currentId, stmt->identifier, maxId);
 			break;
 		}
 		case ST_RETURN:
@@ -408,26 +438,40 @@ void printExpr(int parentID, struct Expression* expr, int* maxId)
 		}
 		case ET_FLOOR_DIV:
 		{
+			printf("%d [label = \"floor div\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printExpr(currentId, expr->left, maxId);
+			printExpr(currentId, expr->right, maxId);
 			break;
 		}
 		case ET_UPLUS:
 		{
+			printf("%d [label = \"++\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printExpr(currentId, expr->left, maxId);
 			break;
 		}
 		case ET_UMINUS:
 		{
+			printf("%d [label = \"--\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printExpr(currentId, expr->left, maxId);
 			break;
 		}
 		case ET_POW:
 		{
+			printf("%d [label = \"pow\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printExpr(currentId, expr->left, maxId);
+			printExpr(currentId, expr->right, maxId);
 			break;
 		}
 		case ET_DOT:
 		{
-			break;
-		}
-		case ET_PARENTHNESES:
-		{
+			printf("%d [label = \".\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printExpr(currentId, expr->left, maxId);
+			printExpr(currentId, expr->right, maxId);
 			break;
 		}
 		case ET_ID:
@@ -446,32 +490,49 @@ void printExpr(int parentID, struct Expression* expr, int* maxId)
 		}
 		case ET_FLOAT:
 		{
-			printf("%d", maxId);
+			printf("%d", currentId);
 			printf("[label = %f\"]\n", expr->floatVal);
-			printf("%d--%d\n", parentID, maxId);
+			printf("%d--%d\n", parentID, currentId);
 			break;
 		}
 		case ET_STRING:
 		{
-			printf("%d", maxId);
+			printf("%d", currentId);
 			printf("[label = \"%s\"]\n", expr->strVal);
-			printf("%d--%d\n", parentID, maxId);
+			printf("%d--%d\n", parentID, currentId);
 			break;
 		}
 		case ET_SQUARE_BRACKETS:
 		{
+			printf("%d [label = \"[]\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printList(currentId, expr->exprs, maxId);
 			break;
 		}
 		case ET_ARRAY_APPEAL:
 		{
+			printf("%d [label = \"[]\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printList(currentId, expr->left, maxId);
+			printList(currentId, expr->right, maxId);
 			break;
 		}
 		case ET_ARRAY_SLICE:
 		{
+			printf("%d [label = \"Array_Slice\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printList(currentId, expr->left, maxId);
+			printList(currentId, expr->right, maxId);
 			break;
 		}
 		case ET_ARRAY_SLICE_ARGUMENTS:
 		{
+			printf("%d [label = \"Array_Slice\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printList(currentId, expr->left, maxId);
+			printList(currentId, expr->middle, maxId);
+			if(expr->right != NULL)
+				printList(currentId, expr->right, maxId);
 			break;
 		}
 		case ET_ASSIGN:
@@ -484,18 +545,30 @@ void printExpr(int parentID, struct Expression* expr, int* maxId)
 		}
 		case ET_ARRAY_GENERATOR:
 		{
+			printf("%d [label = \"array_generator\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printExpr(currentId, expr->left, maxId);
+			printExpr(currentId, expr->middle, maxId);
+			if (expr->right != NULL)
+				printList(currentId, expr->right, maxId);
 			break;
 		}
 		case ET_FUNC_PARAM:
 		{
+			printf("%d [label = \"function_params\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printExpr(currentId, expr->left, maxId);
+			printExpr(currentId, expr->identifier, maxId);
+			if (expr->right != NULL)
+				printList(currentId, expr->right, maxId);
 			break;
 		}
 		case ET_FUNC_CALL:
 		{
-			break;
-		}
-		case ET_RETURN:
-		{
+			printf("%d [label = \"function_call\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printExpr(currentId, expr->left, maxId);
+			printList(currentId, expr->exprs, maxId);
 			break;
 		}
 		default:
