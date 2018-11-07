@@ -13,7 +13,8 @@ struct DedentStruct
 	int count;
 };
 struct DedentStruct dedents;
-int firstEOF = 0;
+int firstEOF = 1;
+int secondEOF = 1;
 int indexTop = 0;
 int indentStack[1000];
 %}
@@ -244,16 +245,22 @@ yield		{ return YIELD; }
 <<EOF>> {
 			
 			calcIndentation(indentStack, &indexTop, 0, &dedents);
-			
-			if (dedents.count > 0) {
-				printf("DENT FINISH %d\n", dedents.DedentType);
-				dedents.count--;
-				return dedents.DedentType;
+			if (firstEOF == 0){
+				
+				if (dedents.count > 0) {
+					printf("DENT FINISH %d\n", dedents.DedentType);
+					dedents.count--;
+					return dedents.DedentType;
+				}
+				else if (secondEOF == 1) {
+					secondEOF = 0;
+					yyterminate();
+				}				
 			}
-			else if (firstEOF == 0) {
-				firstEOF = 1;
-				yyterminate();
-			}				
+			else {
+				firstEOF = 0;
+				return NEWLINE;
+			}
 		}
 %%
 
