@@ -145,7 +145,8 @@ void printStmt(int parentID, struct Statement* stmt, int* maxId)
 			printf("%d [label=\"def\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
 			printExpr(currentId, stmt->identifier, maxId);
-			printExpr(currentId, stmt->expr, maxId);
+			if(stmt ->expr!= NULL)
+				printExpr(currentId, stmt->expr, maxId);
 			printList(currentId, stmt->stmtList,maxId);
 			printList(currentId, stmt->firstSuite, maxId);
 			break;
