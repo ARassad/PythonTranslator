@@ -192,6 +192,7 @@ void printStmt(int parentID, struct Statement* stmt, int* maxId)
 			printf("%d [label=\"try\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
 			printList(currentId, stmt->firstSuite, maxId);
+			printList(currentId, stmt->stmtList, maxId);
 			printList(currentId, stmt->secondSuite, maxId);
 			printList(currentId, stmt->thirdSuite, maxId);
 			break;
@@ -207,11 +208,13 @@ void printStmt(int parentID, struct Statement* stmt, int* maxId)
 		}
 		case ST_EXCEPT:
 		{
-			printf("%d [label=\"elif\"]\n", currentId);
+			printf("%d [label=\"except\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
 			if(stmt->firstSuite != NULL)
 				printList(currentId, stmt->firstSuite, maxId);
 			printList(currentId, stmt->secondSuite, maxId);
+			if (stmt->expr != NULL)
+				printExpr(currentId, stmt->expr, maxId);
 			if (stmt->identifier != NULL)
 				printExpr(currentId, stmt->identifier, maxId);
 			break;
