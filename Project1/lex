@@ -12,6 +12,10 @@ struct DedentStruct
 	int DedentType;
 	int count;
 };
+struct DedentStruct dedents;
+int firstEOF = 0;
+int indexTop = 0;
+int indentStack[1000];
 %}
 %option noyywrap
 %option never-interactive
@@ -32,9 +36,6 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 %%
 
 %{
-	int indexTop = 0;
-	int indentStack[1000];
-	indentStack[0] = 0;
 	char comment[1000];
 	comment[0] = 0;
 	char hex[3];
@@ -43,8 +44,7 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 	int curlybracesOpenCount = 0;
 	int isLogicalString = 0;
 	
-	struct DedentStruct dedents;
-	int firstEOF = 0;
+
 %}
 
 <DEDENT_OUTPUT>""/. {	
