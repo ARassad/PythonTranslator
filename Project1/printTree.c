@@ -158,10 +158,11 @@ void printStmt(int parentID, struct Statement* stmt, int* maxId)
 			printExpr(currentId, stmt->identifier, maxId);
 			printList(currentId, stmt->firstSuite, maxId);
 			printList(currentId, stmt->stmtList, maxId);
+			break;
 		}
 		case ST_WHILE:
 		{
-			printf("%d [label=\"if\"]\n", currentId);
+			printf("%d [label=\"while\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
 			printExpr(currentId, stmt->expr, maxId);
 			if (stmt->firstSuite != NULL)
@@ -172,6 +173,7 @@ void printStmt(int parentID, struct Statement* stmt, int* maxId)
 			{
 				printList(currentId, stmt->secondSuite, maxId);
 			}
+			break;
 		}
 		case ST_FOR:
 		{
