@@ -200,6 +200,7 @@ void printStmt(int parentID, struct Statement* stmt, int* maxId)
 		{
 			printf("%d [label=\"elif\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
+			printExpr(currentId, stmt->expr, maxId);
 			printList(currentId, stmt->firstSuite, maxId);
 			printList(currentId, stmt->secondSuite, maxId);
 			break;
