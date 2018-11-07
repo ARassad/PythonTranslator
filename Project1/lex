@@ -3,6 +3,7 @@
 #include "tree_struct.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <process.h>
 #include "printTree.h"
 extern int yyparse(void);
 void calcIndentation(int* indentStack, int* indexTop, int len, struct DedentStruct* dedents);
@@ -292,5 +293,6 @@ int main(int argc, char *argv[])
 	yyparse();
 	freopen("resultGraph.txt","w",stdout);
 	printTree();
+	_execlpe("cmd", "/c", "graph.bat", "", 0,0,0);
 	return 0;
 }
