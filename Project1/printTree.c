@@ -16,9 +16,11 @@ void printList(int parentID, struct List* list, int* maxId)
 {
 	(*maxId)++;
 	int currentId = (*maxId);
-	switch (list->type)
+	if (list != NULL)
 	{
-		case LT_UNDEFINED: 
+		switch (list->type)
+		{
+		case LT_UNDEFINED:
 		{
 			break;
 		}
@@ -49,11 +51,11 @@ void printList(int parentID, struct List* list, int* maxId)
 		}
 		case LT_EXPR_FUNCTION_PARAMS:
 		{
-			printf("%d [label = \"EXPR_FUNCTION_PARAMS_list\"]\n",currentId);
+			printf("%d [label = \"EXPR_FUNCTION_PARAMS_list\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
 			struct Expression* expr = list->expr_value;
-			printExpr(currentId,expr,maxId);
-			if(list->next != NULL)
+			printExpr(currentId, expr, maxId);
+			if (list->next != NULL)
 				printList(currentId, list->next, maxId);
 			break;
 		}
@@ -69,36 +71,37 @@ void printList(int parentID, struct List* list, int* maxId)
 		}
 		case LT_STATEMENT_LIST:
 		{
-			printf("%d [label = \"stmt_list\"]\n",currentId);
+			printf("%d [label = \"stmt_list\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
 			struct Statement* stmt = list->stmt_value;
-			printStmt(currentId,stmt,maxId);
-			if(list->next != NULL)
+			printStmt(currentId, stmt, maxId);
+			if (list->next != NULL)
 				printList(currentId, list->next, maxId);
 			break;
 		}
 		case LT_STMT_ELIF_LIST:
 		{
-			printf("%d [label = \"elif_stmt_list\"]\n",currentId);
+			printf("%d [label = \"elif_stmt_list\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
 			struct Statement* stmt = list->stmt_value;
-			printStmt(currentId,stmt,maxId);
-			if(list->next != NULL)
+			printStmt(currentId, stmt, maxId);
+			if (list->next != NULL)
 				printList(currentId, list->next, maxId);
 			break;
 		}
 		case LT_STMT_EXCEPT_LIST:
 		{
-			printf("%d [label = \"except_stmt_list\"]\n",currentId);
+			printf("%d [label = \"except_stmt_list\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
 			struct Statement* stmt = list->stmt_value;
-			printStmt(currentId,stmt,maxId);
-			if(list->next != NULL)
+			printStmt(currentId, stmt, maxId);
+			if (list->next != NULL)
 				printList(currentId, list->next, maxId);
 			break;
 		}
 		default:
 			break;
+		}
 	}
 }
 void printStmt(int parentID, struct Statement* stmt, int* maxId)
