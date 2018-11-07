@@ -22,7 +22,7 @@ int indentStack[1000];
 %option never-interactive
 %option yylineno
 %x ONECOMMENT
-%x STRING
+%x STRING_0
 %x DOUBLELONGSTRING
 %x LONGSTRING
 %x STRINGS
@@ -67,26 +67,27 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 
 \"\"\"													{BEGIN(DOUBLELONGSTRING); comment[0] = 0;}
 <DOUBLELONGSTRING>\\n											strcat(comment,"\n");
-<DOUBLELONGSTRING,STRING,LONGSTRING>\\\"						strcat(comment,"\"");
-<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\\\				strcat(comment,"\\");
-<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\\'				strcat(comment,"\'");
-<DOUBLELONGSTRING,STRING,LONGSTRING>\'							strcat(comment,"\'");
+<DOUBLELONGSTRING,STRING_0,LONGSTRING>\\\"						strcat(comment,"\"");
+<DOUBLELONGSTRING,LONGSTRING,STRING_0,STRINGS>\\\\				strcat(comment,"\\");
+<DOUBLELONGSTRING,LONGSTRING,STRING_0,STRINGS>\\\'				strcat(comment,"\'");
+<DOUBLELONGSTRING,STRING_0,LONGSTRING>\'							strcat(comment,"\'");
 <DOUBLELONGSTRING,STRINGS,LONGSTRING>\"							strcat(comment,"\"");
-<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\newline
-<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\a					strcat(comment,"\a");
-<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\b					strcat(comment,"\b");
-<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\f					strcat(comment,"\f");
-<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\r					strcat(comment,"\r");
-<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\t					strcat(comment,"\t");
-<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\v					strcat(comment,"\v");
-<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>\\x([0-9a-fA-F]){2}	{
+<DOUBLELONGSTRING,LONGSTRING,STRING_0,STRINGS>\\newline
+<DOUBLELONGSTRING,LONGSTRING,STRING_0,STRINGS>\\a					strcat(comment,"\a");
+<DOUBLELONGSTRING,LONGSTRING,STRING_0,STRINGS>\\b					strcat(comment,"\b");
+<DOUBLELONGSTRING,LONGSTRING,STRING_0,STRINGS>\\f					strcat(comment,"\f");
+<DOUBLELONGSTRING,LONGSTRING,STRING_0,STRINGS>\\r					strcat(comment,"\r");
+<DOUBLELONGSTRING,LONGSTRING,STRING_0,STRINGS>\\t					strcat(comment,"\t");
+<DOUBLELONGSTRING,LONGSTRING,STRING_0,STRINGS>\\v					strcat(comment,"\v");
+<DOUBLELONGSTRING,LONGSTRING,STRING_0,STRINGS>\\x([0-9a-fA-F]){2}	{
 																	hex[0] = strtol(yytext + 2,0,16);
 																	hex[1] = 0;
 																	strcat(comment,hex);
 																}
-<DOUBLELONGSTRING,LONGSTRING,STRING,STRINGS>[^\"\\\n\'\a\b\f\r\t\v\x]+		strcat(comment,yytext);
+<DOUBLELONGSTRING,LONGSTRING,STRING_0,STRINGS>[^\"\\\n\'\a\b\f\r\t\v\x]+		strcat(comment,yytext);
 <DOUBLELONGSTRING>\"\"\" 		{
-									yylval.string_value=(char *)malloc(strlen(yytext)+1);
+									yylval.string_value=(char *)malloc(strlen(comment)+1);
+									yylval.string_value[0] = 0;
 									strcat(yylval.string_value, comment); 
 									BEGIN(INITIAL);
 									return STRING;
@@ -96,7 +97,8 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 <LONGSTRING>\\n							strcat(comment,"\n");
 <LONGSTRING,STRINGS>\\\'				strcat(comment,"\'");
 <LONGSTRING>\'\'\' 						{
-											yylval.string_value=(char *)malloc(strlen(yytext)+1);
+											yylval.string_value=(char *)malloc(strlen(comment)+1);
+											yylval.string_value[0] = 0;
 											strcat(yylval.string_value, comment);
 											BEGIN(INITIAL);
 											return STRING;
@@ -132,10 +134,11 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 				}
 			}
 
-\"						{BEGIN(STRING);comment[0] = 0;}
-<STRING,STRINGS>\n		{printf("Error in string %d - String literal not closed",yylineno);BEGIN(INITIAL);}
-<STRING>\" 				{
-							yylval.string_value=(char *)malloc(strlen(yytext)+1);
+\"						{BEGIN(STRING_0);comment[0] = 0;}
+<STRING_0,STRINGS>\n		{printf("Error in string %d - String literal not closed",yylineno);BEGIN(INITIAL);}
+<STRING_0>\" 			{
+							yylval.string_value=(char *)malloc(strlen(comment)+1);
+							yylval.string_value[0] = 0;
 							strcat(yylval.string_value, comment);
 							BEGIN(INITIAL);
 							return STRING;
@@ -143,7 +146,8 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 
 \'					{BEGIN(STRINGS);comment[0] = 0;}
 <STRINGS>\' 		{
-						yylval.string_value=(char *)malloc(strlen(yytext)+1);
+						yylval.string_value=(char *)malloc(strlen(comment)+1);
+						yylval.string_value[0] = 0;
 						strcat(yylval.string_value, comment);
 						BEGIN(INITIAL);
 						return STRING;
