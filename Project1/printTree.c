@@ -497,7 +497,7 @@ void printExpr(int parentID, struct Expression* expr, int* maxId)
 		case ET_FLOAT:
 		{
 			printf("%d", currentId);
-			printf("[label = %f\"]\n", expr->floatVal);
+			printf("[label = \"%f\"]\n", expr->floatVal);
 			printf("%d--%d\n", parentID, currentId);
 			break;
 		}
@@ -519,8 +519,8 @@ void printExpr(int parentID, struct Expression* expr, int* maxId)
 		{
 			printf("%d [label = \"[]\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
-			printList(currentId, expr->left, maxId);
-			printList(currentId, expr->right, maxId);
+			printExpr(currentId, expr->left, maxId);
+			printExpr(currentId, expr->right, maxId);
 			break;
 		}
 		case ET_ARRAY_SLICE:
