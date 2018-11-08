@@ -206,10 +206,10 @@ statement	: expression NEWLINE										{ $$ = createStatement(ST_EXPRESSION, $1
 			| while_statement											{ $$ = $1; }
 			| for_statement												{ $$ = $1; }
 			| try_statement												{ $$ = $1; }
-			| return_statement											{ $$ = $1; }
 			| statement NEWLINE											{ $$ = $1; }
 			| RETURN expression											{ $$ = createReturnStatement($2); }
 			| PASS														{ $$ = createStatement(ST_PASS, NULL, NULL, NULL, NULL, NULL, NULL); }
+			| RAISE expression											{ $$ = createStatement(ST_RAISE, $2, NULL, NULL, NULL, NULL, NULL); }
 			;
 
 statement_list  : statement 										{ $$ = createList(LT_STATEMENT_LIST, NULL, $1); }
