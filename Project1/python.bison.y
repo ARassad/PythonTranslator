@@ -213,6 +213,7 @@ statement	: expression NEWLINE										{ $$ = createStatement(ST_EXPRESSION, $1
 			| BREAK 													{ $$ = createStatement(ST_BREAK, NULL, NULL, NULL, NULL, NULL, NULL); }
 			| CONTINUE 													{ $$ = createStatement(ST_CONTINUE, NULL, NULL, NULL, NULL, NULL, NULL); }
 			| YIELD expression											{ $$ = createStatement(ST_YIELD, $2, NULL, NULL, NULL, NULL, NULL); }
+			| ASSERT expression											{ $$ = createStatement(ST_ASSERT, $2, NULL, NULL, NULL, NULL, NULL); }
 			;
 
 statement_list  : statement 										{ $$ = createList(LT_STATEMENT_LIST, NULL, $1); }

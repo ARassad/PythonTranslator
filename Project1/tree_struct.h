@@ -118,7 +118,8 @@ enum StatementType
 	ST_RAISE,
 	ST_BREAK,
 	ST_CONTINUE,
-	ST_YIELD
+	ST_YIELD,
+	ST_ASSERT
 };
 
 struct Statement 
