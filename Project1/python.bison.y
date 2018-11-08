@@ -231,7 +231,7 @@ parameters	: parameter													{ $$ = createList(LT_EXPR_FUNCTION_PARAMS, $1
 			| parameters ',' parameter									{ $$ = appendToList($1, $3, NULL); }
 			;
 					
-parameter	: identifier 												{ $$ = $1; }
+parameter	: identifier 												{ $$ = createExpression(ET_FUNC_PARAM, NULL, NULL, NULL, NULL, 0, 0.0, NULL, $1); }
 			| identifier ':' expression									{ $$ = createExpression(ET_FUNC_PARAM, $3, NULL, NULL, NULL, 0, 0.0, NULL, $1); }
 			| identifier '=' expression									{ $$ = createExpression(ET_FUNC_PARAM_DEFAULT, $3, NULL, NULL, NULL, 0, 0.0, NULL, $1); }
 			;

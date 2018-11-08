@@ -241,14 +241,14 @@ void printExpr(int parentID, struct Expression* expr, int* maxId)
 		case ET_OR:
 		{
 			printf("%d [label = \"OR\"]\n",currentId);
-			printf("%d--%d", parentID, currentId);
+			printf("%d--%d\n", parentID, currentId);
 			printExpr(currentId, expr->left, maxId);
 			printExpr(currentId, expr->right, maxId);
 			break;
 		}
 		case ET_AND:
 		{
-			printf("%d [label = \"AND\"]", currentId);
+			printf("%d [label = \"AND\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
 			printExpr(currentId, expr->left, maxId);
 			printExpr(currentId, expr->right, maxId);
@@ -256,9 +256,8 @@ void printExpr(int parentID, struct Expression* expr, int* maxId)
 		}
 		case ET_NOT:
 		{
-			printf("%d [label = \"NOT\"]", currentId);
+			printf("%d [label = \"NOT\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
-			printExpr(currentId, expr->left, maxId);
 			printExpr(currentId, expr->right, maxId);
 			break;
 		}
@@ -432,7 +431,7 @@ void printExpr(int parentID, struct Expression* expr, int* maxId)
 		}
 		case ET_DIV:
 		{
-			printf("%d [label = \"//\"]\n", currentId);
+			printf("%d [label = \"/\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
 			printExpr(currentId, expr->left, maxId);
 			printExpr(currentId, expr->right, maxId);
@@ -456,14 +455,14 @@ void printExpr(int parentID, struct Expression* expr, int* maxId)
 		}
 		case ET_UPLUS:
 		{
-			printf("%d [label = \"++\"]\n", currentId);
+			printf("%d [label = \"+\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
 			printExpr(currentId, expr->left, maxId);
 			break;
 		}
 		case ET_UMINUS:
 		{
-			printf("%d [label = \"--\"]\n", currentId);
+			printf("%d [label = \"-\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
 			printExpr(currentId, expr->left, maxId);
 			break;
@@ -563,14 +562,15 @@ void printExpr(int parentID, struct Expression* expr, int* maxId)
 				printList(currentId, expr->right, maxId);
 			break;
 		}
+		case ET_FUNC_PARAM_DEFAULT:
 		case ET_FUNC_PARAM:
 		{
 			printf("%d [label = \"function_params\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
-			printExpr(currentId, expr->left, maxId);
 			printExpr(currentId, expr->identifier, maxId);
-			if (expr->right != NULL)
-				printList(currentId, expr->right, maxId);
+			//printExpr(currentId, expr->left, maxId);
+			if (expr->left != NULL)
+				printExpr(currentId, expr->left, maxId);
 			break;
 		}
 		case ET_FUNC_CALL:
