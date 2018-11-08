@@ -113,7 +113,8 @@ enum StatementType
 	ST_ELIF_LISTS,
 	ST_ELIF,
 	ST_EXCEPT,
-	ST_RETURN
+	ST_RETURN,
+	ST_PASS
 };
 
 struct Statement 

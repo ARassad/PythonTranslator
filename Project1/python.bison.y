@@ -50,7 +50,6 @@
 %type <stmt> for_statement
 %type <stmt> try_statement
 %type <stmt> except_statement
-%type <stmt> return_statement
 
 %type <list> program
 %type <list> arguments_e
@@ -209,6 +208,8 @@ statement	: expression NEWLINE										{ $$ = createStatement(ST_EXPRESSION, $1
 			| try_statement												{ $$ = $1; }
 			| return_statement											{ $$ = $1; }
 			| statement NEWLINE											{ $$ = $1; }
+			| RETURN expression											{ $$ = createReturnStatement($2); }
+			| PASS														{ $$ = createStatement(ST_PASS, NULL, NULL, NULL, NULL, NULL, NULL); }
 			;
 
 statement_list  : statement 										{ $$ = createList(LT_STATEMENT_LIST, NULL, $1); }
@@ -217,9 +218,6 @@ statement_list  : statement 										{ $$ = createList(LT_STATEMENT_LIST, NULL,
 
 suite		: NEWLINE INDENT statement_list DEDENT						{ $$ = $3; }
 			;
-			
-return_statement	: RETURN expression									{ $$ = createReturnStatement($2); }
-					;
 				
 function_definition : DEF identifier '(' parameters_e ')' ':' suite							{ $$ = createFuncDefStatement($2, $4, NULL, $7); }
 					| DEF identifier '(' parameters_e ')' ARROW expression ':' suite			{ $$ = createFuncDefStatement($2, $4, $7, $9); }
