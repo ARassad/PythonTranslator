@@ -115,7 +115,10 @@ enum StatementType
 	ST_EXCEPT,
 	ST_RETURN,
 	ST_PASS,
-	ST_RAISE
+	ST_RAISE,
+	ST_BREAK,
+	ST_CONTINUE,
+	ST_YIELD
 };
 
 struct Statement 
