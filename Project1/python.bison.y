@@ -40,6 +40,7 @@
 %type <expr> array_slice
 %type <expr> arr_slic_dim
 %type <expr> parameter
+%type <expr> identifier_named
 
 %type <stmt> statement
 %type <stmt> function_definition
@@ -50,6 +51,7 @@
 %type <stmt> for_statement
 %type <stmt> try_statement
 %type <stmt> except_statement
+%type <stmt> import_statement
 
 %type <list> program
 %type <list> arguments_e
@@ -62,6 +64,7 @@
 %type <list> class_parents
 %type <list> elif_statement_list
 %type <list> except_list_statement
+%type <list> identifier_list
 
 %token <int_value> INT
 %token <float_value> FLOAT
@@ -214,6 +217,7 @@ statement	: expression NEWLINE										{ $$ = createStatement(ST_EXPRESSION, $1
 			| CONTINUE 													{ $$ = createStatement(ST_CONTINUE, NULL, NULL, NULL, NULL, NULL, NULL); }
 			| YIELD expression											{ $$ = createStatement(ST_YIELD, $2, NULL, NULL, NULL, NULL, NULL); }
 			| ASSERT expression											{ $$ = createStatement(ST_ASSERT, $2, NULL, NULL, NULL, NULL, NULL); }
+			| import_statement											{ $$ = $1; }
 			;
 
 statement_list  : statement 										{ $$ = createList(LT_STATEMENT_LIST, NULL, $1); }
@@ -288,6 +292,19 @@ except_list_statement	: except_statement 										{ $$ = createList(LT_STMT_EXC
 					
 except_statement	: EXCEPT ':' suite 											{ $$ = createStatement(ST_EXCEPT, NULL, $3, NULL, NULL, NULL, NULL); }
 					| EXCEPT expression AS identifier ':' suite					{ $$ = createStatement(ST_EXCEPT, $2, $6, NULL, NULL, NULL, $4); }
+					;
+					
+import_statement	: IMPORT identifier_list									{ $$ = createStatement(ST_IMPORT, NULL, NULL, NULL, NULL, $2, NULL); }
+					| FROM identifier IMPORT identifier_list					{ $$ = createStatement(ST_FROM_IMPORT, NULL, NULL, NULL, NULL, $4, $2); }
+					| FROM identifier IMPORT '*'								{ $$ = createStatement(ST_FROM_IMPORT, NULL, NULL, NULL, NULL, NULL, $2); }
+					;
+
+identifier_list		: identifier_named											{ $$ = createList(LT_EXPR_ID_AS_LIST, $1, NULL); }
+					| identifier_list ',' identifier_named						{ $$ = appendToList($1, $3, NULL); }
+					;
+
+identifier_named	: identifier												{ $$ = $1; }
+					| identifier AS identifier									{ $$ = createExpression(ET_ID_AS, $1, NULL, $3, NULL, 0, 0.0, NULL, NULL); }
 					;
 %%
 

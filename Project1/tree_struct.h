@@ -52,7 +52,8 @@ enum ExpressionType
 	ET_FUNC_CALL,
 	ET_RETURN,
 	ET_BOOL,
-	ET_NONE
+	ET_NONE,
+	ET_ID_AS
 };
 
 struct Expression 
@@ -85,7 +86,8 @@ enum ListType
 	
 	LT_STATEMENT_LIST,
 	LT_STMT_ELIF_LIST,
-	LT_STMT_EXCEPT_LIST
+	LT_STMT_EXCEPT_LIST,
+	LT_EXPR_ID_AS_LIST
 };
 	 
 struct List
@@ -119,7 +121,9 @@ enum StatementType
 	ST_BREAK,
 	ST_CONTINUE,
 	ST_YIELD,
-	ST_ASSERT
+	ST_ASSERT,
+	ST_IMPORT,
+	ST_FROM_IMPORT
 };
 
 struct Statement 
