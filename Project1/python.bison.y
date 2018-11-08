@@ -185,8 +185,8 @@ arguments_e	: arguments													{ $$ = $1; }
 			| 															{ $$ = NULL; }
 			;
 
-arguments	: expression												{ $$ = createList(LT_EXPR_ARRAY_INITIAL_ARGUMENTS, $1, NULL); }
-			| arguments ',' expression									{ $$ = appendToList($1, $3, NULL); }
+arguments	: expression												{ $$ = createList(LT_EXPR_ARRAY_INITIAL_ARGUMENTS, $1, NULL);}
+			| arguments ',' expression									{ $$ = appendToList($1, $3, NULL);}
 			;
 
 array_slice : arr_slic_dim ':' arr_slic_dim ':' arr_slic_dim			{ $$ = createExpression(ET_ARRAY_SLICE_ARGUMENTS, $1, $3, $5, NULL, 0, 0.0, NULL, NULL); }
@@ -286,8 +286,8 @@ except_statement	: EXCEPT ':' suite 											{ $$ = createStatement(ST_EXCEPT,
 					;
 %%
 
-void yyerror(char const *s)
-{
+void yyerror(char const *s){
+
 	printf("%s",s);
 }
 

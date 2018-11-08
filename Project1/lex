@@ -17,6 +17,10 @@ int firstEOF = 1;
 int secondEOF = 1;
 int indexTop = 0;
 int indentStack[1000];
+int parenthesesOpenCount = 0;
+	int squarebracketsOpenCount = 0;
+	int curlybracesOpenCount = 0;
+	int isLogicalString = 0;
 %}
 %option noyywrap
 %option never-interactive
@@ -40,10 +44,7 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 	char comment[1000];
 	comment[0] = 0;
 	char hex[3];
-	int parenthesesOpenCount = 0;
-	int squarebracketsOpenCount = 0;
-	int curlybracesOpenCount = 0;
-	int isLogicalString = 0;
+	
 	
 
 %}
@@ -86,9 +87,10 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 																}
 <DOUBLELONGSTRING,LONGSTRING,STRING_0,STRINGS>[^\"\\\n\'\a\b\f\r\t\v\x]+		strcat(comment,yytext);
 <DOUBLELONGSTRING>\"\"\" 		{
-									yylval.string_value=(char *)malloc(strlen(comment)+1);
-									yylval.string_value[0] = 0;
-									strcat(yylval.string_value, comment); 
+									char* string1 =(char *)malloc(strlen(comment)+1);
+									string1[0] = 0;
+									strcpy(string1, comment);
+									yylval.string_value = string1;
 									BEGIN(INITIAL);
 									return STRING;
 								}
@@ -97,9 +99,10 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 <LONGSTRING>\\n							strcat(comment,"\n");
 <LONGSTRING,STRINGS>\\\'				strcat(comment,"\'");
 <LONGSTRING>\'\'\' 						{
-											yylval.string_value=(char *)malloc(strlen(comment)+1);
-											yylval.string_value[0] = 0;
-											strcat(yylval.string_value, comment);
+											char* string1 =(char *)malloc(strlen(comment)+1);
+											string1[0] = 0;
+											strcpy(string1, comment);
+											yylval.string_value = string1;
 											BEGIN(INITIAL);
 											return STRING;
 										}
@@ -137,18 +140,20 @@ IDENTIFIER 	[A-Za-z_][A-Za-z0-9_]*
 \"						{BEGIN(STRING_0);comment[0] = 0;}
 <STRING_0,STRINGS>\n		{printf("Error in string %d - String literal not closed",yylineno);BEGIN(INITIAL);}
 <STRING_0>\" 			{
-							yylval.string_value=(char *)malloc(strlen(comment)+1);
-							yylval.string_value[0] = 0;
-							strcat(yylval.string_value, comment);
+							char* string1 =(char *)malloc(strlen(comment)+1);
+							string1[0] = 0;
+							strcpy(string1, comment);
+							yylval.string_value = string1;
 							BEGIN(INITIAL);
 							return STRING;
 						}
 
 \'					{BEGIN(STRINGS);comment[0] = 0;}
 <STRINGS>\' 		{
-						yylval.string_value=(char *)malloc(strlen(comment)+1);
-						yylval.string_value[0] = 0;
-						strcat(yylval.string_value, comment);
+						char* string1 =(char *)malloc(strlen(comment)+1);
+						string1[0] = 0;
+						strcpy(string1, comment);
+						yylval.string_value = string1;
 						BEGIN(INITIAL);
 						return STRING;
 					}
