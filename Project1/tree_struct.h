@@ -50,7 +50,8 @@ enum ExpressionType
 	ET_FUNC_PARAM,
 	ET_FUNC_PARAM_DEFAULT,
 	ET_FUNC_CALL,
-	ET_RETURN
+	ET_RETURN,
+	ET_BOOL
 };
 
 struct Expression 
