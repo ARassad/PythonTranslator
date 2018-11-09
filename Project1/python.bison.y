@@ -41,6 +41,7 @@
 %type <expr> arr_slic_dim
 %type <expr> parameter
 %type <expr> identifier_named
+%type <expr> expression_named
 
 %type <stmt> statement
 %type <stmt> function_definition
@@ -52,6 +53,7 @@
 %type <stmt> try_statement
 %type <stmt> except_statement
 %type <stmt> import_statement
+%type <stmt> with_statement
 
 %type <list> program
 %type <list> arguments_e
@@ -65,6 +67,7 @@
 %type <list> elif_statement_list
 %type <list> except_list_statement
 %type <list> identifier_list
+%type <list> with_expr_list
 
 %token <int_value> INT
 %token <float_value> FLOAT
@@ -219,6 +222,7 @@ statement	: expression NEWLINE										{ $$ = createStatement(ST_EXPRESSION, $1
 			| YIELD expression											{ $$ = createStatement(ST_YIELD, $2, NULL, NULL, NULL, NULL, NULL); }
 			| ASSERT expression											{ $$ = createStatement(ST_ASSERT, $2, NULL, NULL, NULL, NULL, NULL); }
 			| import_statement											{ $$ = $1; }
+			| with_statement											{ $$ = $1; }
 			;
 
 statement_list  : statement 										{ $$ = createList(LT_STATEMENT_LIST, NULL, $1); }
@@ -306,6 +310,17 @@ identifier_list		: identifier_named											{ $$ = createList(LT_EXPR_ID_AS_LI
 
 identifier_named	: identifier												{ $$ = $1; }
 					| identifier AS identifier									{ $$ = createExpression(ET_ID_AS, $1, NULL, $3, NULL, 0, 0.0, NULL, NULL); }
+					;
+					
+with_statement		: WITH with_expr_list ':' suite								{ $$ = createStatement(ST_WITH, NULL, $4, NULL, NULL, $2, NULL); }
+					;
+					
+with_expr_list		: expression_named											{ $$ = createList(LT_EXPR_WITH, $1, NULL); }
+					| with_expr_list ',' expression_named						{ $$ = appendToList($1, $3, NULL); }
+					;
+
+expression_named	: expression												{ $$ = $1; }
+					| expression AS identifier									{ $$ = createExpression(ET_EXPR_AS, $1, NULL, NULL, NULL, 0, 0.0, NULL, $3); }		
 					;
 %%
 
@@ -411,6 +426,3 @@ struct Statement* createReturnStatement(struct Expression* expr)
 {
 	return createStatement(ST_RETURN, expr, NULL, NULL, NULL, NULL, NULL);
 }
-
-
-

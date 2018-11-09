@@ -54,7 +54,8 @@ enum ExpressionType
 	ET_BOOL,
 	ET_NONE,
 	ET_ID_AS,
-	ET_LAMBDA
+	ET_LAMBDA,
+	ET_EXPR_AS
 };
 
 struct Expression 
@@ -88,7 +89,8 @@ enum ListType
 	LT_STATEMENT_LIST,
 	LT_STMT_ELIF_LIST,
 	LT_STMT_EXCEPT_LIST,
-	LT_EXPR_ID_AS_LIST
+	LT_EXPR_ID_AS_LIST,
+	LT_EXPR_WITH
 };
 	 
 struct List
