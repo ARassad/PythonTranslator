@@ -53,7 +53,8 @@ enum ExpressionType
 	ET_RETURN,
 	ET_BOOL,
 	ET_NONE,
-	ET_ID_AS
+	ET_ID_AS,
+	ET_LAMBDA
 };
 
 struct Expression 

@@ -60,8 +60,8 @@
 %type <list> suite
 %type <list> parameters_e
 %type <list> parameters
-%type <list> class_parents_e
-%type <list> class_parents
+%type <list> identifiers_e
+%type <list> identifiers
 %type <list> elif_statement_list
 %type <list> except_list_statement
 %type <list> identifier_list
@@ -180,6 +180,7 @@ expression  : expression OR expression									{ $$ = createBinaryExpression(ET_
 			| '[' expression FOR identifier IN expression ']'					{ $$ = createExpression(ET_ARRAY_GENERATOR, $2, $6, NULL, NULL, 0, 0.0, NULL, $4); }
 			| '[' expression FOR identifier IN expression IF expression ']'		{ $$ = createExpression(ET_ARRAY_GENERATOR, $2, $6, $8, NULL, 0, 0.0, NULL, $4); }
 			| expression '(' arguments_e ')'									{ $$ = createExpression(ET_FUNC_CALL, $1, NULL, NULL, $3, 0, 0.0, NULL, NULL); }
+			| LAMBDA identifiers_e ':' expression								{ $$ = createExpression(ET_LAMBDA, $4, NULL, NULL, $2, 0, 0.0, NULL, NULL); }
 			;
 
 identifier  : ID														{ $$ = createBaseTypeExpression(ET_ID, 	0, 0.0, $1); }
@@ -246,16 +247,16 @@ parameter	: identifier 												{ $$ = createExpression(ET_FUNC_PARAM, NULL, 
 			;
 
 class_definition	: CLASS identifier ':' suite							{ $$ = createClassDefStatement($2, NULL, $4)}
-					| CLASS identifier '(' class_parents_e ')' ':' suite	{ $$ = createClassDefStatement($2, $4, $7)}
+					| CLASS identifier '(' identifiers_e ')' ':' suite		{ $$ = createClassDefStatement($2, $4, $7)}
 					;
 					
-class_parents_e		: class_parents										{ $$ = $1; }
-					| class_parents	','									{ $$ = $1; }
+identifiers_e		: identifiers										{ $$ = $1; }
+					| identifiers	','									{ $$ = $1; }
 					|													{ $$ = NULL; }
 					;
 					
-class_parents		: identifier										{ $$ = createList(LT_EXPR_CLASS_PARENTS, $1, NULL); }			
-					| class_parents ',' identifier						{ $$ = appendToList($1, $3, NULL); }
+identifiers			: identifier										{ $$ = createList(LT_EXPR_CLASS_PARENTS, $1, NULL); }			
+					| identifiers ',' identifier						{ $$ = appendToList($1, $3, NULL); }
 					;
 
 condition_statement : IF expression ':' suite										{ $$ = createConditionStatement($2, $4, NULL, NULL); }
