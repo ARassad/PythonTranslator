@@ -99,6 +99,24 @@ void printList(int parentID, struct List* list, int* maxId)
 				printList(currentId, list->next, maxId);
 			break;
 		}
+		case LT_EXPR_ID_AS_LIST: {
+			printf("%d [label = \"list_id\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			struct Statement* stmt = list->expr_value;
+			printExpr(currentId, stmt, maxId);
+			if (list->next != NULL)
+				printList(currentId, list->next, maxId);
+			break;
+		}
+		case LT_EXPR_WITH: {
+			printf("%d [label = \"list_with\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			struct Statement* stmt = list->expr_value;
+			printExpr(currentId, stmt, maxId);
+			if (list->next != NULL)
+				printList(currentId, list->next, maxId);
+			break;
+		}
 		default:
 			break;
 		}
@@ -225,6 +243,68 @@ void printStmt(int parentID, struct Statement* stmt, int* maxId)
 			printf("%d--%d\n", parentID, currentId);
 			printExpr(currentId, stmt->expr, maxId);
 			break;
+		}
+		case ST_RAISE:
+		{
+			printf("%d [label=\"raise_stmt\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printExpr(currentId, stmt->expr, maxId);
+			break;
+		}
+		case ST_BREAK:
+		{
+			printf("%d [label=\"break_stmt\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			break;
+		}
+		case ST_CONTINUE:
+		{
+			printf("%d [label=\"continue_stmt\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			break;
+		}
+		case ST_YIELD: 
+		{
+			printf("%d [label=\"yield_stmt\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printExpr(currentId, stmt->expr, maxId);
+			break;
+		}
+		case ST_ASSERT:
+		{
+			printf("%d [label=\"yield_stmt\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printExpr(currentId, stmt->expr, maxId);
+			break;
+		}
+		case ST_IMPORT:
+		{
+			printf("%d [label=\"import\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printList(currentId, stmt->stmtList, maxId);
+			break;
+		}
+		case ST_FROM_IMPORT:
+		{
+			printf("%d [label=\"from_import\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printExpr(currentId, stmt->identifier, maxId);
+			if(stmt->stmtList != NULL)
+				printList(currentId, stmt->stmtList, maxId);
+			else
+			{
+				(*maxId)++;
+				printf("%d [label=\"*\"]\n", (*maxId));
+				printf("%d--%d\n", currentId, (*maxId));
+			}
+			break;
+		}
+		case ST_WITH:
+		{
+			printf("%d [label=\"from_import\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+			printList(currentId, stmt->firstSuite, maxId);
+			printList(currentId, stmt->stmtList, maxId);
 		}
 	}
 }
@@ -579,6 +659,42 @@ void printExpr(int parentID, struct Expression* expr, int* maxId)
 			printf("%d--%d\n", parentID, currentId);
 			printExpr(currentId, expr->left, maxId);
 			printList(currentId, expr->exprs, maxId);
+			break;
+		}
+		case ET_BOOL:
+		{
+			printf("%d [label = \"bool %d\"]\n", currentId,expr->intVal);
+			printf("%d--%d\n", parentID, currentId);
+			break;
+		}
+		case ET_ID_AS:
+		{
+			printf("%d [label = \"ID AS\"]\n", currentId, expr->intVal);
+			printf("%d--%d\n", parentID, currentId);
+			printExpr(currentId, expr->left, maxId);
+			printExpr(currentId, expr->right, maxId);
+			break;
+		}
+		case ET_LAMBDA:
+		{
+			printf("%d [label = \"Lambda\"]\n", currentId, expr->intVal);
+			printf("%d--%d\n", parentID, currentId);
+			printExpr(currentId, expr->left, maxId);
+			printList(currentId, expr->exprs, maxId);
+			break;
+		}
+		case ET_EXPR_AS:
+		{
+			printf("%d [label = \"expr\"]\n", currentId, expr->intVal);
+			printf("%d--%d\n", parentID, currentId);
+			printExpr(currentId, expr->left, maxId);
+			printExpr(currentId, expr->identifier, maxId);
+			break;
+		}
+		case ET_NONE: 
+		{
+			printf("%d [label = \"None\"]\n", currentId, expr->intVal);
+			printf("%d--%d\n", parentID, currentId);
 			break;
 		}
 		default:
