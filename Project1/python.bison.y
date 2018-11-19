@@ -287,11 +287,11 @@ elif_statement 		: ELIF expression ':' suite										{ $$ = createStatement(ST_
 					;
 					
 while_statement 	: WHILE expression ':' suite									{ $$ = createWhileStatement($2, $4, NULL); }
-					| WHILE expression ':' suite ELSE ':' suite							{ $$ = createWhileStatement($2, $4, $7); }
+					| WHILE expression ':' suite ELSE ':' suite						{ $$ = createWhileStatement($2, $4, $7); }
 					;
 
 for_statement 		: FOR identifier IN expression ':' suite						{ $$ = createForStatement($2, $4, $6, NULL); }
-					| FOR identifier IN expression ':' suite ELSE ':' suite				{ $$ = createForStatement($2, $4, $6, $9); }
+					| FOR identifier IN expression ':' suite ELSE ':' suite			{ $$ = createForStatement($2, $4, $6, $9); }
 					;
 					
 try_statement		: TRY ':' suite FINALLY ':' suite											{ $$ = createTryStatement($3, NULL, $6, NULL); }
@@ -306,7 +306,7 @@ except_list_statement	: except_statement 										{ $$ = createList(LT_STMT_EXC
 						;
 					
 except_statement	: EXCEPT ':' suite 											{ $$ = createStatement(ST_EXCEPT, NULL, $3, NULL, NULL, NULL, NULL); }
-					| EXCEPT expression AS identifier ':' suite					{ $$ = createStatement(ST_EXCEPT, $2, $6, NULL, NULL, NULL, $4); }
+					| EXCEPT expression_named ':' suite					{ $$ = createStatement(ST_EXCEPT, $2, $4, NULL, NULL, NULL, NULL); }
 					;
 					
 import_statement	: IMPORT identifier_list									{ $$ = createStatement(ST_IMPORT, NULL, NULL, NULL, NULL, $2, NULL); }
