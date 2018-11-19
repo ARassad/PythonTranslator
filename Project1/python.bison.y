@@ -112,6 +112,16 @@
 %token DEDENT
 
 %token END_OF_FILE
+
+%token PLUS_ASSIGN
+%token MINUS_ASSIGN
+%token MULT_ASSIGN
+%token POW_ASSIGN
+%token DIV_ASSIGN
+%token MOD_ASSIGN
+%token '='
+
+%left LAMBDA
 %left OR
 %left AND
 %left NOT
@@ -119,7 +129,6 @@
 %left NOT_IN
 %left IS
 %left IS_NOT
-%right '=' PLUS_ASSIGN MINUS_ASSIGN MULT_ASSIGN POW_ASSIGN DIV_ASSIGN MOD_ASSIGN
 %left '<' LESSER_EQUAL '>' GREATER_EQUAL NOT_EQUAL EQUAL
 %left LEFT_SHIFT RIGHT_SHIFT
 %left '+' '-'
