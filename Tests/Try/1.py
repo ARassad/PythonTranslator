@@ -1,5 +1,8 @@
 try:
 	a = 5
+	for a in v:
+		c = d
+
 except:
 	g = 5
 except c as g:
@@ -7,4 +10,6 @@ except c as g:
 else:
 	e = 7
 finally:
-	m = 15 
+	m = """
+wwqe
+""" 
