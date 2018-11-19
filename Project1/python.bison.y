@@ -287,11 +287,11 @@ elif_statement 		: ELIF expression ':' suite										{ $$ = createStatement(ST_
 					;
 					
 while_statement 	: WHILE expression ':' suite									{ $$ = createWhileStatement($2, $4, NULL); }
-					| WHILE expression ':' suite ELSE suite							{ $$ = createWhileStatement($2, $4, $6); }
+					| WHILE expression ':' suite ELSE ':' suite							{ $$ = createWhileStatement($2, $4, $7); }
 					;
 
 for_statement 		: FOR identifier IN expression ':' suite						{ $$ = createForStatement($2, $4, $6, NULL); }
-					| FOR identifier IN expression ':' suite ELSE suite				{ $$ = createForStatement($2, $4, $6, $8); }
+					| FOR identifier IN expression ':' suite ELSE ':' suite				{ $$ = createForStatement($2, $4, $6, $9); }
 					;
 					
 try_statement		: TRY ':' suite FINALLY ':' suite											{ $$ = createTryStatement($3, NULL, $6, NULL); }
