@@ -224,6 +224,7 @@ statement	: expression NEWLINE										{ $$ = createStatement(ST_EXPRESSION, $1
 			| try_statement												{ $$ = $1; }
 			| statement NEWLINE											{ $$ = $1; }
 			| RETURN expression											{ $$ = createReturnStatement($2); }
+			| RETURN													{ $$ = createReturnStatement(createBaseTypeExpression(ET_NONE, 0, 0.0, NULL)); }
 			| PASS														{ $$ = createStatement(ST_PASS, NULL, NULL, NULL, NULL, NULL, NULL); }
 			| RAISE expression											{ $$ = createStatement(ST_RAISE, $2, NULL, NULL, NULL, NULL, NULL); }
 			| BREAK 													{ $$ = createStatement(ST_BREAK, NULL, NULL, NULL, NULL, NULL, NULL); }
