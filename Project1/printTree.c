@@ -306,6 +306,11 @@ void printStmt(int parentID, struct Statement* stmt, int* maxId)
 			printList(currentId, stmt->firstSuite, maxId);
 			printList(currentId, stmt->stmtList, maxId);
 		}
+		case ST_PASS:
+		{
+			printf("%d [label=\"pass\"]\n", currentId);
+			printf("%d--%d\n", parentID, currentId);
+		}
 	}
 }
 void printExpr(int parentID, struct Expression* expr, int* maxId)
