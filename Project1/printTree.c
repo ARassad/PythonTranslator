@@ -59,9 +59,9 @@ void printList(int parentID, struct List* list, int* maxId)
 				printList(currentId, list->next, maxId);
 			break;
 		}
-		case LT_EXPR_CLASS_PARENTS:
+		case LT_EXPR_IDENTIFIERS_E:
 		{
-			printf("%d [label = \"CLASS_PARENTS_list\"]\n", currentId);
+			printf("%d [label = \"identifiers_e\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
 			struct Expression* expr = list->expr_value;
 			printExpr(currentId, expr, maxId);
@@ -615,18 +615,18 @@ void printExpr(int parentID, struct Expression* expr, int* maxId)
 		{
 			printf("%d [label = \"Array_Slice\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
-			printList(currentId, expr->left, maxId);
-			printList(currentId, expr->right, maxId);
+			printExpr(currentId, expr->left, maxId);
+			printExpr(currentId, expr->right, maxId);
 			break;
 		}
 		case ET_ARRAY_SLICE_ARGUMENTS:
 		{
-			printf("%d [label = \"Array_Slice\"]\n", currentId);
+			printf("%d [label = \"Array_Slice_ARGS\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
-			printList(currentId, expr->left, maxId);
-			printList(currentId, expr->middle, maxId);
+			printExpr(currentId, expr->left, maxId);
+			printExpr(currentId, expr->middle, maxId);
 			if(expr->right != NULL)
-				printList(currentId, expr->right, maxId);
+				printExpr(currentId, expr->right, maxId);
 			break;
 		}
 		case ET_ASSIGN:
@@ -642,9 +642,11 @@ void printExpr(int parentID, struct Expression* expr, int* maxId)
 			printf("%d [label = \"array_generator\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
 			printExpr(currentId, expr->left, maxId);
+			if (expr->identifier != NULL)
+				printExpr(currentId, expr->identifier, maxId);
 			printExpr(currentId, expr->middle, maxId);
 			if (expr->right != NULL)
-				printList(currentId, expr->right, maxId);
+				printExpr(currentId, expr->right, maxId);
 			break;
 		}
 		case ET_FUNC_PARAM_DEFAULT:

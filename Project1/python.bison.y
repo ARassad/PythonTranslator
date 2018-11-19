@@ -268,7 +268,7 @@ identifiers_e		: identifiers										{ $$ = $1; }
 					|													{ $$ = NULL; }
 					;
 					
-identifiers			: identifier										{ $$ = createList(LT_EXPR_CLASS_PARENTS, $1, NULL); }			
+identifiers			: identifier										{ $$ = createList(LT_EXPR_IDENTIFIERS_E, $1, NULL); }			
 					| identifiers ',' identifier						{ $$ = appendToList($1, $3, NULL); }
 					;
 
