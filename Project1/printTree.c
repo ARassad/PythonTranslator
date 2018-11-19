@@ -102,8 +102,8 @@ void printList(int parentID, struct List* list, int* maxId)
 		case LT_EXPR_ID_AS_LIST: {
 			printf("%d [label = \"list_id\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
-			struct Statement* stmt = list->expr_value;
-			printExpr(currentId, stmt, maxId);
+			struct Expression* expr = list->expr_value;
+			printExpr(currentId, expr, maxId);
 			if (list->next != NULL)
 				printList(currentId, list->next, maxId);
 			break;
@@ -111,8 +111,8 @@ void printList(int parentID, struct List* list, int* maxId)
 		case LT_EXPR_WITH: {
 			printf("%d [label = \"list_with\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
-			struct Statement* stmt = list->expr_value;
-			printExpr(currentId, stmt, maxId);
+			struct Expression* expr = list->expr_value;
+			printExpr(currentId, expr, maxId);
 			if (list->next != NULL)
 				printList(currentId, list->next, maxId);
 			break;
@@ -301,10 +301,11 @@ void printStmt(int parentID, struct Statement* stmt, int* maxId)
 		}
 		case ST_WITH:
 		{
-			printf("%d [label=\"from_import\"]\n", currentId);
+			printf("%d [label=\"with\"]\n", currentId);
 			printf("%d--%d\n", parentID, currentId);
 			printList(currentId, stmt->firstSuite, maxId);
 			printList(currentId, stmt->stmtList, maxId);
+			break;
 		}
 		case ST_PASS:
 		{
