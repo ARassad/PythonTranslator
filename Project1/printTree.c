@@ -587,7 +587,7 @@ void printExpr(int parentID, struct Expression* expr, int* maxId)
 		case ET_STRING:
 		{
 			printf("%d", currentId);
-			printf("[label = \"%s\"]\n", expr->strVal);
+			printf("[label = \"\\\"%s\\\"\"]\n", expr->strVal);
 			printf("%d--%d\n", parentID, currentId);
 			break;
 		}
