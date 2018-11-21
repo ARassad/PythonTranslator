@@ -310,5 +310,9 @@ int main(int argc, char *argv[])
 	freopen("resultGraph.txt","w",stdout);
 	printTree();
 	_execlpe("cmd", "/c", "graph.bat", "", 0,0,0);
+	
+	freopen("resultGraph2.txt","w",stdout);
+	printForPython();
+
 	return 0;
 }
