@@ -113,14 +113,8 @@
 
 %token END_OF_FILE
 
-%token PLUS_ASSIGN
-%token MINUS_ASSIGN
-%token MULT_ASSIGN
-%token POW_ASSIGN
-%token DIV_ASSIGN
-%token MOD_ASSIGN
-%token '='
 
+%right PLUS_ASSIGN MINUS_ASSIGN MULT_ASSIGN POW_ASSIGN DIV_ASSIGN MOD_ASSIGN '='
 %left LAMBDA
 %left OR
 %left AND
@@ -137,9 +131,8 @@
 %left UPLUS
 %right POW
 %left '.'
-%nonassoc ')'
-%nonassoc ']'
-%nonassoc '}'
+%nonassoc '('
+%nonassoc '['
 
 %%
 
@@ -192,7 +185,7 @@ expression  : expression OR expression									{ $$ = createBinaryExpression(ET_
 			| '[' expression FOR identifier IN expression ']'					{ $$ = createExpression(ET_ARRAY_GENERATOR, $2, $6, NULL, NULL, 0, 0.0, NULL, $4); }
 			| '[' expression FOR identifier IN expression IF expression ']'		{ $$ = createExpression(ET_ARRAY_GENERATOR, $2, $6, $8, NULL, 0, 0.0, NULL, $4); }
 			| expression '(' arguments_e ')'									{ $$ = createExpression(ET_FUNC_CALL, $1, NULL, NULL, $3, 0, 0.0, NULL, NULL); }
-			| LAMBDA identifiers_e ':' expression								{ $$ = createExpression(ET_LAMBDA, $4, NULL, NULL, $2, 0, 0.0, NULL, NULL); }
+			| LAMBDA identifiers_e ':' expression	%prec LAMBDA					{ $$ = createExpression(ET_LAMBDA, $4, NULL, NULL, $2, 0, 0.0, NULL, NULL); }
 			;
 
 identifier  : ID														{ $$ = createBaseTypeExpression(ET_ID, 	0, 0.0, $1); }
@@ -223,14 +216,14 @@ statement	: expression NEWLINE										{ $$ = createStatement(ST_EXPRESSION, $1
 			| for_statement												{ $$ = $1; }
 			| try_statement												{ $$ = $1; }
 			| statement NEWLINE											{ $$ = $1; }
-			| RETURN expression											{ $$ = createReturnStatement($2); }
-			| RETURN													{ $$ = createReturnStatement(createBaseTypeExpression(ET_NONE, 0, 0.0, NULL)); }
+			| RETURN expression	NEWLINE									{ $$ = createReturnStatement($2); }
+			| RETURN NEWLINE													{ $$ = createReturnStatement(createBaseTypeExpression(ET_NONE, 0, 0.0, NULL)); }
 			| PASS														{ $$ = createStatement(ST_PASS, NULL, NULL, NULL, NULL, NULL, NULL); }
-			| RAISE expression											{ $$ = createStatement(ST_RAISE, $2, NULL, NULL, NULL, NULL, NULL); }
+			| RAISE expression	NEWLINE									{ $$ = createStatement(ST_RAISE, $2, NULL, NULL, NULL, NULL, NULL); }
 			| BREAK 													{ $$ = createStatement(ST_BREAK, NULL, NULL, NULL, NULL, NULL, NULL); }
 			| CONTINUE 													{ $$ = createStatement(ST_CONTINUE, NULL, NULL, NULL, NULL, NULL, NULL); }
-			| YIELD expression											{ $$ = createStatement(ST_YIELD, $2, NULL, NULL, NULL, NULL, NULL); }
-			| ASSERT expression											{ $$ = createStatement(ST_ASSERT, $2, NULL, NULL, NULL, NULL, NULL); }
+			| YIELD expression	NEWLINE									{ $$ = createStatement(ST_YIELD, $2, NULL, NULL, NULL, NULL, NULL); }
+			| ASSERT expression	NEWLINE									{ $$ = createStatement(ST_ASSERT, $2, NULL, NULL, NULL, NULL, NULL); }
 			| import_statement											{ $$ = $1; }
 			| with_statement											{ $$ = $1; }
 			;
