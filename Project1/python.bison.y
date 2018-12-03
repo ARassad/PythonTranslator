@@ -375,7 +375,7 @@ struct List* appendToList(struct List* list, struct Expression* expr, struct Sta
 	struct List* cur = list;
 	while(cur->next != NULL)
 		cur = cur->next;
-	cur->next = createList(LT_ELEMENT, expr, stmt);
+	cur->next = createList(list->type, expr, stmt);
 	
 	return list;
 }
