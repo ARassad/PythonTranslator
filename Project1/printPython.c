@@ -23,8 +23,163 @@ void printStatement(int parentID, struct Statement* stmt, int* maxId)
 		printExpression(currentId, stmt->expr, maxId);
 		break;
 	}
-	}
+	case ST_CONDITION:
+	{
+		printf("ST_CONDITION\n", currentId);
+		printExpr(currentId, stmt->expr, maxId);
+		if (stmt->firstSuite != NULL)
+		{
+			printList(currentId, stmt->firstSuite, maxId);
+		}
+		if (stmt->stmtList != NULL)
+		{
+			printList(currentId, stmt->stmtList, maxId);
+		}
+		if (stmt->secondSuite != NULL)
+		{
+			printList(currentId, stmt->secondSuite, maxId);
+		}
 
+		break;
+	}
+	case ST_FUNCTION_DEF:
+	{
+		printf("ST_FUNCTION_DEF\n", currentId);
+		printExpr(currentId, stmt->identifier, maxId);
+		if (stmt->expr != NULL)
+			printExpr(currentId, stmt->expr, maxId);
+		printList(currentId, stmt->stmtList, maxId);
+		printList(currentId, stmt->firstSuite, maxId);
+		break;
+	}
+	case ST_CLASS_DEF:
+	{
+		printf("ST_CLASS_DEF\n", currentId);
+		printExpr(currentId, stmt->identifier, maxId);
+		printList(currentId, stmt->firstSuite, maxId);
+		printList(currentId, stmt->stmtList, maxId);
+		break;
+	}
+	case ST_WHILE:
+	{
+		printf("ST_WHILE\n", currentId);
+		printExpr(currentId, stmt->expr, maxId);
+		if (stmt->firstSuite != NULL)
+		{
+			printList(currentId, stmt->firstSuite, maxId);
+		}
+		if (stmt->secondSuite != NULL)
+		{
+			printList(currentId, stmt->secondSuite, maxId);
+		}
+		break;
+	}
+	case ST_FOR:
+	{
+		printf("ST_FOR\n", currentId);
+		printExpr(currentId, stmt->identifier, maxId);
+		printExpr(currentId, stmt->expr, maxId);
+		if (stmt->firstSuite != NULL)
+			printList(currentId, stmt->firstSuite, maxId);
+		if (stmt->firstSuite != NULL)
+			printList(currentId, stmt->secondSuite, maxId);
+		break;
+	}
+	case ST_TRY:
+	{
+		printf("ST_TRY\n", currentId);
+		printList(currentId, stmt->firstSuite, maxId);
+		printList(currentId, stmt->stmtList, maxId);
+		printList(currentId, stmt->secondSuite, maxId);
+		printList(currentId, stmt->thirdSuite, maxId);
+		break;
+	}
+	case ST_ELIF:
+	{
+		printf("ST_ELIF\n", currentId);
+		printExpr(currentId, stmt->expr, maxId);
+		printList(currentId, stmt->firstSuite, maxId);
+		printList(currentId, stmt->secondSuite, maxId);
+		break;
+	}
+	case ST_EXCEPT:
+	{
+		printf("ST_EXCEPT\n", currentId);
+		if (stmt->firstSuite != NULL)
+			printList(currentId, stmt->firstSuite, maxId);
+		printList(currentId, stmt->secondSuite, maxId);
+		if (stmt->expr != NULL)
+			printExpr(currentId, stmt->expr, maxId);
+		if (stmt->identifier != NULL)
+			printExpr(currentId, stmt->identifier, maxId);
+		break;
+	}
+	case ST_RETURN:
+	{
+		printf("ST_RETURN\n", currentId);
+		printExpr(currentId, stmt->expr, maxId);
+		break;
+	}
+	case ST_RAISE:
+	{
+		printf("ST_RAISE\n", currentId);
+		printExpr(currentId, stmt->expr, maxId);
+		break;
+	}
+	case ST_BREAK:
+	{
+		printf("ST_BREAK\n", currentId);
+		break;
+	}
+	case ST_CONTINUE:
+	{
+		printf("ST_CONTINUE\n", currentId);
+		break;
+	}
+	case ST_YIELD:
+	{
+		printf("ST_YIELD\n", currentId);
+		printExpr(currentId, stmt->expr, maxId);
+		break;
+	}
+	case ST_ASSERT:
+	{
+		printf("ST_ASSERT\n", currentId);
+		printExpr(currentId, stmt->expr, maxId);
+		break;
+	}
+	case ST_IMPORT:
+	{
+		printf("ST_IMPORT\n", currentId);
+		printList(currentId, stmt->stmtList, maxId);
+		break;
+	}
+	case ST_FROM_IMPORT:
+	{
+		printf("ST_FROM_IMPORT\n", currentId);
+		printExpr(currentId, stmt->identifier, maxId);
+		if (stmt->stmtList != NULL)
+			printList(currentId, stmt->stmtList, maxId);
+		else
+		{
+			(*maxId)++;
+			printf("*\n", (*maxId));
+		}
+		break;
+	}
+	case ST_WITH:
+	{
+		printf("ST_WITH\n", currentId);
+		printList(currentId, stmt->firstSuite, maxId);
+		printList(currentId, stmt->stmtList, maxId);
+		break;
+	}
+	case ST_PASS:
+	{
+		printf("ST_PASS\n", currentId);
+	}
+	}
+	printf("%d\n", currentId);
 }
 void printExpression(int parentID, struct Expression* expr, int* maxId)
 {
@@ -258,7 +413,7 @@ void printExpression(int parentID, struct Expression* expr, int* maxId)
 	}
 	case ET_INT:
 	{
-		printf("ET_INT\n%d\n", currentId);
+		printf("ET_INT\n%d\n", expr->intVal);
 		break;
 	}
 	case ET_FLOAT:
@@ -389,7 +544,7 @@ void printListPython(int parentID, struct List* list, int* maxId)
 		{
 			printf("LT_ELEMENT\n");
 			if (list->stmt_value != NULL)
-				;//printStatement(currentId, list->stmt_value, maxId);
+				printStatement(currentId, list->stmt_value, maxId);
 			else if (list->expr_value != NULL)
 			{
 				printExpression(currentId, list->expr_value, maxId);
@@ -438,7 +593,7 @@ void printListPython(int parentID, struct List* list, int* maxId)
 		{
 			printf("LT_STMT_ELIF_LIST\n", currentId);
 			struct Statement* stmt = list->stmt_value;
-			//printStatement(currentId, stmt, maxId);
+			printStatement(currentId, stmt, maxId);
 			if (list->next != NULL)
 				printListPython(currentId, list->next, maxId);
 			break;
@@ -447,7 +602,7 @@ void printListPython(int parentID, struct List* list, int* maxId)
 		{
 			printf("LT_STMT_EXCEPT_LIST\n", currentId);
 			struct Statement* stmt = list->stmt_value;
-			//printStatement(currentId, stmt, maxId);
+			printStatement(currentId, stmt, maxId);
 			if (list->next != NULL)
 				printListPython(currentId, list->next, maxId);
 			break;
