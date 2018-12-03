@@ -122,10 +122,12 @@ flex.exe lex</Command>
   <ItemGroup>
     <ClInclude Include="printTree.h" />
     <ClInclude Include="python.bison_tab.h" />
+    <ClInclude Include="tree_struct.h" />
     <ClInclude Include="unistd.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="lex.yy.c" />
+    <ClCompile Include="printPython.c" />
     <ClCompile Include="printTree.c" />
     <ClCompile Include="python.bison_tab.c" />
   </ItemGroup>
