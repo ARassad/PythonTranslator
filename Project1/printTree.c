@@ -201,7 +201,7 @@ void printStmt(int parentID, struct Statement* stmt, int* maxId)
 			printExpr(currentId, stmt->expr, maxId);
 			if(stmt->firstSuite!= NULL)
 				printList(currentId, stmt->firstSuite, maxId);
-			if (stmt->firstSuite != NULL)
+			if (stmt->secondSuite != NULL)
 				printList(currentId, stmt->secondSuite, maxId);
 			break;
 		}
@@ -221,7 +221,7 @@ void printStmt(int parentID, struct Statement* stmt, int* maxId)
 			printf("%d--%d\n", parentID, currentId);
 			printExpr(currentId, stmt->expr, maxId);
 			printList(currentId, stmt->firstSuite, maxId);
-			printList(currentId, stmt->secondSuite, maxId);
+			//printList(currentId, stmt->secondSuite, maxId);
 			break;
 		}
 		case ST_EXCEPT:
