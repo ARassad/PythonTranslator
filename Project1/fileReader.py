@@ -1,6 +1,6 @@
 import List
 program = List.List()
-file = open("1.txt", mode="r")
+file = open("resultGraph2.txt", mode="r")
 text = file.read().splitlines()
 nextEl = program.nextEl = List.List()
 
