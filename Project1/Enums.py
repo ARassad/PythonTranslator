@@ -1,0 +1,14 @@
+from enum import Enum
+
+
+class ListType(Enum):
+    LT_UNDEFINED = 0
+    LT_ELEMENT = 1
+    LT_EXPR_ARRAY_INITIAL_ARGUMENTS = 2
+    LT_EXPR_FUNCTION_PARAMS = 3
+    LT_EXPR_IDENTIFIERS_E = 4
+    LT_STATEMENT_LIST = 5
+    LT_STMT_ELIF_LIST = 6
+    LT_STMT_EXCEPT_LIST = 7
+    LT_EXPR_ID_AS_LIST = 8
+    LT_EXPR_WITH = 9
