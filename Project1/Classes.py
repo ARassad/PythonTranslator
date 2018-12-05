@@ -467,7 +467,7 @@ class EXPR:
 class STMT:
     def __init__(self):
         self.value = 1
-        self.type = StmtType(0)
+        self.type = StmtType(100)
         self.expr = EXPR()
         self.firstSuite = object
         self.secondSuite = object
