@@ -84,10 +84,10 @@ class ExprType(Enum):
     ET_ARRAY_GENERATOR = 42
     ET_FUNC_PARAM = 43
     ET_FUNC_PARAM_DEFAULT = 44
-    ET_FUNC_CALL = 44
-    ET_RETURN = 45
-    ET_BOOL = 46
-    ET_NONE = 47
-    ET_ID_AS = 48
-    ET_LAMBDA = 49
-    ET_EXPR_AS = 50
+    ET_FUNC_CALL = 45
+    ET_RETURN = 46
+    ET_BOOL = 47
+    ET_NONE = 48
+    ET_ID_AS = 49
+    ET_LAMBDA = 50
+    ET_EXPR_AS = 51
