@@ -91,3 +91,5 @@ class ExprType(Enum):
     ET_ID_AS = 249
     ET_LAMBDA = 250
     ET_EXPR_AS = 251
+    ET_DOT_ASSIGN = 252
+    ET_SQUARE_BRACKETS_ASSIGN = 253

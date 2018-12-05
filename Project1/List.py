@@ -66,7 +66,7 @@ class List:
             pass
         elif self.type == ListType.LT_EXPR_ARRAY_INITIAL_ARGUMENTS:
             writefile.write(str(cur_id) + '[label = \"ARRAY_ARGUMENTS\"]\n')
-            writefile.write(str(parent_id) + '--' + str(cur_id) +'\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
             max_id = self.expr.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
         elif self.type == ListType.LT_EXPR_FUNCTION_PARAMS:
             writefile.write(str(cur_id) + '[label = \"EXPR_FUNCTION_PARAMS_list\"]\n')
@@ -109,26 +109,29 @@ class List:
             return count_errors
         else:
             if self.type == ListType.LT_EXPR_ARRAY_INITIAL_ARGUMENTS:
-                count_errors = self.expr.find_and_output_errors(count_errors, file)
+                count_errors = self.expr.find_and_output_errors(count_errors, file, pos_return)
             elif self.type == ListType.LT_EXPR_FUNCTION_PARAMS:
-                count_errors = self.expr.find_and_output_errors(count_errors, file)
+                count_errors = self.expr.find_and_output_errors(count_errors, file, pos_return)
             elif self.type == ListType.LT_EXPR_IDENTIFIERS_E:
-                count_errors = self.expr.find_and_output_errors(count_errors, file)
+                count_errors = self.expr.find_and_output_errors(count_errors, file, pos_return)
             elif self.type == ListType.LT_STATEMENT_LIST:
-                count_errors = self.stmt.find_and_output_errors(count_errors, file)
+                count_errors, pos_return = self.stmt.find_and_output_errors(count_errors, file, pos_return)
             elif self.type == ListType.LT_STMT_ELIF_LIST:
-                count_errors = self.stmt.find_and_output_errors(count_errors, file)
+                count_errors, pos_return = self.stmt.find_and_output_errors(count_errors, file, pos_return)
             elif self.type == ListType.LT_STMT_EXCEPT_LIST:
-                count_errors = self.stmt.find_and_output_errors(count_errors, file)
+                count_errors, pos_return = self.stmt.find_and_output_errors(count_errors, file, pos_return)
             else:
                 pass
-            if self.stmt is not None and self.stmt.type.value == StmtType.ST_RETURN.value:
-                if pos_return == 0:
-                    count_errors += 1
-                    return count_errors
             if isinstance(self.nextEl, List) and self.nextEl.type != ListType.LT_UNDEFINED:
-                count_errors = self.nextEl.find_and_output_errors(count_errors, file,pos_return)
-            return count_errors
+                count_errors = self.nextEl.find_and_output_errors(count_errors, file, pos_return)
+            if self.stmt is not None and self.stmt.type.value == StmtType.ST_FUNCTION_DEF.value:
+                pos_return = 0
+            return count_errors, pos_return
 
-
-
+    def convert(self):
+        if self.stmt is not None:
+            self.stmt.convert()
+        if self.expr is not None:
+            self.expr.convert()
+        if self.nextEl is not None:
+            self.nextEl.convert()

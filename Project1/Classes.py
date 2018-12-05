@@ -10,7 +10,8 @@ forbiddenEXPRS = {ExprType.ET_NOT_IN, ExprType.ET_IS, ExprType.ET_PLUS_ASSIGN, E
                   ExprType.ET_POW, ExprType.ET_MOD, ExprType.ET_FLOOR_DIV, ExprType.ET_ID_AS, ExprType.ET_EXPR_AS}
 
 forbiddenSTMTS = {StmtType.ST_WITH, StmtType.ST_FOR, StmtType.ST_BREAK, StmtType.ST_CONTINUE, StmtType.ST_YIELD,
-                  StmtType.ST_ASSERT, StmtType.ST_FROM_IMPORT, StmtType.ST_IMPORT }
+                  StmtType.ST_ASSERT, StmtType.ST_FROM_IMPORT, StmtType.ST_IMPORT}
+
 
 class EXPR:
     def __init__(self):
@@ -228,7 +229,7 @@ class EXPR:
             self.type = ExprType.ET_ARRAY_APPEAL
             self.left = EXPR()
             self.right = EXPR()
-            i = self.left.read_expr(index=i + 2, last=int(text[i + 2]), text=text)
+            i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_ARRAY_SLICE":
             self.type = ExprType.ET_ARRAY_SLICE
@@ -542,31 +543,116 @@ class EXPR:
             writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
             max_id = self.identifier.write(writefile, max_id, cur_id)
             max_id = self.left.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_DOT_ASSIGN:
+            writefile.write(str(cur_id) + '[label=\".=\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.middle.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_SQUARE_BRACKETS_ASSIGN:
+            writefile.write(str(cur_id) + '[label=\"[]=\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.middle.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
         else:
             pass
         return max_id
 
-    def find_and_output_errors(self, count_errors, file):
+    def find_and_output_errors(self, count_errors, file , pos_return):
         if self.type in forbiddenEXPRS:
             count_errors += 1
             file.write('Ошибка выражения! ' + str(self.type) + ' Такое выражение не поддерживается!\n')
             return count_errors
         else:
             if self.left is not None:
-                count_errors = self.left.find_and_output_errors(self, count_errors, file)
+                count_errors = self.left.find_and_output_errors(count_errors, file, pos_return)
             if self.right is not None:
-                count_errors = self.right.find_and_output_errors(self, count_errors, file)
+                count_errors = self.right.find_and_output_errors(count_errors, file, pos_return)
             if self.identifier is not None:
-                count_errors = self.identifier.find_and_output_errors(self, count_errors, file)
+                count_errors = self.identifier.find_and_output_errors(count_errors, file, pos_return)
             if self.list is not None:
-                count_errors = self.list.find_and_output_errors(self, count_errors, file)
+                count_errors = self.list.find_and_output_errors(count_errors, file, pos_return)
             if self.middle is not None:
-                count_errors = self.identifier.find_and_output_errors(self, count_errors, file)
+                count_errors = self.identifier.find_and_output_errors(count_errors, file, pos_return)
             if self.type == ExprType.ET_ASSIGN:
                 if not(self.left.type == ExprType.ET_ID or self.left.type == ExprType.ET_DOT or
-                       self.left.type == ExprType.ET_SQUARE_BRACKETS):
+                       self.left.type == ExprType.ET_ARRAY_APPEAL):
                     count_errors += 1
-                    return count_errors
+            return count_errors
+
+    def convert(self):
+        if self.type.value == ExprType.ET_INT.value:
+            num = self.intVal
+            self.intVal = None
+            self.type = ExprType.ET_FUNC_CALL
+            self.left = EXPR()
+            self.left.type = ExprType.ET_ID
+            self.left.stringVal = 'int'
+            self.list = List.List()
+            self.list.type = List.ListType.LT_EXPR_ARRAY_INITIAL_ARGUMENTS
+            self.list.expr = EXPR()
+            self.list.expr.type = ExprType.ET_INT
+            self.list.expr.intVal = num
+        elif self.type.value == ExprType.ET_FLOAT:
+            num = self.floatVal
+            self.floatVal = None
+            self.type = ExprType.ET_FUNC_CALL
+            self.left = EXPR()
+            self.left.type = ExprType.ET_ID
+            self.left.stringVal = 'float'
+            self.list = List.List()
+            self.list.type = List.ListType.LT_EXPR_ARRAY_INITIAL_ARGUMENTS
+            self.list.expr = EXPR()
+            self.list.expr.type = ExprType.ET_FLOAT
+            self.list.expr.floatVal = num.value
+        elif self.type.value == ExprType.ET_STRING.value:
+            num = self.stringVal
+            self.stringVal = None
+            self.type = ExprType.ET_FUNC_CALL
+            self.left = EXPR()
+            self.left.type = ExprType.ET_ID
+            self.left.stringVal = 'str'
+            self.list = List.List()
+            self.list.type = List.ListType.LT_EXPR_ARRAY_INITIAL_ARGUMENTS
+            self.list.expr = EXPR()
+            self.list.expr.type = ExprType.ET_STRING
+            self.list.expr.stringVal = num
+        elif self.type.value == ExprType.ET_BOOL.value:
+            num = self.boolVal
+            self.boolVal = None
+            self.type = ExprType.ET_FUNC_CALL
+            self.left = EXPR()
+            self.left.type = ExprType.ET_ID
+            self.left.stringVal = 'int'
+            self.list = List.List()
+            self.list.type = List.ListType.LT_EXPR_ARRAY_INITIAL_ARGUMENTS
+            self.list.expr = EXPR()
+            self.list.expr.type = ExprType.ET_INT
+            if num:
+                self.list.expr.intVal = 1
+            else:
+                self.list.expr.intVal = 0
+        else:
+            if self.left is not None:
+                self.left.convert()
+            if self.right is not None:
+                self.right.convert()
+            if self.identifier is not None:
+                self.identifier.convert()
+            if self.middle is not None:
+                self.middle.convert()
+            if self.list is not None:
+                self.list.convert()
+
+        if self.type.value == ExprType.ET_ASSIGN.value and self.left.type == ExprType.ET_DOT:
+            self.type = ExprType.ET_DOT_ASSIGN
+            self.middle = self.left.right
+            self.left = self.left.left
+        if self.type.value == ExprType.ET_ASSIGN.value and self.left.type == ExprType.ET_ARRAY_APPEAL:
+            self.type = ExprType.ET_SQUARE_BRACKETS_ASSIGN
+            self.middle = self.left.right
+            self.left = self.left.left
 
 
 class STMT:
@@ -819,29 +905,56 @@ class STMT:
             pass
         return max_id
 
-    def find_and_output_errors(self, count_errors, file):
-        pos_return = 0
-        if self.StmtType.value == StmtType.ST_FUNCTION_DEF:
+    def find_and_output_errors(self, count_errors, file, pos_return):
+        if self.type.value == StmtType.ST_FUNCTION_DEF:
             pos_return = 1
         if self.type in forbiddenSTMTS:
             count_errors += 1
             file.write('Ошибка statementа! ' + str(self.type) + ' Такой тип statementа не поддерживается!\n')
             return count_errors
         if self.identifier is not None:
-            count_errors = self.identifier.find_and_output_errors(count_errors, file)
+            count_errors = self.identifier.find_and_output_errors(count_errors, file, pos_return)
         if self.expr is not None:
-            count_errors = self.expr.find_and_output_errors(count_errors, file)
+            count_errors = self.expr.find_and_output_errors(count_errors, file, pos_return)
         if self.stmtList is not None:
-            count_errors = self.stmtList.find_and_output_errors(count_errors, file)
+            count_errors, pos_return = self.stmtList.find_and_output_errors(count_errors, file, pos_return)
         if self.firstSuite is not None:
-            count_errors = self.firstSuite.find_and_output_errors(count_errors, file)
+            count_errors, pos_return = self.firstSuite.find_and_output_errors(count_errors, file, pos_return)
         if self.secondSuite is not None:
-            count_errors = self.secondSuite.find_and_output_errors(count_errors, file)
+            count_errors, pos_return = self.secondSuite.find_and_output_errors(count_errors, file, pos_return)
         if self.thirdSuite is not None:
-            count_errors = self.thirdSuite.find_and_output_errors(count_errors, file)
+            count_errors, pos_return = self.thirdSuite.find_and_output_errors(count_errors, file, pos_return)
+        if self.type.value == StmtType.ST_RETURN.value:
+            if pos_return == 0:
+                file.write('Ошибка return! Return должен быть внутри тела функции\n')
+                count_errors += 1
+            else:
+                pos_return = 0
 
-        return count_errors
+        return count_errors, pos_return
 
-
-
+    def convert(self):
+        if self.expr is not None:
+            self.expr.convert()
+        if self.identifier is not None:
+            self.identifier.convert()
+        if self.firstSuite is not None:
+            self.firstSuite.convert()
+        if self.secondSuite is not None:
+            self.secondSuite.convert()
+        if self.thirdSuite is not None:
+            self.thirdSuite.convert()
+        if self.stmtList is not None:
+            self.stmtList.convert()
+        if self.type.value == StmtType.ST_FUNCTION_DEF.value:
+            func_list = self.firstSuite
+            while func_list.nextEl is not None:
+                func_list = func_list.nextEl
+            if func_list.stmt.type.value != StmtType.ST_RETURN.value:
+                func_list.nextEl = List.List()
+                func_list.nextEl.type = List.ListType.LT_STATEMENT_LIST
+                func_list.nextEl.stmt = STMT()
+                func_list.nextEl.stmt.type = StmtType.ST_RETURN
+                func_list.nextEl.stmt.expr = EXPR()
+                func_list.nextEl.stmt.expr.type = ExprType.ET_NONE
 

@@ -1,9 +1,10 @@
 import List
 import printGraph
+import checkErrors as check
+import convert as conv
 program = List.List()
-file = open("resultGraph2.txt", mode="r")
+file = open("resultGraph.txt", mode="r")
 text = file.read().splitlines()
-nextEl = program.nextEl = List.List()
 
 
 def read_graph():
@@ -20,4 +21,6 @@ def read_graph():
 
 if __name__ == "__main__":
     read_graph()
+    check.find_and_output_errors(program)
+    conv.convert(program)
     printGraph.print_program(program)
