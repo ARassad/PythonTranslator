@@ -8,33 +8,33 @@ from Enums import StmtType
 class EXPR:
     def __init__(self):
         self.type = ExprType.ET_UNDEFINED
-        self.intVal = 0
-        self.floatVal = 0.0
-        self.boolVal = False
-        self.stringVal = ""
-        self.left = object
-        self.right = object
-        self.middle = object
-        self.list = object
-        self.identifier = object
+        self.intVal = None
+        self.floatVal = None
+        self.boolVal = None
+        self.stringVal = None
+        self.left = None
+        self.right = None
+        self.middle = None
+        self.list = None
+        self.identifier = None
 
     def read_expr(self, index, last, text):
         i = index + 1
         string = text[i]
-        self.left = EXPR()
-        self.right = EXPR()
-        self.middle = EXPR()
-        self.list = List.List()
-        self.identifier = EXPR()
         if string == "ET_OR":
             self.type = ExprType.ET_OR
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_AND":
+            self.left = EXPR()
+            self.right = EXPR()
             self.type = ExprType.ET_AND
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_NOT":
+            self.right = EXPR()
             self.type = ExprType.ET_NOT
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_IN":
@@ -43,6 +43,8 @@ class EXPR:
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_NOT_IN":
             self.type = ExprType.ET_NOT_IN
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_IS":
@@ -51,100 +53,148 @@ class EXPR:
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_IS_NOT":
             self.type = ExprType.ET_IS_NOT
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_PLUS_ASSIGN":
             self.type = ExprType.ET_PLUS_ASSIGN
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_MINUS_ASSIGN":
             self.type = ExprType.ET_MINUS_ASSIGN
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_MULT_ASSIGN":
             self.type = ExprType.ET_MULT
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_POW_ASSIGN":
             self.type = ExprType.ET_POW_ASSIGN
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_DIV_ASSIGN":
             self.type = ExprType.ET_DIV_ASSIGN
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_MOD_ASSIGN":
             self.type = ExprType.ET_MOD_ASSIGN
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_LESSER":
             self.type = ExprType.ET_LESSER
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_LESSER_EQUAL":
             self.type = ExprType.ET_LESSER_EQUAL
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_GREATER":
             self.type = ExprType.ET_GREATER
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_GREATER_EQUAL":
             self.type = ExprType.ET_GREATER_EQUAL
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_NOT_EQUAL":
             self.type = ExprType.ET_NOT_EQUAL
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_EQUAL":
             self.type = ExprType.ET_EQUAL
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_LEFT_SHIFT":
             self.type = ExprType.ET_LEFT_SHIFT
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_RIGHT_SHIFT":
             self.type = ExprType.ET_RIGHT_SHIFT
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_PLUS":
             self.type = ExprType.ET_PLUS
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_MINUS":
             self.type = ExprType.ET_MINUS
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_MULT":
             self.type = ExprType.ET_MULT
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_DIV":
             self.type = ExprType.ET_DIV
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_MOD":
             self.type = ExprType.ET_MOD
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_FLOOR_DIV":
             self.type = ExprType.ET_FLOOR_DIV
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_UPLUS":
             self.type = ExprType.ET_UPLUS
+            self.left = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_UMINUS":
             self.type = ExprType.ET_UMINUS
+            self.left = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_POW":
             self.type = ExprType.ET_POW
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_DOT":
             self.type = ExprType.ET_DOT
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_ID":
@@ -165,59 +215,85 @@ class EXPR:
             i += 1
         elif string == "ET_SQUARE_BRACKETS":
             self.type = ExprType.ET_SQUARE_BRACKETS
+            self.list = List.List()
             i = self.list.read_list(index=i + 2, last=int(text[i+2]), text=text)
         elif string == "ET_ARRAY_APPEAL":
             self.type = ExprType.ET_ARRAY_APPEAL
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 2, last=int(text[i + 2]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_ARRAY_SLICE":
             self.type = ExprType.ET_ARRAY_SLICE
-            i = self.left.read_expr(index= i + 2, last=int(text[i + 1]), text=text)
+            self.left = EXPR()
+            self.right = EXPR()
+            i = self.left.read_expr(index=i + 2, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_ARRAY_SLICE_ARGUMENTS":
             self.type = ExprType.ET_ARRAY_SLICE_ARGUMENTS
+            self.left = EXPR()
+            self.middle = EXPR()
             i = self.left.read_expr(index=i + 2, last=int(text[i + 1]), text=text)
             i = self.middle.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             if text[i] == "Expression":
+                self.right = EXPR()
                 i = self.right.read_expr(index=i, last=int(text[i+1]), text=text)
         elif string == "ET_ASSIGN":
             self.type = ExprType.ET_ASSIGN
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_ARRAY_GENERATOR":
             self.type = ExprType.ET_ARRAY_GENERATOR
+            self.left = EXPR()
+            self.right = EXPR()
+            self.identifier = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.identifier.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             if int(text[i + 1]) != last:
+                self.middle = EXPR()
                 i = self.middle.read_expr(index=i+1, last=int(text[i+1]), text=text)
 
         elif string == "ET_FUNC_PARAM":
             self.type = ExprType.ET_FUNC_PARAM
+            self.identifier = EXPR()
             i = self.identifier.read_expr(index=i + 1, last=int(text[i+1]), text=text)
             if int(text[i + 1]) != last:
+                self.left = EXPR()
                 i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_FUNC_CALL":
             self.type = ExprType.ET_FUNC_CALL
+            self.left = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
+            self.list = List.List()
             i = self.list.read_list(index=i + 2, last=int(text[i+2]), text=text)
         elif string == "ET_BOOL":
             self.type = ExprType.ET_BOOL
             if text[i + 2] == "1":
                 self.boolVal = True
+            else:
+                self.boolVal = False
             i += 1
         elif string == "ET_NONE":
             self.type = ExprType.ET_NONE
         elif string == "ET_ID_AS":
             self.type = ExprType.ET_ID_AS
+            self.left = EXPR()
+            self.right = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.right.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
         elif string == "ET_LAMBDA":
             self.type = ExprType.ET_LAMBDA
+            self.left = EXPR()
+            self.list = List.List()
             i = self.left.read_expr(index=i + 2, last=int(text[i + 1]), text=text)
             i = self.list.read_list(index=i + 2, last=int(text[i+2]), text=text)
         elif string == "ET_EXPR_AS":
             self.type = ExprType.ET_EXPR_AS
+            self.identifier = EXPR()
+            self.left = EXPR()
             i = self.identifier.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
 
@@ -466,80 +542,105 @@ class EXPR:
 
 class STMT:
     def __init__(self):
-        self.value = 1
-        self.type = StmtType(100)
-        self.expr = EXPR()
-        self.firstSuite = object
-        self.secondSuite = object
-        self.thirdSuite = object
-        self.stmtList = object
-        self.identifier = EXPR()
+        self.value = None
+        self.type = StmtType.ST_UNDEFINED
+        self.expr = None
+        self.firstSuite = None
+        self.secondSuite = None
+        self.thirdSuite = None
+        self.stmtList = None
+        self.identifier = None
 
     def read_stmt(self, index, last, text):
-        self.firstSuite = List.List()
-        self.secondSuite = List.List()
-        self.thirdSuite = List.List()
-        self.stmtList = List.List()
         i = index + 1
         string = text[i]
         if string == "ST_EXPRESSION":
             self.type = StmtType.ST_EXPRESSION
+            self.expr = EXPR()
             i = self.expr.read_expr(i + 1, last=int(text[i + 1]), text=text)
         elif string == "ST_CONDITION":
             self.type = StmtType.ST_CONDITION
+            self.expr = EXPR()
             i = self.expr.read_expr(i + 1, last=int(text[i + 1]), text=text)
             if text[i + 1] == "List":
+                self.firstSuite = List.List()
                 i = self.firstSuite.read_list(i + 2, last=int(text[i + 2]), text=text)
             if text[i + 1] == "List" and text[i + 3] == "LT_STMT_ELIF_LIST":
+                self.stmtList = List.List()
                 i = self.stmtList.read_list(i + 2, last=int(text[i + 2]), text=text)
             if text[i + 1] == "List" and int(text[i]) != last:
+                self.secondSuite = List.List()
                 i = self.secondSuite.read_list(i + 2, last, text=text)
         elif string == "ST_FUNCTION_DEF":
             self.type = StmtType.ST_FUNCTION_DEF
+            self.identifier = EXPR()
             i = self.identifier.read_expr(i + 1, last=int(text[i + 1]), text=text)
             if text[i + 1] != "List":
+                self.expr = EXPR()
                 i = self.expr.read_expr(i + 1, last=int(text[i+1]), text=text)
+            self.stmtList = List.List()
             i = self.stmtList.read_list(i + 2, last=int(text[i+2]), text=text)
+            self.firstSuite = List.List()
             i = self.firstSuite.read_list(i + 2, last=int(text[i+2]), text=text)
         elif string == "ST_CLASS_DEF":
             self.type = StmtType.ST_CLASS_DEF
+            self.identifier = EXPR()
             i = self.identifier.read_expr(i + 1, last=int(text[i + 1]), text=text)
+            self.firstSuite = List.List()
             i = self.firstSuite.read_list(i + 2, last=int(text[i + 2]), text=text)
+            self.secondSuite = List.List()
             i = self.stmtList.read_list(i + 2, last=int(text[i+2]), text=text)
         elif string == "ST_WHILE":
             self.type = StmtType.ST_WHILE
+            self.expr = EXPR()
             i = self.expr.read_expr(i + 1, last=int(text[i+1]), text=text)
+            self.firstSuite = List.List()
             i = self.firstSuite.read_list(i + 2, last=int(text[i+2]), text=text)
             if int(text[i + 1]) != last:
                 i = self.secondSuite.read_list(i + 2, last=int(text[i+2]), text=text)
         elif string == "ST_FOR":
             self.type = StmtType.ST_FOR
+            self.identifier = EXPR()
             i = self.identifier.read_expr(i + 1, last=int(text[i + 1]), text=text)
+            self.expr = EXPR()
             i = self.expr.read_expr(i + 1, last=int(text[i + 1]), text=text)
+            self.firstSuite = List.List()
             i = self.firstSuite.read_list(i + 2, last=int(text[i + 2]), text=text)
             if int(text[i + 1]) != last:
+                self.secondSuite = List.List()
                 i = self.secondSuite.read_list(i + 2, last=int(text[i + 2]), text=text)
         elif string == "ST_TRY":
             self.type = StmtType.ST_TRY
+            self.firstSuite = List.List()
             i = self.firstSuite.read_list(i + 2, last=int(text[i + 2]), text=text)
+            self.stmtList = List.List()
             i = self.stmtList.read_list(i + 2, last=int(text[i + 2]), text=text)
+            self.secondSuite = List.List()
             i = self.secondSuite.read_list(i + 2, last=int(text[i + 2]), text=text)
+            self.thirdSuite = List.List()
             i = self.thirdSuite.read_list(i + 2, last=int(text[i + 2]), text=text)
         elif string == "ST_WITH":
             self.type = StmtType.ST_WITH
+            self.firstSuite = List.List()
             i = self.firstSuite.read_list(i + 2, last=int(text[i + 2]), text=text)
+            self.stmtList = List.List()
             i = self.stmtList.read_list(i + 2, last=int(text[i + 2]), text=text)
         elif string == "ST_ELIF":
             self.type = StmtType.ST_ELIF
+            self.expr = EXPR()
             i = self.expr.read_expr(i + 1, last=int(text[i + 1]), text=text)
+            self.firstSuite = List.List()
             i = self.firstSuite.read_list(i + 2, last=int(text[i + 2]), text=text)
         elif string == "ST_EXCEPT":
             self.type = StmtType.ST_EXCEPT
+            self.firstSuite = List.List()
             i = self.firstSuite.read_list(i + 2, last=int(text[i + 2]), text=text)
             if text[i + 2] == "ET_EXPR_AS":
+                self.identifier = EXPR()
                 i = self.identifier.read_expr(i + 1, last=int(text[i + 1]), text=text)
         elif string == "ST_RETURN":
             self.type = StmtType.ST_RETURN
+            self.expr = EXPR()
             i = self.expr.read_expr(i + 1, last=int(text[i + 1]), text=text)
         elif string == "ST_PASS":
             self.type = StmtType.ST_PASS
@@ -549,17 +650,22 @@ class STMT:
             self.type = StmtType.ST_CONTINUE
         elif string == "ST_YIELD":
             self.type = StmtType.ST_YIELD
+            self.expr = EXPR()
             i = self.expr.read_expr(i + 1, last=int(text[i + 1]), text=text)
         elif string == "ST_ASSERT":
             self.type = StmtType.ST_ASSERT
+            self.expr = EXPR()
             i = self.expr.read_expr(i + 1, last=int(text[i + 1]), text=text)
         elif string == "ST_IMPORT":
             self.type = StmtType.ST_IMPORT
+            self.stmtList = List.List()
             i = self.stmtList.read_list(i + 2, last=int(text[i + 2]), text=text)
         elif string == "ST_FROM_IMPORT":
             self.type = StmtType.ST_FROM_IMPORT
+            self.identifier = EXPR()
             i = self.identifier.read_expr(i + 1, last=int(text[i + 1]), text=text)
             if text[i] == "List":
+                self.stmtList = List.List()
                 i = self.stmtList.read_list(i + 1, last=int(text[i + 1]), text=text)
         return i + 1
 
