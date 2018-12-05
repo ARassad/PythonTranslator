@@ -205,6 +205,7 @@ class EXPR:
             self.type = ExprType.ET_BOOL
             if text[i + 2] == "1":
                 self.boolVal = True
+            i += 1
         elif string == "ET_NONE":
             self.type = ExprType.ET_NONE
         elif string == "ET_ID_AS":
