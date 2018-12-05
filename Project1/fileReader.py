@@ -1,4 +1,5 @@
 import List
+import printGraph
 program = List.List()
 file = open("resultGraph2.txt", mode="r")
 text = file.read().splitlines()
@@ -14,7 +15,9 @@ def read_graph():
             i += 1
         else:
             i += 1
+    file.close()
 
 
 if __name__ == "__main__":
     read_graph()
+    printGraph.print_program(program)

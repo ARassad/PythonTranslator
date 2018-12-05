@@ -1,85 +1,8 @@
 from enum import Enum
 # from fileReader import text
 import List
-
-
-class ExprType(Enum):
-    ET_UNDEFINED = 0
-    ET_OR = 1
-    ET_AND = 2
-    ET_NOT = 3
-    ET_IN = 4
-    ET_NOT_IN = 5
-    ET_IS = 6
-    ET_IS_NOT = 7
-    ET_PLUS_ASSIGN = 8
-    ET_MINUS_ASSIGN = 9
-    ET_MULT_ASSIGN = 10
-    ET_POW_ASSIGN = 11
-    ET_DIV_ASSIGN = 12
-    ET_MOD_ASSIGN = 13
-    ET_LESSER = 14
-    ET_LESSER_EQUAL = 15
-    ET_GREATER = 16
-    ET_GREATER_EQUAL = 17
-    ET_NOT_EQUAL = 18
-    ET_EQUAL = 19
-    ET_LEFT_SHIFT = 20
-    ET_RIGHT_SHIFT = 21
-    ET_PLUS = 22
-    ET_MINUS = 23
-    ET_MULT = 24
-    ET_DIV = 25
-    ET_MOD = 26
-    ET_FLOOR_DIV = 27
-    ET_UPLUS = 28
-    ET_UMINUS = 29
-    ET_POW = 30
-    ET_DOT = 31
-    ET_PARENTHNESES = 32
-    ET_ID = 33
-    ET_INT = 34
-    ET_FLOAT = 35
-    ET_STRING = 36
-    ET_SQUARE_BRACKETS = 37
-    ET_ARRAY_APPEAL = 38
-    ET_ARRAY_SLICE = 39
-    ET_ARRAY_SLICE_ARGUMENTS = 40
-    ET_ASSIGN = 41
-    ET_ARRAY_GENERATOR = 42
-    ET_FUNC_PARAM = 43
-    ET_FUNC_PARAM_DEFAULT = 44
-    ET_FUNC_CALL = 44
-    ET_RETURN = 45
-    ET_BOOL = 46
-    ET_NONE = 47
-    ET_ID_AS = 48
-    ET_LAMBDA = 49
-    ET_EXPR_AS = 50
-
-
-class StmtType(Enum):
-    ST_UNDEFINED = 0
-    ST_EXPRESSION = 1
-    ST_CONDITION = 2
-    ST_FUNCTION_DEF = 3
-    ST_CLASS_DEF = 4
-    ST_WHILE = 5
-    ST_FOR = 6
-    ST_TRY = 7
-    ST_WITH = 8
-    ST_ELIF_LISTS = 9
-    ST_ELIF = 10
-    ST_EXCEPT = 11
-    ST_RETURN = 12
-    ST_PASS = 13
-    ST_RAISE = 14
-    ST_BREAK = 15
-    ST_CONTINUE = 16
-    ST_YIELD = 17
-    ST_ASSERT = 18
-    ST_IMPORT = 19
-    ST_FROM_IMPORT = 20
+from Enums import ExprType
+from Enums import StmtType
 
 
 class EXPR:
@@ -294,9 +217,250 @@ class EXPR:
             i = self.list.read_list(index=i + 2, last=int(text[i+2]), text=text)
         elif string == "ET_EXPR_AS":
             self.type = ExprType.ET_EXPR_AS
-            i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
             i = self.identifier.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
+            i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
+
         return i + 1
+
+    def write(self, writefile, max_id, parent_id):
+        max_id += 1
+        cur_id = max_id
+        if self.type == ExprType.ET_UNDEFINED:
+            pass
+        elif self.type == ExprType.ET_OR:
+            writefile.write(str(cur_id) + '[label=\"OR\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) +'\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_AND:
+            writefile.write(str(cur_id) + '[label=\"AND\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_NOT:
+            writefile.write(str(cur_id) + '[label=\"NOT\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_IN:
+            writefile.write(str(cur_id) + '[label=\"IN\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_NOT_IN:
+            writefile.write(str(cur_id) + '[label=\"NOT_IN\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_IS:
+            writefile.write(str(cur_id) + '[label=\"IS\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_IS_NOT:
+            writefile.write(str(cur_id) + '[label=\"IS_NOT\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_PLUS_ASSIGN:
+            writefile.write(str(cur_id) + '[label=\"+=\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_MINUS_ASSIGN:
+            writefile.write(str(cur_id) + '[label=\"-=\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_MULT_ASSIGN:
+            writefile.write(str(cur_id) + '[label=\"*=\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_POW_ASSIGN:
+            writefile.write(str(cur_id) + '[label=\"^=\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_DIV_ASSIGN:
+            writefile.write(str(cur_id) + '[label=\"\/=\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_MOD_ASSIGN:
+            writefile.write(str(cur_id) + '[label=\"\%=\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_LESSER:
+            writefile.write(str(cur_id) + '[label=\"<\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_LESSER_EQUAL:
+            writefile.write(str(cur_id) + '[label=\"<=\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_GREATER:
+            writefile.write(str(cur_id) + '[label=\">\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_GREATER_EQUAL:
+            writefile.write(str(cur_id) + '[label=\">=\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_NOT_EQUAL:
+            writefile.write(str(cur_id) + '[label=\"!=\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_EQUAL:
+            writefile.write(str(cur_id) + '[label=\"==\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_LEFT_SHIFT:
+            writefile.write(str(cur_id) + '[label=\"<<\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_RIGHT_SHIFT:
+            writefile.write(str(cur_id) + '[label=\">>\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_PLUS:
+            writefile.write(str(cur_id) + '[label=\"+\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_MINUS:
+            writefile.write(str(cur_id) + '[label=\"-\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_MULT:
+            writefile.write(str(cur_id) + '[label=\"*\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_DIV:
+            writefile.write(str(cur_id) + '[label=\"\/\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_MOD:
+            writefile.write(str(cur_id) + '[label=\"%\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_FLOOR_DIV:
+            writefile.write(str(cur_id) + '[label=\"floor div\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_UPLUS:
+            writefile.write(str(cur_id) + '[label=\"+\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            self.left.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_MULT_ASSIGN:
+            writefile.write(str(cur_id) + '[label=\"-\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_POW:
+            writefile.write(str(cur_id) + '[label=\"^\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_DOT:
+            writefile.write(str(cur_id) + '[label=\".\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_ID:
+            writefile.write(str(cur_id) + '[label=\"' + self.stringVal + '\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+        elif self.type == ExprType.ET_INT:
+            writefile.write(str(cur_id) + '[label=\"' + str(self.intVal) + '\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+        elif self.type == ExprType.ET_FLOAT:
+            writefile.write(str(cur_id) + '[label=\"' + str(self.floatVal) + '\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+        elif self.type == ExprType.ET_STRING:
+            writefile.write(str(cur_id) + '[label="\\"' + str(self.stringVal)[1:self.stringVal.__len__() -1] + '\\""]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+        elif self.type == ExprType.ET_SQUARE_BRACKETS:
+            writefile.write(str(cur_id) + '[label=\"[]\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.list.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_ARRAY_APPEAL:
+            writefile.write(str(cur_id) + '[label=\"[]\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_ARRAY_SLICE:
+            writefile.write(str(cur_id) + '[label=\"Array_Slice\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_ARRAY_SLICE_ARGUMENTS:
+            writefile.write(str(cur_id) + '[label=\"Array_Slice_ARGS\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.middle.write(writefile, max_id, cur_id)
+            if isinstance(self.right, EXPR):
+                max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_ASSIGN:
+            writefile.write(str(cur_id) + '[label=\"=\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_ARRAY_GENERATOR:
+            writefile.write(str(cur_id) + '[label=\"array_generator\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            if isinstance(self.identifier, EXPR):
+                max_id = self.identifier.write(writefile, max_id, cur_id)
+            max_id = self.middle.write(writefile, max_id, cur_id)
+            if isinstance(self.right, EXPR):
+                max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_FUNC_PARAM or self.type ==ExprType.ET_FUNC_PARAM_DEFAULT:
+            writefile.write(str(cur_id) + '[label=\"function_params\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.identifier.write(writefile, max_id, cur_id)
+            if isinstance(self.left, EXPR):
+                max_id = self.left.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_FUNC_CALL:
+            writefile.write(str(cur_id) + '[label=\"function_call\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.list.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_BOOL:
+            writefile.write(str(cur_id) + '[label=\"bool' + str(self.intVal) + '\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+        elif self.type == ExprType.ET_NONE:
+            writefile.write(str(cur_id) + '[label=\"None\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+        elif self.type == ExprType.ET_ID_AS:
+            writefile.write(str(cur_id) + '[label=\"ID_AS\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.right.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_MULT_ASSIGN:
+            writefile.write(str(cur_id) + '[label=\"lambda\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.left.write(writefile, max_id, cur_id)
+            max_id = self.list.write(writefile, max_id, cur_id)
+        elif self.type == ExprType.ET_EXPR_AS:
+            writefile.write(str(cur_id) + '[label=\"EXPR_AS\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.identifier.write(writefile, max_id, cur_id)
+            max_id = self.left.write(writefile, max_id, cur_id)
+        else:
+            pass
+        return max_id
 
 
 class STMT:
@@ -362,6 +526,8 @@ class STMT:
             i = self.thirdSuite.read_list(i + 2, last=int(text[i + 2]), text=text)
         elif string == "ST_WITH":
             self.type = StmtType.ST_WITH
+            i = self.firstSuite.read_list(i + 2, last=int(text[i + 2]), text=text)
+            i = self.stmtList.read_list(i + 2, last=int(text[i + 2]), text=text)
         elif string == "ST_ELIF":
             self.type = StmtType.ST_ELIF
             i = self.expr.read_expr(i + 1, last=int(text[i + 1]), text=text)
@@ -395,6 +561,125 @@ class STMT:
             if text[i] == "List":
                 i = self.stmtList.read_list(i + 1, last=int(text[i + 1]), text=text)
         return i + 1
+
+    def write(self, writefile, max_id, parent_id):
+        max_id += 1
+        cur_id = max_id
+        if self.type == StmtType.ST_UNDEFINED:
+            pass
+        elif self.type == StmtType.ST_EXPRESSION:
+            writefile.write(str(cur_id) + '[label=\"expr_stmt\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id)+'\n')
+            max_id = self.expr.write(writefile=writefile,max_id=max_id, parent_id=cur_id)
+        elif self.type == StmtType.ST_CONDITION:
+            writefile.write(str(cur_id) + '[label=\"if_stmt\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.expr.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            max_id = self.firstSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            if isinstance(self.stmtList, List.List):
+                max_id = self.stmtList.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            if isinstance(self.secondSuite, List.List):
+                max_id = self.secondSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+        elif self.type == StmtType.ST_FUNCTION_DEF:
+            writefile.write(str(cur_id) + '[label=\"def\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.identifier.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            max_id = self.expr.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            max_id = self.stmtList.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            max_id = self.firstSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+        elif self.type == StmtType.ST_CLASS_DEF:
+            writefile.write(str(cur_id) + '[label=\"class\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.identifier.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            max_id = self.firstSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            max_id = self.stmtList.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+        elif self.type == StmtType.ST_WHILE:
+            writefile.write(str(cur_id) + '[label=\"while\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.expr.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            max_id = self.firstSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            if isinstance(self.secondSuite, List.List):
+                max_id = self.secondSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+        elif self.type == StmtType.ST_FOR:
+            writefile.write(str(cur_id) + '[label=\"for\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.identifier.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            max_id = self.expr.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            max_id = self.firstSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            if isinstance(self.secondSuite, List.List):
+                max_id = self.secondSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+        elif self.type == StmtType.ST_TRY:
+            writefile.write(str(cur_id) + '[label=\"try\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.firstSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            max_id = self.stmtList.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            max_id = self.secondSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            max_id = self.thirdSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+        elif self.type == StmtType.ST_ELIF:
+            writefile.write(str(cur_id) + '[label=\"elif\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.expr.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            max_id = self.firstSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+        elif self.type == StmtType.ST_EXCEPT:
+            writefile.write(str(cur_id) + '[label=\"except\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.firstSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            if isinstance(self.secondSuite, List.List):
+                max_id = self.secondSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            max_id = self.expr.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            max_id = self.identifier.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+        elif self.type == StmtType.ST_RETURN:
+            writefile.write(str(cur_id) + '[label=\"return\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.expr.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+        elif self.type == StmtType.ST_RAISE:
+            writefile.write(str(cur_id) + '[label=\"raise\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.expr.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+        elif self.type == StmtType.ST_BREAK:
+            writefile.write(str(cur_id) + '[label=\"break\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+        elif self.type == StmtType.ST_CONTINUE:
+            writefile.write(str(cur_id) + '[label=\"continue\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+        elif self.type == StmtType.ST_YIELD:
+            writefile.write(str(cur_id) + '[label=\"yield\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.expr.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+        elif self.type == StmtType.ST_YIELD:
+            writefile.write(str(cur_id) + '[label=\"yield\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.expr.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+        elif self.type == StmtType.ST_ASSERT:
+            writefile.write(str(cur_id) + '[label=\"yield\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.expr.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+        elif self.type == StmtType.ST_IMPORT:
+            writefile.write(str(cur_id) + '[label=\"yield\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.firstSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+        elif self.type == StmtType.ST_FROM_IMPORT:
+            writefile.write(str(cur_id) + '[label=\"yield\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.identifier.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            if isinstance(self.stmtList, List.List):
+                max_id = self.stmtList.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            else:
+                max_id += 1
+                writefile.write(str(max_id) + '[label=\"*\"]\n')
+                writefile.write(str(cur_id) + '--' + str(max_id) + '\n')
+        elif self.type == StmtType.ST_WITH:
+            writefile.write(str(cur_id) + '[label=\"yield\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+            max_id = self.firstSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            max_id = self.stmtList.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+        elif self.type == StmtType.ST_PASS:
+            writefile.write(str(cur_id) + '[label=\"pass\"]\n')
+            writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
+        else:
+            pass
+        return max_id
+
 
 
 
