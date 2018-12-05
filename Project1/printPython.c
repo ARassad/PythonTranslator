@@ -48,8 +48,9 @@ void printStatement(int parentID, struct Statement* stmt, int* maxId)
 		printExpression(currentId, stmt->identifier, maxId);
 		if (stmt->expr != NULL)
 			printExpression(currentId, stmt->expr, maxId);
-		printListPython(currentId, stmt->stmtList, maxId);
 		printListPython(currentId, stmt->firstSuite, maxId);
+		printListPython(currentId, stmt->stmtList, maxId);
+		
 		break;
 	}
 	case ST_CLASS_DEF:

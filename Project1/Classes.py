@@ -4,6 +4,13 @@ import List
 from Enums import ExprType
 from Enums import StmtType
 
+forbiddenEXPRS = {ExprType.ET_NOT_IN, ExprType.ET_IS, ExprType.ET_PLUS_ASSIGN, ExprType.ET_MINUS_ASSIGN,
+                  ExprType.ET_MULT_ASSIGN, ExprType.ET_POW_ASSIGN, ExprType.ET_DIV_ASSIGN,  ExprType.ET_MOD_ASSIGN,
+                  ExprType.ET_LESSER_EQUAL, ExprType.ET_GREATER_EQUAL, ExprType.ET_LEFT_SHIFT, ExprType.ET_RIGHT_SHIFT,
+                  ExprType.ET_POW, ExprType.ET_MOD, ExprType.ET_FLOOR_DIV, ExprType.ET_ID_AS, ExprType.ET_EXPR_AS}
+
+forbiddenSTMTS = {StmtType.ST_WITH, StmtType.ST_FOR, StmtType.ST_BREAK, StmtType.ST_CONTINUE, StmtType.ST_YIELD,
+                  StmtType.ST_ASSERT, StmtType.ST_FROM_IMPORT, StmtType.ST_IMPORT }
 
 class EXPR:
     def __init__(self):
@@ -539,6 +546,28 @@ class EXPR:
             pass
         return max_id
 
+    def find_and_output_errors(self, count_errors, file):
+        if self.type in forbiddenEXPRS:
+            count_errors += 1
+            file.write('Ошибка выражения! ' + str(self.type) + ' Такое выражение не поддерживается!\n')
+            return count_errors
+        else:
+            if self.left is not None:
+                count_errors = self.left.find_and_output_errors(self, count_errors, file)
+            if self.right is not None:
+                count_errors = self.right.find_and_output_errors(self, count_errors, file)
+            if self.identifier is not None:
+                count_errors = self.identifier.find_and_output_errors(self, count_errors, file)
+            if self.list is not None:
+                count_errors = self.list.find_and_output_errors(self, count_errors, file)
+            if self.middle is not None:
+                count_errors = self.identifier.find_and_output_errors(self, count_errors, file)
+            if self.type == ExprType.ET_ASSIGN:
+                if not(self.left.type == ExprType.ET_ID or self.left.type == ExprType.ET_DOT or
+                       self.left.type == ExprType.ET_SQUARE_BRACKETS):
+                    count_errors += 1
+                    return count_errors
+
 
 class STMT:
     def __init__(self):
@@ -578,10 +607,11 @@ class STMT:
             if text[i + 1] != "List":
                 self.expr = EXPR()
                 i = self.expr.read_expr(i + 1, last=int(text[i+1]), text=text)
-            self.stmtList = List.List()
-            i = self.stmtList.read_list(i + 2, last=int(text[i+2]), text=text)
             self.firstSuite = List.List()
             i = self.firstSuite.read_list(i + 2, last=int(text[i+2]), text=text)
+            if text[i + 1] == "List":
+                self.stmtList = List.List()
+                i = self.stmtList.read_list(i + 2, last=int(text[i+2]), text=text)
         elif string == "ST_CLASS_DEF":
             self.type = StmtType.ST_CLASS_DEF
             self.identifier = EXPR()
@@ -691,8 +721,10 @@ class STMT:
             writefile.write(str(cur_id) + '[label=\"def\"]\n')
             writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
             max_id = self.identifier.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
-            max_id = self.expr.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
-            max_id = self.stmtList.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            if self.expr is not None:
+                max_id = self.expr.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            if self.stmtList is not None:
+                max_id = self.stmtList.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
             max_id = self.firstSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
         elif self.type == StmtType.ST_CLASS_DEF:
             writefile.write(str(cur_id) + '[label=\"class\"]\n')
@@ -787,10 +819,28 @@ class STMT:
             pass
         return max_id
 
+    def find_and_output_errors(self, count_errors, file):
+        pos_return = 0
+        if self.StmtType.value == StmtType.ST_FUNCTION_DEF:
+            pos_return = 1
+        if self.type in forbiddenSTMTS:
+            count_errors += 1
+            file.write('Ошибка statementа! ' + str(self.type) + ' Такой тип statementа не поддерживается!\n')
+            return count_errors
+        if self.identifier is not None:
+            count_errors = self.identifier.find_and_output_errors(count_errors, file)
+        if self.expr is not None:
+            count_errors = self.expr.find_and_output_errors(count_errors, file)
+        if self.stmtList is not None:
+            count_errors = self.stmtList.find_and_output_errors(count_errors, file)
+        if self.firstSuite is not None:
+            count_errors = self.firstSuite.find_and_output_errors(count_errors, file)
+        if self.secondSuite is not None:
+            count_errors = self.secondSuite.find_and_output_errors(count_errors, file)
+        if self.thirdSuite is not None:
+            count_errors = self.thirdSuite.find_and_output_errors(count_errors, file)
 
-
-
-
+        return count_errors
 
 
 

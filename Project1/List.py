@@ -1,7 +1,7 @@
 import Classes
 from Enums import ListType
-
-forbiddenLists = {ListType.LT_EXPR_ID_AS_LIST, ListType.LT_EXPR_WITH}
+from Enums import StmtType
+forbiddenLists = {ListType.LT_EXPR_ID_AS_LIST, ListType.LT_EXPR_WITH, ListType.LT_UNDEFINED}
 
 
 class List:
@@ -102,15 +102,33 @@ class List:
             max_id = self.nextEl.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
         return max_id
 
-    def find_and_output_errors(self, count_errors, file):
+    def find_and_output_errors(self, count_errors, file, pos_return):
         if self.type in forbiddenLists:
             count_errors += 1
-            file.write('Ошибка для списка! ' + str(self.type) + ' Такой список не поддерживается')
+            file.write('Ошибка для списка! ' + str(self.type) + ' Такой список не поддерживается\n')
             return count_errors
         else:
-            if self.type == ListType.LT_UNDEFINED:
+            if self.type == ListType.LT_EXPR_ARRAY_INITIAL_ARGUMENTS:
+                count_errors = self.expr.find_and_output_errors(count_errors, file)
+            elif self.type == ListType.LT_EXPR_FUNCTION_PARAMS:
+                count_errors = self.expr.find_and_output_errors(count_errors, file)
+            elif self.type == ListType.LT_EXPR_IDENTIFIERS_E:
+                count_errors = self.expr.find_and_output_errors(count_errors, file)
+            elif self.type == ListType.LT_STATEMENT_LIST:
+                count_errors = self.stmt.find_and_output_errors(count_errors, file)
+            elif self.type == ListType.LT_STMT_ELIF_LIST:
+                count_errors = self.stmt.find_and_output_errors(count_errors, file)
+            elif self.type == ListType.LT_STMT_EXCEPT_LIST:
+                count_errors = self.stmt.find_and_output_errors(count_errors, file)
+            else:
                 pass
-
+            if self.stmt is not None and self.stmt.type.value == StmtType.ST_RETURN.value:
+                if pos_return == 0:
+                    count_errors += 1
+                    return count_errors
+            if isinstance(self.nextEl, List) and self.nextEl.type != ListType.LT_UNDEFINED:
+                count_errors = self.nextEl.find_and_output_errors(count_errors, file,pos_return)
+            return count_errors
 
 
 
