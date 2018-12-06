@@ -1,0 +1,1 @@
+"./graphviz/bin/dot.exe" -Tpng grammar_tree.txt -o grammar_tree.png

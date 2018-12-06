@@ -3,7 +3,7 @@ import printGraph
 import checkErrors as check
 import convert as conv
 program = List.List()
-file = open("resultGraph.txt", mode="r")
+file = open("tree_to_python.txt", mode="r")
 text = file.read().splitlines()
 
 

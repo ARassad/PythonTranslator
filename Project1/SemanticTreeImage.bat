@@ -1,0 +1,1 @@
+"./graphviz/bin/dot.exe" -Tpng SemanticTree.txt -o SemanticTree.png

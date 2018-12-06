@@ -56,7 +56,9 @@ class ConstantTable:
         pass
 
 
-def convert()
+def convert():
+    pass
+
 
 def create_table(prog):
     table = ConstantTable()

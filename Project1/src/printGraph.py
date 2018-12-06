@@ -4,7 +4,7 @@ from Enums import StmtType
 from Enums import ExprType
 import Classes
 
-writefile = open("graph.txt", mode="w")
+writefile = open("SemanticTree.txt", mode="w")
 
 
 def print_program(program):
@@ -15,6 +15,7 @@ def print_program(program):
     writefile.write(str(max_id) + '[label = \"program\"]\n')
     root.write(writefile=writefile, max_id=max_id, parent_id=current_id)
     writefile.write('}')
+    writefile.flush()
 
 
 
