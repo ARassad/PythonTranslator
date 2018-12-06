@@ -307,11 +307,11 @@ int main(int argc, char *argv[])
 {
 	yyin = fopen(argv[1], "r");
 	yyparse();
-	freopen("resultGraph.txt","w",stdout);
+	freopen("grammar_tree.txt","w",stdout);
 	printTree();
-	freopen("resultGraph2.txt","w",stdout);
+	freopen("tree_to_python.txt","w",stdout);
 	printForPython();
-	_execlpe("cmd", "/c", "graph.bat", "", 0,0,0);
+	_execlpe("cmd", "/c", "GrammarTreeImage.bat", "", 0,0,0);
 	
 
 

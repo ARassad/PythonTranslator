@@ -1,10 +1,10 @@
-import fileReader as fr
-import printGraph as pg
-import checkErrors as check
-import convert as conv
-import Classes as cl
-import Enums as en
-from ConstantTable import create_table
+import src.fileReader as fr
+import src.printGraph as pg
+import src.checkErrors as check
+import src.convert as conv
+from src.ConstantTable import create_table
+import os
+from subprocess import Popen
 
 
 if __name__ == "__main__":
@@ -15,4 +15,5 @@ if __name__ == "__main__":
     const_table = create_table(prog)
     pg.print_program(prog)
 
-pass
+    p = Popen(r"SemanticTreeImage.bat", cwd=r"D:\UNIVER\Translator\tmp\PythonTranslator\Project1\\")
+    stdout, stderr = p.communicate()
