@@ -2,6 +2,17 @@ import Classes as cl
 import Enums as en
 from Enums import ExprType, ListType, StmtType
 import uuid
+import ConvertFunction as cf
+
+
+def convert_tree(root):
+
+    #root = cf.create_main_class(root)
+
+    return root
+
+
+OBJECT_NAME = "<Object>"
 
 
 class ECONSTANT:
@@ -60,15 +71,13 @@ def convert():
     pass
 
 
-def create_table(prog):
+def create_tables(prog):
     table = ConstantTable()
 
-    __procces(prog, table)
+    __procces(prog, table, [table_create_node])
+
+    prog.constant_table = table
     return table
-
-
-def call_procces(node, name, table):
-    __procces(getattr(node, name, None), table)
 
 
 def table_create_node(node, table):
@@ -96,20 +105,54 @@ def table_create_node(node, table):
         index = table.add(const)
         node.constant_index = index
         # return
+    elif node.type.value == StmtType.ST_FUNCTION_DEF.value:
+        # Class for function
+        class_name = ConstantElement(ECONSTANT.Utf8, "{}_{}".format(node.identifier.stringVal, str(uuid.uuid1())))
+        index = table.add(class_name)
+        class_const = ConstantElement(ECONSTANT.Class, [index])
+        class_index = table.add(class_const)
+
+        # Name and Type
+        func_name = ConstantElement(ECONSTANT.Utf8, node.identifier.stringVal)
+        func_name_index = table.add(func_name)
+
+        descripter = get_func_descripter(node)
+        descripter_name = ConstantElement(ECONSTANT.Utf8, descripter)
+        descripter_index = table.add(descripter_name)
+
+        name_and_type = ConstantElement(ECONSTANT.NameAndType, [func_name_index, descripter_index])
+        nat_index = table.add(name_and_type)
+
+        # Method Ref
+        method_ref = ConstantElement(ECONSTANT.Methodref, [class_index, nat_index])
+        node.constant_index = table.add(method_ref)
 
 
-def __procces(node, table):
+def get_func_descripter(func_node):
+    num_params = 0
+    param = func_node.stmtList
+    while param is not None:
+        num_params += 1
+        param = param.nextEl
+
+    return f"({f'L<{OBJECT_NAME}>;'*num_params})L<{OBJECT_NAME}>;"
+
+
+def __procces(node, table, handlers):
     if node is None:
         return
 
+    for h in handlers:
+        h(node, table)
 
+    call = lambda name: __procces(getattr(node, name, None), table, handlers)
 
-
-    call = lambda name: call_procces(node, name, table)
     # LIST
     call("stmt")
-    call("expr")
     call("nextEl")
+
+    # STMT, LIST
+    call("expr")
 
     # EXPR
     call("left")
@@ -119,7 +162,6 @@ def __procces(node, table):
     call("identifier")
 
     # STMT
-    # call("expr")
     call("firstSuite")
     call("secondSuite")
     call("thirdSuite")
