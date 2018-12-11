@@ -54,7 +54,7 @@ class List:
             self.type = ListType.LT_EXPR_WITH
             self.stmt = Classes.EXPR()
             i = self.expr.read_expr(i + 1, int(text[i + 1]), text=text)
-        if text[i + 1] == "List":
+        if i + 1 < len(text) and text[i + 1] == "List":
             self.nextEl = List()
             i = self.nextEl.read_list(i + 2, int(text[i + 2]), text=text)
         return i + 1
@@ -106,14 +106,14 @@ class List:
         if self.type in forbiddenLists:
             count_errors += 1
             file.write('Ошибка для списка! ' + str(self.type) + ' Такой список не поддерживается\n')
-            return count_errors
+            return count_errors, pos_return
         else:
             if self.type == ListType.LT_EXPR_ARRAY_INITIAL_ARGUMENTS:
-                count_errors = self.expr.find_and_output_errors(count_errors, file, pos_return)
+                count_errors, pos_return = self.expr.find_and_output_errors(count_errors, file, pos_return)
             elif self.type == ListType.LT_EXPR_FUNCTION_PARAMS:
-                count_errors = self.expr.find_and_output_errors(count_errors, file, pos_return)
+                count_errors, pos_return = self.expr.find_and_output_errors(count_errors, file, pos_return)
             elif self.type == ListType.LT_EXPR_IDENTIFIERS_E:
-                count_errors = self.expr.find_and_output_errors(count_errors, file, pos_return)
+                count_errors, pos_return = self.expr.find_and_output_errors(count_errors, file, pos_return)
             elif self.type == ListType.LT_STATEMENT_LIST:
                 count_errors, pos_return = self.stmt.find_and_output_errors(count_errors, file, pos_return)
             elif self.type == ListType.LT_STMT_ELIF_LIST:

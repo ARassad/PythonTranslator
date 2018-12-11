@@ -559,27 +559,27 @@ class EXPR:
             pass
         return max_id
 
-    def find_and_output_errors(self, count_errors, file , pos_return):
+    def find_and_output_errors(self, count_errors, file, pos_return):
         if self.type in forbiddenEXPRS:
             count_errors += 1
             file.write('Ошибка выражения! ' + str(self.type) + ' Такое выражение не поддерживается!\n')
-            return count_errors
+            return count_errors, pos_return
         else:
             if self.left is not None:
-                count_errors = self.left.find_and_output_errors(count_errors, file, pos_return)
+                count_errors, pos_return = self.left.find_and_output_errors(count_errors, file, pos_return)
             if self.right is not None:
-                count_errors = self.right.find_and_output_errors(count_errors, file, pos_return)
+                count_errors, pos_return = self.right.find_and_output_errors(count_errors, file, pos_return)
             if self.identifier is not None:
-                count_errors = self.identifier.find_and_output_errors(count_errors, file, pos_return)
+                count_errors, pos_return = self.identifier.find_and_output_errors(count_errors, file, pos_return)
             if self.list is not None:
-                count_errors = self.list.find_and_output_errors(count_errors, file, pos_return)
+                count_errors, pos_return = self.list.find_and_output_errors(count_errors, file, pos_return)
             if self.middle is not None:
-                count_errors = self.identifier.find_and_output_errors(count_errors, file, pos_return)
+                count_errors, pos_return = self.identifier.find_and_output_errors(count_errors, file, pos_return)
             if self.type == ExprType.ET_ASSIGN:
                 if not(self.left.type == ExprType.ET_ID or self.left.type == ExprType.ET_DOT or
                        self.left.type == ExprType.ET_ARRAY_APPEAL):
                     count_errors += 1
-            return count_errors
+            return count_errors, pos_return
 
     def convert(self):
         if self.type.value == ExprType.ET_INT.value:
@@ -588,7 +588,7 @@ class EXPR:
             self.type = ExprType.ET_FUNC_CALL
             self.left = EXPR()
             self.left.type = ExprType.ET_ID
-            self.left.stringVal = 'int'
+            self.left.stringVal = '<int>'
             self.list = List.List()
             self.list.type = List.ListType.LT_EXPR_ARRAY_INITIAL_ARGUMENTS
             self.list.expr = EXPR()
@@ -600,7 +600,7 @@ class EXPR:
             self.type = ExprType.ET_FUNC_CALL
             self.left = EXPR()
             self.left.type = ExprType.ET_ID
-            self.left.stringVal = 'float'
+            self.left.stringVal = '<float>'
             self.list = List.List()
             self.list.type = List.ListType.LT_EXPR_ARRAY_INITIAL_ARGUMENTS
             self.list.expr = EXPR()
@@ -612,7 +612,7 @@ class EXPR:
             self.type = ExprType.ET_FUNC_CALL
             self.left = EXPR()
             self.left.type = ExprType.ET_ID
-            self.left.stringVal = 'str'
+            self.left.stringVal = '<str>'
             self.list = List.List()
             self.list.type = List.ListType.LT_EXPR_ARRAY_INITIAL_ARGUMENTS
             self.list.expr = EXPR()
@@ -624,7 +624,7 @@ class EXPR:
             self.type = ExprType.ET_FUNC_CALL
             self.left = EXPR()
             self.left.type = ExprType.ET_ID
-            self.left.stringVal = 'int'
+            self.left.stringVal = '<int>'
             self.list = List.List()
             self.list.type = List.ListType.LT_EXPR_ARRAY_INITIAL_ARGUMENTS
             self.list.expr = EXPR()
@@ -702,10 +702,10 @@ class STMT:
             self.type = StmtType.ST_CLASS_DEF
             self.identifier = EXPR()
             i = self.identifier.read_expr(i + 1, last=int(text[i + 1]), text=text)
+            self.stmtList = List.List()
+            i = self.stmtList.read_list(i + 2, last=int(text[i+2]), text=text)
             self.firstSuite = List.List()
             i = self.firstSuite.read_list(i + 2, last=int(text[i + 2]), text=text)
-            self.secondSuite = List.List()
-            i = self.stmtList.read_list(i + 2, last=int(text[i+2]), text=text)
         elif string == "ST_WHILE":
             self.type = StmtType.ST_WHILE
             self.expr = EXPR()
@@ -911,11 +911,11 @@ class STMT:
         if self.type in forbiddenSTMTS:
             count_errors += 1
             file.write('Ошибка statementа! ' + str(self.type) + ' Такой тип statementа не поддерживается!\n')
-            return count_errors
+            return count_errors,pos_return
         if self.identifier is not None:
-            count_errors = self.identifier.find_and_output_errors(count_errors, file, pos_return)
+            count_errors, pos_return = self.identifier.find_and_output_errors(count_errors, file, pos_return)
         if self.expr is not None:
-            count_errors = self.expr.find_and_output_errors(count_errors, file, pos_return)
+            count_errors, pos_return = self.expr.find_and_output_errors(count_errors, file, pos_return)
         if self.stmtList is not None:
             count_errors, pos_return = self.stmtList.find_and_output_errors(count_errors, file, pos_return)
         if self.firstSuite is not None:
