@@ -13,7 +13,8 @@ class List:
 
     def read_list(self, index, last, text):
         i = index + 1
-
+        if i >= len(text):
+            return i
         if text[i] == "LT_ELEMENT":
             self.type = ListType.LT_ELEMENT
             if text[i + 1] == "Statement":
