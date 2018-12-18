@@ -18,5 +18,5 @@ if __name__ == "__main__":
 
     pg.print_program(prog)
 
-    p = Popen(r"SemanticTreeImage.bat", cwd=r"D:\UNIVER\Translator\tmp\PythonTranslator\Project1\\")
+    p = Popen(r"SemanticTreeImage.bat", cwd=r".\.")
     stdout, stderr = p.communicate()
