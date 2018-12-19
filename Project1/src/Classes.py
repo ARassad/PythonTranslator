@@ -702,10 +702,11 @@ class STMT:
             self.type = StmtType.ST_CLASS_DEF
             self.identifier = EXPR()
             i = self.identifier.read_expr(i + 1, last=int(text[i + 1]), text=text)
-            self.stmtList = List.List()
-            i = self.stmtList.read_list(i + 2, last=int(text[i+2]), text=text)
             self.firstSuite = List.List()
-            i = self.firstSuite.read_list(i + 2, last=int(text[i + 2]), text=text)
+            i = self.firstSuite.read_list(i + 2, last=int(text[i+2]), text=text)
+            if text[i + 1] == "List":
+                self.stmtList = List.List()
+                i = self.stmtList.read_list(i + 2, last=int(text[i + 2]), text=text)
         elif string == "ST_WHILE":
             self.type = StmtType.ST_WHILE
             self.expr = EXPR()
@@ -817,7 +818,8 @@ class STMT:
             writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
             max_id = self.identifier.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
             max_id = self.firstSuite.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
-            max_id = self.stmtList.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
+            if self.stmtList is not None:
+                max_id = self.stmtList.write(writefile=writefile, max_id=max_id, parent_id=cur_id)
         elif self.type == StmtType.ST_WHILE:
             writefile.write(str(cur_id) + '[label=\"while\"]\n')
             writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
