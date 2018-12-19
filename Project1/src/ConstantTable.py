@@ -7,12 +7,12 @@ import ConvertFunction as cf
 
 def convert_tree(root):
 
-    #root = cf.create_main_class(root)
+    root = cf.create_main_class(root)
 
     return root
 
 
-OBJECT_NAME = "<Object>"
+OBJECT_NAME = "<__PyObject>"
 
 
 class ECONSTANT:
@@ -134,8 +134,7 @@ def get_func_descripter(func_node):
     while param is not None:
         num_params += 1
         param = param.nextEl
-
-    return f"({f'L<{OBJECT_NAME}>;'*num_params})L<{OBJECT_NAME}>;"
+    return "({})L<{}>;".format('L<{}>;'.format(OBJECT_NAME)*num_params, OBJECT_NAME)
 
 
 def __procces(node, table, handlers):
