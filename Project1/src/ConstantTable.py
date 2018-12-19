@@ -7,7 +7,7 @@ import ConvertFunction as cf
 
 def convert_tree(root):
 
-    #root = cf.create_main_class(root)
+    root = cf.create_main_class(root)
 
     return root
 
