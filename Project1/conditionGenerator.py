@@ -11,7 +11,9 @@ import os
 from subprocess import Popen
 
 # progr_text = ""
+
 if __name__ == "__main__":
+
     fr.read_graph()
     prog = fr.program
 
@@ -22,6 +24,20 @@ if __name__ == "__main__":
     test = ""
     lg.generate_list(prog, test, 0)
     pg.print_program(prog)
+
+
+def doAll():
+    fr.read_graph()
+    prog = fr.program
+
+    check.find_and_output_errors(prog)
+    conv.convert(prog)
+    prog = convert_tree(prog)
+    create_tables(prog)
+    test = ""
+    # lg.generate_list(prog, test, 0)
+    pg.print_program(prog)
+    return prog
 
 
 def generate_condition(stmt, progr_text, count_nodes):
