@@ -5,6 +5,7 @@
  */
 package baseClass;
 import java.util.HashMap;
+import javax.management.AttributeNotFoundException;
 
 /**
  *
@@ -15,14 +16,10 @@ public abstract class __PyObject {
 
     public __PyObject() {
         this.__dir__ = new HashMap();
+        __init__();
     }
-    
     
     public __PyObject __init__() {
-        return null;
-    }
-    
-    public __PyObject __call__() {
         return null;
     }
     
@@ -30,8 +27,11 @@ public abstract class __PyObject {
         return null;
     }
     
-    public __PyObject __getattr__(String name) {
-        return null;
+    public __PyObject __getattr__(String name) throws AttributeNotFoundException {
+        __PyObject value = __dir__.get(name);
+        if(value == null)
+            throw new AttributeNotFoundException("Object has no attribute " + name);
+        return value;
     }
     
     public __PyObject __hasattr__(String name) {
@@ -39,11 +39,27 @@ public abstract class __PyObject {
     }
     
     public __PyObject __setattr__(String name, __PyObject value) {
-        return null;
+        __dir__.put(name, value);
+        return this;
     }
     
-    public abstract __PyObject __str__();
-    public abstract __PyObject __list__();
-    public abstract __PyObject __float__();
-    public abstract __PyObject __int__();
+    public __PyObject __call__() throws Exception {
+        throw new Exception("Object is not callable.");
+    }
+    
+    public __PyObject __str__() throws Exception{
+        throw new Exception("Cannot convert object to string.");
+    }
+    
+    public __PyObject __list__() throws Exception{
+        throw new Exception("Cannot convert object to list.");
+    }
+    
+    public __PyObject __float__() throws Exception{
+        throw new Exception("Cannot convert object to float.");
+    }
+    
+    public __PyObject __int__() throws Exception{
+        throw new Exception("Cannot convert object to int.");
+    }
 }
