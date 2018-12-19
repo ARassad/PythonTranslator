@@ -9,35 +9,32 @@ package baseClass;
  *
  * @author 1
  */
-public class Integer extends basic {
+public class Integer extends __PyObject {
     public int intVal;
-    @Override
-    public Integer add(basic other)
+    public Integer __add__(__PyObject other)
     {
         Integer result = new Integer();
         result.intVal = this.intVal + ((Integer)other).intVal;
         return result;
 
     }
-    @Override
-    public Integer minus(basic other)
+    public Integer __minus__(__PyObject other)
     {
         Integer result = new Integer();
         result.intVal = this.intVal + ((Integer)other).intVal;
         return result;
     }
-    @Override
-    public Integer mul(basic other)
+    public Integer __mul__(__PyObject other)
     {
         Integer result = new Integer();
         result.intVal = this.intVal * ((Integer)other).intVal;
         return result;
     }
-    @Override
-    public Integer div(basic other)
+    public Integer __div__(__PyObject other)
     {
         Integer result = new Integer();
         result.intVal = this.intVal * ((Integer)other).intVal;
         return result;
     }
+    
 }

@@ -9,32 +9,29 @@ package baseClass;
  *
  * @author 1
  */
-public class Float extends basic {
+public class Float extends __PyObject {
     public float floatVal;
-    @Override
-    public Float add(basic other)
+    public Float __add__(__PyObject other)
     {
         Float result = new Float();
         result.floatVal = this.floatVal + ((Float)other).floatVal;
         return result;
 
     }
-    @Override
-    public Float minus(basic other)
+    public Float __minus__(__PyObject other)
     {
         Float result = new Float();
         result.floatVal = this.floatVal - ((Float)other).floatVal;
         return result;
     }
-    @Override
-    public Float mul(basic other)
+    
+    public Float __mul(__PyObject other)
     {
         Float result = new Float();
         result.floatVal = this.floatVal * ((Float)other).floatVal;
         return result;
     }
-    @Override
-    public Float div(basic other)
+    public Float div(__PyObject other)
     {
         Float result = new Float();
         result.floatVal = this.floatVal * ((Float)other).floatVal;

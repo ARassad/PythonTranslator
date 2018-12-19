@@ -12,18 +12,16 @@ import java.util.logging.Logger;
  *
  * @author 1
  */
-public class Str extends basic{
+public class Str extends __PyObject{
     public String strVal;
     
-    @Override
-    public Str add(basic other)
+    public Str __add__(__PyObject other)
     {
         Str result = new Str();
         result.strVal = this.strVal + ((Str)other).strVal;
         return result;
     }
-    @Override
-    public Str minus(basic other)
+    public Str __minus__(__PyObject other)
     {
         try {
             throw new Exception("cannot use operation minus for the type string");
@@ -32,8 +30,7 @@ public class Str extends basic{
         }
         return null;
     }
-    @Override
-    public Str mul(basic other)
+    public Str __mul__(__PyObject other)
     {
         try {
             throw new Exception("cannot use operation mul for the type string");
@@ -42,8 +39,7 @@ public class Str extends basic{
         }
         return null;
     }
-    @Override
-    public Str div(basic other)
+    public Str __div__(__PyObject other)
     {
         try {
             throw new Exception("cannot use operation mul for the type string");
