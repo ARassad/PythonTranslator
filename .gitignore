@@ -1,0 +1,11 @@
+/Project1/rtl/dist/
+Graphviz
+Debug
+v15
+.idea
+/Project1/rtl/build/
+.class
+bison.exe
+bison.hairy
+__pycache__
+
