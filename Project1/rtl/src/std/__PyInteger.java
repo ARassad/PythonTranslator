@@ -18,5 +18,8 @@ public class __PyInteger extends __PyObject {
     public __PyInteger(boolean value) {
     }
     
+    public __PyInteger(int value) {
+    }
+    
     
 }

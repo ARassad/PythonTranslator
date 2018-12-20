@@ -48,8 +48,62 @@ public class __PyString extends __PyObject{
         if(!(value instanceof __PyString))
             throw new ArithmeticException("Object for compare must be string.");
         
-        return null;
+        return new __PyInteger(this.__string__.compareTo(value.__string__) < 0);
     }
     
-   
+    public __PyObject __le__(__PyObject value) {
+        if(!(value instanceof __PyString))
+            throw new ArithmeticException("Object for compare must be string.");
+        
+        return new __PyInteger(this.__string__.compareTo(value.__string__) <= 0);
+    }
+    
+    public __PyObject __eq__(__PyObject value) {
+        if(!(value instanceof __PyString))
+            throw new ArithmeticException("Object for compare must be string.");
+        
+        return new __PyInteger(this.__string__.compareTo(value.__string__) == 0);
+    }
+    
+    public __PyObject __ne__(__PyObject value) {
+        if(!(value instanceof __PyString))
+            throw new ArithmeticException("Object for compare must be string.");
+        
+        return new __PyInteger(this.__string__.compareTo(value.__string__) != 0);
+    }
+    
+    public __PyObject __gt__(__PyObject value) {
+        if(!(value instanceof __PyString))
+            throw new ArithmeticException("Object for compare must be string.");
+        
+        return new __PyInteger(this.__string__.compareTo(value.__string__) > 0);
+    }
+    
+    public __PyObject __ge__(__PyObject value) {
+        if(!(value instanceof __PyString))
+            throw new ArithmeticException("Object for compare must be string.");
+        
+        return new __PyInteger(this.__string__.compareTo(value.__string__) >= 0);
+    }
+    
+    //Type cast
+    public __PyObject __str__(){
+        return this;
+    }
+    
+    public __PyObject __list__() {
+        throw new NotImplementedException();
+    }
+    
+    public __PyObject __float__() {
+        throw new NotImplementedException();
+    }
+    
+    public __PyObject __int__()  {
+        return new __PyInteger(Integer.parseInt(this.__string__));
+    }
+    
+    public __PyObject __bool__() {
+        return new __PyInteger(Boolean.parseBoolean(this.__string__));
+    }
 }
