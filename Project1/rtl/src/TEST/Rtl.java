@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package rtl;
-import baseClass.Integer;
-import baseClass.basic;
-import baseClass.Float;
-import baseClass.Str;
+package TEST;
+import std.__PyInteger;
+import std.basic;
+import std.Float;
+import std.__PyString;
 /**
  *
  * @author 1
@@ -19,11 +19,7 @@ public class Rtl {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        basic a,b, c;
-        a = new Str();
-        b = new Str();
-        c = new Str();
-        c = a.minus(b);
+
         
     }
     
