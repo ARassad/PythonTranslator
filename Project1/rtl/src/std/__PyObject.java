@@ -16,6 +16,7 @@ public abstract class __PyObject {
     public final HashMap<String, __PyObject> __dir__;
     public String __string__;
     public int __integer__;
+    public double __float__;
     
     public __PyObject() {
         this.__dir__ = new HashMap();
@@ -134,15 +135,15 @@ public abstract class __PyObject {
         throw new NotImplementedException();
     }
     
-    public __PyObject __neg__(__PyObject value) throws NotImplementedException {
+    public __PyObject __neg__() throws NotImplementedException {
         throw new NotImplementedException();
     }
     
-    public __PyObject __pos__(__PyObject value) throws NotImplementedException {
+    public __PyObject __pos__() throws NotImplementedException {
         throw new NotImplementedException();
     }
     
-    public __PyObject __round__(__PyObject value) throws NotImplementedException {
+    public __PyObject __round__() throws NotImplementedException {
         throw new NotImplementedException();
     }
     

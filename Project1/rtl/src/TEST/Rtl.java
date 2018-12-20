@@ -5,7 +5,7 @@
  */
 package TEST;
 import std.__PyInteger;
-import std.Float;
+import std.__PyFloat;
 import std.__PyString;
 /**
  *
