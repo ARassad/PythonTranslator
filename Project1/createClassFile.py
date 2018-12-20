@@ -1,5 +1,6 @@
 import conditionGenerator as da
 import sys
+from ConstantTable import ECONSTANT
 writefile = open("___________MAINCLASS_______________.class", mode="wb")
 
 
@@ -19,25 +20,43 @@ def create_version():
 # Печать таблицы констант
 def print_constant_table():
     prog = da.doAll()
-    num = len(prog.constant_table) + 1
+    num = prog.constant_table.length + 1
     text = bytearray(num.to_bytes(1, byteorder='big'))
     writefile.write(bytes(text))
     index = 0
     constant_table = prog.constant_table.table
     i = 0
     j = 0
+    sorted_table = []
     for constant_list in constant_table.values():
         if len(constant_list) is 0:
-            break
+            pass
         for constant in constant_list.values():
-            text = bytearray(constant.ctype.to_bytes(1, byteorder='big'))
+            sorted_table.append(constant)
+    sorted_table.sort(key=lambda i: i.index)
+    for constant in sorted_table:
+        text = bytearray(constant.ctype.to_bytes(1, byteorder='big'))
+        if constant.ctype == ECONSTANT.Utf8:
             text += bytearray(sys.getsizeof(constant.value).to_bytes(1, byteorder='big'))
-            text += bytearray(index.to_bytes(1, byteorder='big'))
-            writefile.write(text)
-
+            text += bytes(constant.value.encode('ansi'))
+        elif constant.ctype == ECONSTANT.Int:
+            text += bytearray(constant.value.to_bytes(1, byteorder='big'))
+        elif constant.ctype == ECONSTANT.String:
+            text += bytearray(constant.index.to_bytes(1, byteorder='big'))
+        elif constant.ctype == ECONSTANT.Float:
+            text += bytearray(constant.value.to_bytes(1, byteorder='big'))
+        elif constant.ctype == ECONSTANT.NameAndType:
+            text += bytearray(constant.index.to_bytes(1, byteorder='big'))
+        elif constant.ctype == ECONSTANT.Class:
+            text += bytearray(constant.index.to_bytes(1, byteorder='big'))
+        elif constant.ctype == ECONSTANT.Fieldref:
+            text += bytearray(constant.index.to_bytes(1, byteorder='big'))
+        elif constant.ctype == ECONSTANT.Methodref:
+            text += bytearray(constant.index.to_bytes(1, byteorder='big'))
+        writefile.write(text)
 
 def print_access_flags():
-    text = '\x02'
+    text = '\x02\x01'
     writefile.write(bytes(text.encode('ansi')))
 
 
@@ -61,6 +80,7 @@ def print_count_interfaces():
 # Сначала напечатать кол-во полей, потом сами методы
 def print_fields():
     text = bytearray(int(0).to_bytes(1, byteorder='big'))
+
     writefile.write(text)
 
 
