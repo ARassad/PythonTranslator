@@ -11,7 +11,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
  *
  * @author 1
  */
-public class __PyFloat extends __PyObject {
+public class __PyFloat extends __PyGenericObject {
 
     public __PyFloat() {
         super();
@@ -27,32 +27,32 @@ public class __PyFloat extends __PyObject {
         this.__float__ = Double.parseDouble(value);
     }
     
-    public __PyObject __str__() {
+    public __PyGenericObject __str__() {
         return new __PyString(Double.toString(this.__float__));
     }
     
-    public __PyObject __list__() {
+    public __PyGenericObject __list__() {
         throw new NotImplementedException();
     }
     
-    public __PyObject __float__() {
+    public __PyGenericObject __float__() {
         return this;
     }
     
-    public __PyObject __int__() {
+    public __PyGenericObject __int__() {
         return new __PyInteger((int) this.__float__);
     }
     
-    public __PyObject __bool__() {
+    public __PyGenericObject __bool__() {
         return new __PyInteger(this.__float__ != 0.0);
     }
     
     //Arifmetic 
-    public __PyObject __abs__() {
+    public __PyGenericObject __abs__() {
         return new __PyFloat(Math.abs(this.__float__));
     }
     
-    public __PyObject __add__(__PyObject value) {
+    public __PyGenericObject __add__(__PyGenericObject value) {
         if(value instanceof __PyInteger)
             return new __PyFloat(this.__float__ + value.__integer__);
         else if (value instanceof __PyFloat)
@@ -61,7 +61,7 @@ public class __PyFloat extends __PyObject {
         throw new ArithmeticException("Object for arifmetic with float must be int or float.");
     }
     
-    public __PyObject __sub__(__PyObject value) {
+    public __PyGenericObject __sub__(__PyGenericObject value) {
         if(value instanceof __PyInteger)
             return new __PyFloat(this.__float__ - value.__integer__);
         else if (value instanceof __PyFloat)
@@ -70,7 +70,7 @@ public class __PyFloat extends __PyObject {
         throw new ArithmeticException("Object for arifmetic with float must be int or float.");
     }
     
-    public __PyObject __mul__(__PyObject value) {
+    public __PyGenericObject __mul__(__PyGenericObject value) {
         if(value instanceof __PyInteger)
             return new __PyFloat(this.__float__ * value.__integer__);
         else if (value instanceof __PyFloat)
@@ -79,7 +79,7 @@ public class __PyFloat extends __PyObject {
         throw new ArithmeticException("Object for arifmetic with float must be int or float.");
     }
     
-    public __PyObject __truediv__(__PyObject value) {
+    public __PyGenericObject __truediv__(__PyGenericObject value) {
         if(value instanceof __PyInteger)
             return new __PyFloat(this.__float__ / value.__integer__);
         else if (value instanceof __PyFloat)
@@ -88,7 +88,7 @@ public class __PyFloat extends __PyObject {
         throw new ArithmeticException("Object for arifmetic with float must be int or float.");
     }
     
-    public __PyObject __floordiv__(__PyObject value) {
+    public __PyGenericObject __floordiv__(__PyGenericObject value) {
         if(value instanceof __PyInteger)
             return new __PyInteger((int)Math.floor(this.__float__ / value.__integer__));
         else if (value instanceof __PyFloat)
@@ -97,7 +97,7 @@ public class __PyFloat extends __PyObject {
         throw new ArithmeticException("Object for arifmetic with float must be int or float.");
     }
     
-    public __PyObject __mod__(__PyObject value) {
+    public __PyGenericObject __mod__(__PyGenericObject value) {
         if(value instanceof __PyInteger)
             return new __PyFloat(this.__float__ % value.__integer__);
         else if (value instanceof __PyFloat)
@@ -106,7 +106,7 @@ public class __PyFloat extends __PyObject {
         throw new ArithmeticException("Object for arifmetic with float must be int or float.");
     }
     
-    public __PyObject __pow__(__PyObject value)  {
+    public __PyGenericObject __pow__(__PyGenericObject value)  {
         if(value instanceof __PyInteger)
             return new __PyFloat(Math.pow(this.__float__, value.__integer__));
         else if (value instanceof __PyFloat)
@@ -115,20 +115,20 @@ public class __PyFloat extends __PyObject {
         throw new ArithmeticException("Object for arifmetic with float must be int or float.");
     }
     
-    public __PyObject __neg__() {
+    public __PyGenericObject __neg__() {
         return new __PyFloat(this.__float__ - 1);
     }
     
-    public __PyObject __pos__() {
+    public __PyGenericObject __pos__() {
         return new __PyFloat(this.__float__ + 1);
     }
     
-    public __PyObject __round__() {
+    public __PyGenericObject __round__() {
         return new __PyFloat(Math.round(this.__float__));
     }
     
     // Equal
-    public __PyObject __lt__(__PyObject value)  {
+    public __PyGenericObject __lt__(__PyGenericObject value)  {
         if(value instanceof __PyInteger)
             return new __PyInteger(this.__float__ < value.__integer__);
         else if (value instanceof __PyFloat)
@@ -137,7 +137,7 @@ public class __PyFloat extends __PyObject {
         throw new ArithmeticException("Object for equality with float must be int or float.");
     }
     
-    public __PyObject __le__(__PyObject value) {
+    public __PyGenericObject __le__(__PyGenericObject value) {
         if(value instanceof __PyInteger)
             return new __PyInteger(this.__float__ <= value.__integer__);
         else if (value instanceof __PyFloat)
@@ -146,7 +146,7 @@ public class __PyFloat extends __PyObject {
         throw new ArithmeticException("Object for equality with float must be int or float.");
     }
     
-    public __PyObject __eq__(__PyObject value)  {
+    public __PyGenericObject __eq__(__PyGenericObject value)  {
         if(value instanceof __PyInteger)
             return new __PyInteger(this.__float__ == value.__integer__);
         else if (value instanceof __PyFloat)
@@ -155,7 +155,7 @@ public class __PyFloat extends __PyObject {
         throw new ArithmeticException("Object for equality with float must be int or float.");
     }
     
-    public __PyObject __ne__(__PyObject value)  {
+    public __PyGenericObject __ne__(__PyGenericObject value)  {
         if(value instanceof __PyInteger)
             return new __PyInteger(this.__float__ != value.__integer__);
         else if (value instanceof __PyFloat)
@@ -164,7 +164,7 @@ public class __PyFloat extends __PyObject {
         throw new ArithmeticException("Object for equality with float must be int or float.");
     }
     
-    public __PyObject __gt__(__PyObject value)  {
+    public __PyGenericObject __gt__(__PyGenericObject value)  {
         if(value instanceof __PyInteger)
             return new __PyInteger(this.__float__ > value.__integer__);
         else if (value instanceof __PyFloat)
@@ -173,7 +173,7 @@ public class __PyFloat extends __PyObject {
         throw new ArithmeticException("Object for equality with float must be int or float.");
     }
     
-    public __PyObject __ge__(__PyObject value) throws NotImplementedException {
+    public __PyGenericObject __ge__(__PyGenericObject value) throws NotImplementedException {
         if(value instanceof __PyInteger)
             return new __PyInteger(this.__float__ >= value.__integer__);
         else if (value instanceof __PyFloat)

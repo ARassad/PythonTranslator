@@ -9,12 +9,12 @@ package std;
  *
  * @author Arkadi
  */
-public class __PyMethod extends __PyObject{
+public class __PyMethod extends __PyGenericObject{
 
     public __PyMethod() {
     }
     
-    public __PyObject __call__() throws Exception {
+    public __PyGenericObject __call__() throws Exception {
         return this;
     }
 }

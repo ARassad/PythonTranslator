@@ -13,7 +13,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
  *
  * @author 1
  */
-public class __PyString extends __PyObject{
+public class __PyString extends __PyGenericObject{
 
     public __PyString() {
         super();
@@ -25,7 +25,7 @@ public class __PyString extends __PyObject{
         __string__ = str;
     }
     
-    public __PyString __add__(__PyObject other) {
+    public __PyString __add__(__PyGenericObject other) {
         if(!(other instanceof __PyString))
             throw new ArithmeticException("To add to string object must be string.");
                     
@@ -34,7 +34,7 @@ public class __PyString extends __PyObject{
         return result;
     }
     
-    public __PyString __mul__(__PyObject other){
+    public __PyString __mul__(__PyGenericObject other){
         if(!(other instanceof __PyInteger))
             throw new ArithmeticException("Can`t multiply string by non int object.");
         
@@ -44,42 +44,42 @@ public class __PyString extends __PyObject{
         return new __PyString(strRes);
     }
     
-    public __PyObject __lt__(__PyObject value) {
+    public __PyGenericObject __lt__(__PyGenericObject value) {
         if(!(value instanceof __PyString))
             throw new ArithmeticException("Object for compare must be string.");
         
         return new __PyInteger(this.__string__.compareTo(value.__string__) < 0);
     }
     
-    public __PyObject __le__(__PyObject value) {
+    public __PyGenericObject __le__(__PyGenericObject value) {
         if(!(value instanceof __PyString))
             throw new ArithmeticException("Object for compare must be string.");
         
         return new __PyInteger(this.__string__.compareTo(value.__string__) <= 0);
     }
     
-    public __PyObject __eq__(__PyObject value) {
+    public __PyGenericObject __eq__(__PyGenericObject value) {
         if(!(value instanceof __PyString))
             throw new ArithmeticException("Object for compare must be string.");
         
         return new __PyInteger(this.__string__.compareTo(value.__string__) == 0);
     }
     
-    public __PyObject __ne__(__PyObject value) {
+    public __PyGenericObject __ne__(__PyGenericObject value) {
         if(!(value instanceof __PyString))
             throw new ArithmeticException("Object for compare must be string.");
         
         return new __PyInteger(this.__string__.compareTo(value.__string__) != 0);
     }
     
-    public __PyObject __gt__(__PyObject value) {
+    public __PyGenericObject __gt__(__PyGenericObject value) {
         if(!(value instanceof __PyString))
             throw new ArithmeticException("Object for compare must be string.");
         
         return new __PyInteger(this.__string__.compareTo(value.__string__) > 0);
     }
     
-    public __PyObject __ge__(__PyObject value) {
+    public __PyGenericObject __ge__(__PyGenericObject value) {
         if(!(value instanceof __PyString))
             throw new ArithmeticException("Object for compare must be string.");
         
@@ -87,23 +87,23 @@ public class __PyString extends __PyObject{
     }
     
     //Type cast
-    public __PyObject __str__(){
+    public __PyGenericObject __str__(){
         return this;
     }
     
-    public __PyObject __list__() {
+    public __PyGenericObject __list__() {
         throw new NotImplementedException();
     }
     
-    public __PyObject __float__() {
+    public __PyGenericObject __float__() {
         throw new NotImplementedException();
     }
     
-    public __PyObject __int__()  {
+    public __PyGenericObject __int__()  {
         return new __PyInteger(Integer.parseInt(this.__string__));
     }
     
-    public __PyObject __bool__() {
+    public __PyGenericObject __bool__() {
         return new __PyInteger(this.__string__.length() != 0);
     }
 }

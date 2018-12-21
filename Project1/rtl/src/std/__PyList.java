@@ -12,7 +12,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
  *
  * @author Arkadi
  */
-public class __PyList extends __PyObject {
+public class __PyList extends __PyGenericObject {
 
     public __PyList() {
         super();
@@ -20,7 +20,7 @@ public class __PyList extends __PyObject {
     }
     
     //Type cast
-    public __PyObject __str__() throws Exception{
+    public __PyGenericObject __str__() throws Exception{
         String res = "[";
         int l = __list__.size();
         for(int i = 0; i < l; i++){
@@ -32,16 +32,16 @@ public class __PyList extends __PyObject {
         return new __PyString(res);
     }
     
-    public __PyObject __list__(){
+    public __PyGenericObject __list__(){
        return this;
     }
     
-    public __PyObject __bool__() {
+    public __PyGenericObject __bool__() {
        return new __PyInteger(this.__list__.size() != 0);
     }
     
     // List 
-    public __PyObject __contains__(__PyObject value) {
+    public __PyGenericObject __contains__(__PyGenericObject value) {
         boolean found = false;
         int l = this.__list__.size();
         int i = 0;
@@ -55,14 +55,14 @@ public class __PyList extends __PyObject {
         return new __PyInteger(found);
     }
     
-    public __PyObject __delitem__(__PyObject index) {
+    public __PyGenericObject __delitem__(__PyGenericObject index) {
         if(!(index instanceof __PyInteger))
             throw new ArrayIndexOutOfBoundsException("Index must be int object");
         
         return this.__list__.remove(index.__integer__);
     }
     
-    public __PyObject __getitem__(__PyObject index) {
+    public __PyGenericObject __getitem__(__PyGenericObject index) {
         if(!(index instanceof __PyInteger))
             throw new ArrayIndexOutOfBoundsException("Index must be int object");
         int ind = index.__integer__;
@@ -71,12 +71,12 @@ public class __PyList extends __PyObject {
         return this.__list__.get(ind);
     }
     
-    public __PyObject append(__PyObject value) {
+    public __PyGenericObject append(__PyGenericObject value) {
         this.__list__.add(value);
         return this;
     }
     
-    public __PyObject index(__PyObject value) {
+    public __PyGenericObject index(__PyGenericObject value) {
         boolean found = false;
         int l = this.__list__.size();
         int i = 0;
@@ -93,14 +93,14 @@ public class __PyList extends __PyObject {
         return new __PyInteger(index);
     }
  
-    public __PyObject remove(__PyObject value) throws Exception{
-       __PyObject index = this.index(value);
+    public __PyGenericObject remove(__PyGenericObject value) throws Exception{
+       __PyGenericObject index = this.index(value);
        if(index.__integer__ == -1)
            throw new Exception("Value not in list");
        return this.__delitem__(index);
     }
     
-    public __PyObject extend(__PyObject list) throws Exception {
+    public __PyGenericObject extend(__PyGenericObject list) throws Exception {
         if(!(list instanceof __PyList))
             throw new Exception("Can extend only by list object");
         __PyList res = new __PyList();
@@ -109,18 +109,18 @@ public class __PyList extends __PyObject {
         return res;
     }
     
-    public __PyObject __replaceitem(__PyObject index, __PyObject value) throws NotImplementedException{
+    public __PyGenericObject __replaceitem(__PyGenericObject index, __PyGenericObject value) throws NotImplementedException{
         if(!(index instanceof __PyInteger))
             throw new ArrayIndexOutOfBoundsException("Index must be int object");
         int ind = index.__integer__;
         if(ind < 0)
             ind = this.__list__.size() - ind;
-        __PyObject var = this.__list__.remove(ind);
+        __PyGenericObject var = this.__list__.remove(ind);
         this.__list__.add(ind, value);
         return var;
     }
     
-    public __PyObject insert(__PyObject index, __PyObject value) throws NotImplementedException{
+    public __PyGenericObject insert(__PyGenericObject index, __PyGenericObject value) throws NotImplementedException{
         if(!(index instanceof __PyInteger))
             throw new ArrayIndexOutOfBoundsException("Index must be int object");
         int ind = index.__integer__;
@@ -130,17 +130,17 @@ public class __PyList extends __PyObject {
         return this;
     }
     
-    public __PyObject clear() throws NotImplementedException{
+    public __PyGenericObject clear() throws NotImplementedException{
         this.__list__.clear();
         return this;
     }
     
-    public __PyObject sort() throws Exception{
+    public __PyGenericObject sort() throws Exception{
         __PyList res = new __PyList();
         
         int l = this.__list__.size();
         int num = 0;
-        __PyObject tmp;
+        __PyGenericObject tmp;
         for(int i = 0; i < l; i++){
             tmp = this.__list__.get(i);
             int j = 0;
@@ -162,19 +162,19 @@ public class __PyList extends __PyObject {
         return res;
     }
     
-    public __PyObject __len__() throws NotImplementedException{
+    public __PyGenericObject __len__() throws NotImplementedException{
         return new __PyInteger(this.__list__.size());
     }
     
-    public __PyObject __add__(__PyObject value) throws Exception {
+    public __PyGenericObject __add__(__PyGenericObject value) throws Exception {
         return this.extend(value);
     }
     
-    public __PyObject __mul__(__PyObject value) throws Exception {
+    public __PyGenericObject __mul__(__PyGenericObject value) throws Exception {
         if(!(value instanceof __PyInteger))
             throw new ArrayIndexOutOfBoundsException("Can multiply only by int object");
         
-        __PyObject res = this;
+        __PyGenericObject res = this;
         for(int i = 1; i < value.__integer__; i++){
             res = res.extend(this);
         }
@@ -182,7 +182,7 @@ public class __PyList extends __PyObject {
     }
     
     // Equal
-    public __PyObject __lt__(__PyObject value) throws Exception {
+    public __PyGenericObject __lt__(__PyGenericObject value) throws Exception {
         if(!(value instanceof __PyList))
             throw new Exception("Can equal only with list object");
         
@@ -203,7 +203,7 @@ public class __PyList extends __PyObject {
         return new __PyInteger(true);
     }
     
-    public __PyObject __le__(__PyObject value) throws Exception {
+    public __PyGenericObject __le__(__PyGenericObject value) throws Exception {
         if(this.__lt__(value).__integer__ == 1)
             return new __PyInteger(true);
         if (this.__eq__(value).__integer__ == 1)
@@ -211,7 +211,7 @@ public class __PyList extends __PyObject {
         return new __PyInteger(false);
     }
     
-    public __PyObject __eq__(__PyObject value) throws Exception  {
+    public __PyGenericObject __eq__(__PyGenericObject value) throws Exception  {
         if(!(value instanceof __PyList))
             throw new Exception("Can equal only with list object");
         
@@ -228,15 +228,15 @@ public class __PyList extends __PyObject {
         return new __PyInteger(true);
     }
     
-    public __PyObject __ne__(__PyObject value) throws Exception {
+    public __PyGenericObject __ne__(__PyGenericObject value) throws Exception {
         return new __PyInteger(this.__eq__(value).__integer__ != 1);
     }
     
-    public __PyObject __gt__(__PyObject value) throws Exception {
+    public __PyGenericObject __gt__(__PyGenericObject value) throws Exception {
         return new __PyInteger(this.__le__(value).__integer__ != 1);
     }
     
-    public __PyObject __ge__(__PyObject value) throws Exception {
+    public __PyGenericObject __ge__(__PyGenericObject value) throws Exception {
         return new __PyInteger(this.__lt__(value).__integer__ != 1);
     }
 }
