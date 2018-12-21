@@ -129,46 +129,62 @@ public class __PyInteger extends __PyObject {
         return new __PyInteger(this.__integer__ + 1);
     }
     
-    public __PyObject __round__() throws NotImplementedException {
+    public __PyObject __round__() {
         return new __PyInteger(Math.round(this.__integer__));
     }
     
-    //Logic
-    public __PyObject __and__(__PyObject value) throws NotImplementedException {
-        throw new NotImplementedException();
-    }
-    
-    public __PyObject __or__(__PyObject value) throws NotImplementedException {
-        throw new NotImplementedException();
-    }
-    
-    public __PyObject __xor__(__PyObject value) throws NotImplementedException {
-        throw new NotImplementedException();
-    }
-    
     // Equal
-    public __PyObject __lt__(__PyObject value) throws NotImplementedException {
-        throw new NotImplementedException();
+    public __PyObject __lt__(__PyObject value)  {
+        if(value instanceof __PyInteger)
+            return new __PyInteger(this.__integer__ < value.__integer__);
+        else if (value instanceof __PyFloat)
+            return new __PyInteger(this.__integer__ < value.__float__);
+        
+        throw new ArithmeticException("Object for equality with int must be int or float.");
     }
     
-    public __PyObject __le__(__PyObject value) throws NotImplementedException {
-        throw new NotImplementedException();
+    public __PyObject __le__(__PyObject value) {
+        if(value instanceof __PyInteger)
+            return new __PyInteger(this.__integer__ <= value.__integer__);
+        else if (value instanceof __PyFloat)
+            return new __PyInteger(this.__integer__ <= value.__float__);
+        
+        throw new ArithmeticException("Object for equality with int must be int or float.");
     }
     
-    public __PyObject __eq__(__PyObject value) throws NotImplementedException {
-        throw new NotImplementedException();
+    public __PyObject __eq__(__PyObject value)  {
+        if(value instanceof __PyInteger)
+            return new __PyInteger(this.__integer__ == value.__integer__);
+        else if (value instanceof __PyFloat)
+            return new __PyInteger(this.__integer__ == value.__float__);
+        
+        throw new ArithmeticException("Object for equality with int must be int or float.");
     }
     
-    public __PyObject __ne__(__PyObject value) throws NotImplementedException {
-        throw new NotImplementedException();
+    public __PyObject __ne__(__PyObject value)  {
+        if(value instanceof __PyInteger)
+            return new __PyInteger(this.__integer__ != value.__integer__);
+        else if (value instanceof __PyFloat)
+            return new __PyInteger(this.__integer__ != value.__float__);
+        
+        throw new ArithmeticException("Object for equality with int must be int or float.");
     }
     
-    public __PyObject __gt__(__PyObject value) throws NotImplementedException {
-        throw new NotImplementedException();
+    public __PyObject __gt__(__PyObject value)  {
+        if(value instanceof __PyInteger)
+            return new __PyInteger(this.__integer__ > value.__integer__);
+        else if (value instanceof __PyFloat)
+            return new __PyInteger(this.__integer__ > value.__float__);
+        
+        throw new ArithmeticException("Object for equality with int must be int or float.");
     }
     
     public __PyObject __ge__(__PyObject value) throws NotImplementedException {
-        throw new NotImplementedException();
+        if(value instanceof __PyInteger)
+            return new __PyInteger(this.__integer__ >= value.__integer__);
+        else if (value instanceof __PyFloat)
+            return new __PyInteger(this.__integer__ >= value.__float__);
+        
+        throw new ArithmeticException("Object for equality with int must be int or float.");
     }
-    
 }

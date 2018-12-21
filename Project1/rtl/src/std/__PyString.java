@@ -104,6 +104,6 @@ public class __PyString extends __PyObject{
     }
     
     public __PyObject __bool__() {
-        return new __PyInteger(Boolean.parseBoolean(this.__string__));
+        return new __PyInteger(this.__string__.length() != 0);
     }
 }
