@@ -3,11 +3,19 @@ import printGraph
 import checkErrors as check
 import convert as conv
 program = List.List()
-file = open("tree_to_python.txt", mode="r")
-text = file.read().splitlines()
+file = None
+try:
+    file = open("tree_to_python.txt", mode="r")
+    text = file.read().splitlines()
+except:
+    pass
 
 
-def read_graph():
+def read_graph(filename=None):
+    if filename is not None:
+        global file
+        file = open(filename, mode="r")
+        text = file.read().splitlines()
     i = 0
     while i < len(text):
         if text[i] == "List":
