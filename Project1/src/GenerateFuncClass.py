@@ -62,16 +62,17 @@ def __generate_PyGenericObject(funcs, const_table, dir_with_std_classes, dir_out
     class_file = bytearray()
     with open(dir_with_std_classes + '\\__PyGenericObject.class', 'rb') as base:
         class_file.extend(base.read(8))
-        const_count = int.from_bytes(base.read(2), byteorder='big') + len(const_table)
+        base_const_count = int.from_bytes(base.read(2), byteorder='big')
+        const_count = base_const_count + len(const_table)
         class_file.extend(const_count.to_bytes(2, 'big'))
 
-        base_const_table = base.read(11 * 16 + 13)
+        base_const_table = base.read(4016 - 2)
         res_table = bytearray()
         res_table.extend(base_const_table)
-        res_table.extend(const_table.to_string())
+        res_table.extend(const_table.to_string(base_const_count))
         class_file.extend(res_table)
 
-        basement = base.read(4 * 16 + 14 + 9)
+        basement = base.read()
         class_file.extend(basement)
 
     if not os.path.exists(dir_output):

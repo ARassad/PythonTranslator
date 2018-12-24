@@ -36,14 +36,14 @@ class ConstantElement:
         self.value = value
         self.index = None
 
-    def to_bytes(self):
+    def to_bytes(self, offset=0):
         bs = bytearray()
         bs.extend(self.ctype.to_bytes(1, "big"))
         if self.ctype in [ECONSTANT.Class, ECONSTANT.String, ECONSTANT.MethodType]:
-            bs.extend(self.value[0].to_bytes(2, "big"))
+            bs.extend((self.value[0] + offset).to_bytes(2, "big"))
         elif self.ctype in [ECONSTANT.Fieldref, ECONSTANT.Methodref, ECONSTANT.NameAndType, ECONSTANT.InvokeDynamic]:
-            bs.extend(self.value[0].to_bytes(2, "big"))
-            bs.extend(self.value[1].to_bytes(2, "big"))
+            bs.extend((self.value[0] + offset).to_bytes(2, "big"))
+            bs.extend((self.value[1] + offset).to_bytes(2, "big"))
         elif self.ctype in [ECONSTANT.Int, ECONSTANT.Float]:
             bs.extend(self.value.to_bytes(4, "big"))
         elif self.ctype in [ECONSTANT.Utf8]:
@@ -85,14 +85,14 @@ class ConstantTable:
     def print_table(self):
         pass
 
-    def to_string(self):
+    def to_string(self, offset=0):
         allC = []
         for v in self.table.values():
             allC.extend(v.values())
         allC.sort(key=lambda x: x.index)
         bs = bytearray()
         for c in allC:
-            bs.extend(c.to_bytes())
+            bs.extend(c.to_bytes(offset))
         return bs
 
 
