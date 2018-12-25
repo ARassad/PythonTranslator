@@ -18,7 +18,7 @@ public abstract class __PyObject {
     public final HashMap<String, __PyGenericObject> __dir__;
     public String __string__;
     public int __integer__;
-    public double __float__;
+    public float __float__;
     public LinkedList<__PyGenericObject> __list__;
     
     public __PyObject() {
@@ -202,5 +202,14 @@ public abstract class __PyObject {
     
     public __PyGenericObject __ge__(__PyGenericObject value) throws Exception {
         throw new NotImplementedException();
+    }
+    
+    public __PyGenericObject __input__() throws Exception {
+        return new __PyString(System.console().readLine());
+    }
+    
+    public __PyGenericObject __print__(__PyGenericObject data) throws Exception {
+        System.out.println(data.__str__().__string__);
+        return data;
     }
 }

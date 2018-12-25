@@ -594,7 +594,7 @@ class EXPR:
             self.list.expr = EXPR()
             self.list.expr.type = ExprType.ET_INT
             self.list.expr.intVal = num
-        elif self.type.value == ExprType.ET_FLOAT:
+        elif self.type.value == ExprType.ET_FLOAT.value:
             num = self.floatVal
             self.floatVal = None
             self.type = ExprType.ET_FUNC_CALL
@@ -605,7 +605,7 @@ class EXPR:
             self.list.type = List.ListType.LT_EXPR_ARRAY_INITIAL_ARGUMENTS
             self.list.expr = EXPR()
             self.list.expr.type = ExprType.ET_FLOAT
-            self.list.expr.floatVal = num.value
+            self.list.expr.floatVal = num
         elif self.type.value == ExprType.ET_STRING.value:
             num = self.stringVal
             self.stringVal = None

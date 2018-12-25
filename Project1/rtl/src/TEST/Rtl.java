@@ -6,6 +6,7 @@
 package TEST;
 import std.__PyInteger;
 import std.__PyFloat;
+import std.__PyGenericObject;
 import std.__PyString;
 /**
  *
@@ -16,10 +17,10 @@ public class Rtl {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         // TODO code application logic here
-
         
+        System.out.println("HI");
     }
     
 }

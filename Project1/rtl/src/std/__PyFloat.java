@@ -17,14 +17,14 @@ public class __PyFloat extends __PyGenericObject {
         super();
     }
     
-    public __PyFloat(double value) {
+    public __PyFloat(float value) {
         this();
         this.__float__ = value;
     }
     
     public __PyFloat(String value) {
         this();
-        this.__float__ = Double.parseDouble(value);
+        this.__float__ = Float.parseFloat(value);
     }
     
     public __PyGenericObject __str__() {
@@ -108,9 +108,9 @@ public class __PyFloat extends __PyGenericObject {
     
     public __PyGenericObject __pow__(__PyGenericObject value)  {
         if(value instanceof __PyInteger)
-            return new __PyFloat(Math.pow(this.__float__, value.__integer__));
+            return new __PyFloat((float)Math.pow(this.__float__, value.__integer__));
         else if (value instanceof __PyFloat)
-            return new __PyFloat(Math.pow(this.__float__ , value.__float__));
+            return new __PyFloat((float)Math.pow(this.__float__ , value.__float__));
         
         throw new ArithmeticException("Object for arifmetic with float must be int or float.");
     }

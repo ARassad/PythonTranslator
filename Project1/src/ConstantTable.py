@@ -3,6 +3,7 @@ import Enums as en
 from Enums import ExprType, ListType, StmtType
 import uuid
 import ConvertFunction as cf
+import struct
 
 
 def convert_tree(root):
@@ -12,7 +13,7 @@ def convert_tree(root):
     return root
 
 
-OBJECT_NAME = "<__PyObject>"
+OBJECT_NAME = "std/__PyGenericObject"
 
 
 class ECONSTANT:
@@ -44,12 +45,15 @@ class ConstantElement:
         elif self.ctype in [ECONSTANT.Fieldref, ECONSTANT.Methodref, ECONSTANT.NameAndType, ECONSTANT.InvokeDynamic]:
             bs.extend((self.value[0] + offset).to_bytes(2, "big"))
             bs.extend((self.value[1] + offset).to_bytes(2, "big"))
-        elif self.ctype in [ECONSTANT.Int, ECONSTANT.Float]:
+        elif self.ctype in [ECONSTANT.Int]:
             bs.extend(self.value.to_bytes(4, "big"))
+        elif self.ctype in [ECONSTANT.Float]:
+            bs += bytearray(struct.pack("f", self.value))
         elif self.ctype in [ECONSTANT.Utf8]:
             bs.extend(len(self.value).to_bytes(2, "big"))
             bs.extend(bytes(self.value, 'utf-8'))
-
+        else:
+            raise Exception()
         return bs
 
 
@@ -63,7 +67,10 @@ class ConstantTable:
             ECONSTANT.NameAndType: {},
             ECONSTANT.Class: {},
             ECONSTANT.Fieldref: {},
-            ECONSTANT.Methodref: {}
+            ECONSTANT.Methodref: {},
+            ECONSTANT.InvokeDynamic: {},
+            ECONSTANT.MethodType: {},
+            ECONSTANT.Double: {}
         }
         self.length = 0
 
@@ -74,7 +81,7 @@ class ConstantTable:
             if el.ctype != const.ctype:
                 raise BaseException("Adding in constants table constant already in table with another type")
             return el.index
-        const.index = self.length
+        const.index = self.length + 1
         table[str(const.value)] = const
         self.length += 1
         return const.index
@@ -94,6 +101,45 @@ class ConstantTable:
         for c in allC:
             bs.extend(c.to_bytes(offset))
         return bs
+
+    def add_constant(self, type, value):
+        const = ConstantElement(type, value)
+        return self.add(const)
+
+    def add_utf8(self, string):
+        return self.add(ConstantElement(ECONSTANT.Utf8, string))
+
+    def add_int(self, value):
+        return self.add(ConstantElement(ECONSTANT.Int, value))
+
+    def add_float(self, value):
+        return self.add(ConstantElement(ECONSTANT.Float, value))
+
+    def add_string(self, string):
+        ind = self.add_utf8(string)
+        return self.add(ConstantElement(ECONSTANT.String, [ind]))
+
+    def add_nameAndType(self, name, decriptor):
+        indN = self.add_utf8(name)
+        indD = self.add_utf8(decriptor)
+        return self.add(ConstantElement(ECONSTANT.NameAndType, [indN, indD]))
+
+    def add_Class(self, className):
+        indN = self.add_utf8(className)
+        return self.add(ConstantElement(ECONSTANT.Class, [indN]))
+
+    def add_FieldRef(self, className, fieldName, descriptor):
+        indC = self.add_Class(className)
+        indNaT = self.add_nameAndType(fieldName, descriptor)
+        return self.add(ConstantElement(ECONSTANT.Fieldref, [indC, indNaT]))
+
+    def add_MethodRef(self, className, methodName, descriptor):
+        indC = self.add_Class(className)
+        indNaT = self.add_nameAndType(methodName, descriptor)
+        return self.add(ConstantElement(ECONSTANT.Methodref, [indC, indNaT]))
+
+    def add_headers(self):
+        pass
 
 
 def convert():

@@ -114,9 +114,9 @@ public class __PyInteger extends __PyGenericObject {
     
     public __PyGenericObject __pow__(__PyGenericObject value)  {
         if(value instanceof __PyInteger)
-            return new __PyFloat(Math.pow(this.__integer__, value.__integer__));
+            return new __PyFloat((float)Math.pow(this.__integer__, value.__integer__));
         else if (value instanceof __PyFloat)
-            return new __PyFloat(Math.pow(this.__integer__ , value.__float__));
+            return new __PyFloat((float)Math.pow(this.__integer__ , value.__float__));
         
         throw new ArithmeticException("Object for arifmetic with int must be int or float.");
     }

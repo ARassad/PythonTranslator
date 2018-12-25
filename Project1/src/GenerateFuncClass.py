@@ -4,18 +4,133 @@ import src.fileReader as fr
 import src.printGraph as pg
 import src.checkErrors as check
 import src.convert as conv
-from ConstantTable import convert_tree, create_tables
+from ConstantTable import *
 import os
 from subprocess import Popen
+from GenerateCode import start_generation
+import uuid
 
 
 class Func_Class:
-    def __init__(self, root):
+    def __init__(self, root, table: ConstantTable = None):
         self.root = root
+        self.table = table
+        self.my_code = None
+        self.this_class = None
+        self.this_class = None
+        self.constructor = None
+        self.class_name = root.identifier.stringVal + "_" + str(uuid.uuid1())
+
+    def empty_constructor(self):
+        bs = bytearray()
+        bs += b"\x00\01"
+        bs += self.table.add_utf8("<init>").to_bytes(2, 'big')
+        bs += self.table.add_utf8("()V").to_bytes(2, 'big')
+        bs += b'\x00\x01'
+        bs += self.table.add_utf8("Code").to_bytes(2, 'big')
+        bs += int(17).to_bytes(4, 'big')
+        bs += b'\x00\x01\x00\x01\x00\x00\x00\x05'
+
+        # Code
+        bs += b'\x2A\xB7'
+        bs += self.table.add_MethodRef("std/__PyGenericObject", "<init>", "()V").to_bytes(2, 'big')
+        bs += b'\xB1'
+
+        bs += b'\x00\x00\x00\x00'
+        return bs
+
+    def generate_my_function(self):
+        bs = bytearray()
+        bs += b'\x00\x01'
+        bs += self.table.add_utf8("__call__").to_bytes(2, 'big')
+        numParametrs = 0
+        cur = self.root.stmtList
+        while cur is not None:
+            numParametrs += 1
+            cur = cur.nextEl
+        descriptor = "({})Lstd/__PyGenericObject;".format("Lstd/__PyGenericObject;" * numParametrs)
+        bs += self.table.add_utf8(descriptor).to_bytes(2, 'big')
+        bs += int(2).to_bytes(2, 'big')
+
+        code, offset = start_generation(self.root.firstSuite, self.table)
+
+        bs += self.table.add_utf8("Code").to_bytes(2, 'big')
+        code_attr = bytearray()
+        code_attr += int(1000).to_bytes(2, "big")
+        code_attr += int(numParametrs+1).to_bytes(2, 'big')
+        code_attr += offset.to_bytes(4, "big")
+        code_attr += code
+        code_attr += b'\x00\x00\x00\x00'
+
+        # code_attr += self.table.add_utf8("LocalVariableTable").to_bytes(2, "big")
+        # code_attr += int(10 * numParametrs + 2).to_bytes(2, 'big')
+        # code_attr += int(numParametrs).to_bytes(2, 'big')
+        #
+        # code_attr += b'\x00\x00\x00\x3A'
+        # code_attr += self.table.add_utf8("this").to_bytes(2, "big")
+        # code_attr += self.table.add_utf8("Lstd/" + self.class_name + ";").to_bytes(2, "big")
+        # code_attr += b'\x00\x00'
+        #
+        # numParametrs = 0
+        # cur = self.root.stmtList
+        # while cur is not None:
+        #     numParametrs += 1
+        #     code_attr += b'\x00\x00\x00\x3A'
+        #     code_attr += self.table.add_utf8("this").to_bytes(2, "big")
+        #     code_attr += self.table.add_utf8("Lstd/__PyGenericObject;").to_bytes(2, "big")
+        #     code_attr += numParametrs.to_bytes(2, 'big')
+        #     cur = cur.nextEl
+
+        bs += len(code_attr).to_bytes(4, 'big')
+        bs += code_attr
+
+        # Exception
+        bs += self.table.add_utf8("Exceptions").to_bytes(2, "big")
+        bs += b'\x00\x00\x00\x04'
+        bs += b'\x00\x01'
+        bs += self.table.add_Class("java/lang/Exception").to_bytes(2, "big")
+        return bs
+
+    def initial_func_class(self, table=None):
+        self.table = table if table is not None else self.table
+        if self.table is None:
+            self.table = ConstantTable()
+
+        self.constructor = self.empty_constructor()
+        self.my_code = self.generate_my_function()
+
+    def to_class_file(self, out_dir):
+        class_file = bytearray()
+        class_file += b'\xCA\xFE\xBA\xBE\x00\x00\x00\x34'
+
+        class_file_2 = bytearray()
+        class_file_2 += b'\x00\x21'
+        class_file_2 += self.table.add_Class("std." + self.class_name).to_bytes(2, 'big')
+        class_file_2 += self.table.add_Class("std.__PyGenericObject").to_bytes(2, 'big')
+        class_file_2 += b'\x00\x00'
+        class_file_2 += b'\x00\x00'
+        class_file_2 += b'\x00\x02'
+
+        class_file_2 += self.constructor
+        class_file_2 += self.my_code
+
+        class_file_2 += b'\x00\x00'
+
+        class_file += int(len(self.table) + 1).to_bytes(2, 'big')
+        class_file += self.table.to_string()
+        class_file += class_file_2
+
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+        with open(out_dir + '\\{}.class'.format(self.class_name), 'wb') as f:
+            f.write(class_file)
 
 
 def generate_classes_for_function(root: STMT, dir_with_std_classes: str, dir_output: str):
     funcs = __get_all_func_def(root)
+    for f in funcs:
+        f.initial_func_class(root.constant_table)
+        f.to_class_file(dir_output)
 
     __generate_PyGenericObject(funcs, root.constant_table, dir_with_std_classes, dir_output)
     pass
@@ -90,7 +205,7 @@ if __name__ == "__main__":
     prog = convert_tree(prog)
     create_tables(prog)
 
-    generate_classes_for_function(prog, "D:\\Translator\\PythonTranslator\\Project1\\rtl\\build\\classes\\std", "D:\\Translator\\PythonTranslator\\Project1\\rtl\\build\\classes\\std\\Gen")
+    generate_classes_for_function(prog, "D:\\Translator\\PythonTranslator\\Project1\\rtl\\build\\classes\\std", "D:\\Translator\\PythonTranslator\\Project1\\rtl\\build\\classes\\std")
 
     pg.print_program(prog)
 
