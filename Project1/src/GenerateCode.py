@@ -192,6 +192,23 @@ def generate_minus(root, table: ConstantTable, code=None):
     return code, len(my_code)
 
 
+def generate_pow(root, table: ConstantTable, code=None):
+    if code is None:
+        code = bytearray()
+    my_code = bytearray()
+
+    c, o = generate_code(root.left, table)
+    my_code += c
+    c, o = generate_code(root.right, table)
+    my_code += c
+
+    my_code += invoke_virtual(
+        table.add_MethodRef("std/__PyGenericObject", "__pow__", "(Lstd/__PyGenericObject;)Lstd/__PyGenericObject;"))
+
+    code += my_code
+    return code, len(my_code)
+
+
 def generate_mul(root, table: ConstantTable, code=None):
     if code is None:
         code = bytearray()
@@ -494,6 +511,7 @@ gen_functions = {
     ExprType.ET_GREATER_EQUAL: generate_great_eq,
     StmtType.ST_FUNCTION_DEF: generate_function_definition,
     ExprType.ET_NONE: new_none,
+    ExprType.ET_POW: generate_pow
 
 }
 
