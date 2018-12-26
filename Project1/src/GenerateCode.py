@@ -43,6 +43,10 @@ def generate_func_call(root, table, code=None):
         code, offset = cast_to_float(root, table)
     elif root.type.value == ExprType.ET_FUNC_CALL.value and root.left.stringVal == 'bool':
         code, offset = cast_to_bool(root, table)
+    elif root.type.value == ExprType.ET_FUNC_CALL.value and root.left.stringVal == 'print':
+        code, offset = generate_print(root, table)
+    elif root.type.value == ExprType.ET_FUNC_CALL.value and root.left.stringVal == 'input':
+        code, offset = generate_input(root, table)
     else:
         code, offset = generate_custom_function_call(root, table)
     return code, offset
@@ -493,6 +497,42 @@ def generate_custom_function_call(root, table: ConstantTable, code=None):
     return code, len(my_code)
 
 
+def generate_print(root, table: ConstantTable, code=None):
+    if root.list.nextEl is not None:
+        raise Exception("Print function get only one argument!!!")
+    if code is None:
+        code = bytearray()
+    my_code = bytearray()
+
+    my_code += aload(int(0))
+
+    c, offset = generate_code(root.list.expr, table)
+    my_code.extend(c)
+
+    # invokeVirtual
+    my_code += invoke_virtual(table.add_MethodRef("std/__PyGenericObject", "__print__", "(Lstd/__PyGenericObject;)Lstd/__PyGenericObject;"))
+    my_code += pop()
+
+    code += my_code
+    return code, len(my_code)
+
+
+def generate_input(root, table: ConstantTable, code=None):
+    if root.list.nextEl is not None:
+        raise Exception("Print function get only one argument!!!")
+    if code is None:
+        code = bytearray()
+    my_code = bytearray()
+
+    my_code += aload(int(0))
+
+    # invokeVirtual
+    my_code += invoke_virtual(table.add_MethodRef("std/__PyGenericObject", "__input__", "()Lstd/__PyGenericObject;"))
+
+    code += my_code
+    return code, len(my_code)
+
+
 gen_functions = {
     ExprType.ET_FUNC_CALL: generate_func_call,
     ExprType.ET_ASSIGN: generate_assign,
@@ -538,3 +578,7 @@ def dup():
 
 def get_field(indexF: int):
     return b'\xB4' + indexF.to_bytes(2, 'big')
+
+
+def pop():
+    return b"\x57"
