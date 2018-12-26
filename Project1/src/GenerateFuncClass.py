@@ -12,14 +12,15 @@ import uuid
 
 
 class Func_Class:
-    def __init__(self, root, table: ConstantTable = None):
+    def __init__(self, root, table: ConstantTable = None, isMainClass=False):
         self.root = root
         self.table = table
         self.my_code = None
         self.this_class = None
         self.this_class = None
         self.constructor = None
-        self.class_name = root.identifier.stringVal + "_" + str(uuid.uuid1())
+        self.class_name = "MainClass" if isMainClass else root.identifier.stringVal + "_" + str(uuid.uuid1())
+        self.isMainClass = isMainClass
 
     def empty_constructor(self):
         bs = bytearray()
@@ -33,7 +34,11 @@ class Func_Class:
 
         # Code
         bs += b'\x2A\xB7'
-        bs += self.table.add_MethodRef("std/__PyGenericObject", "<init>", "()V").to_bytes(2, 'big')
+        # if self.isMainClass:
+        #     parent = "java/lang/Object"
+        # else:
+        parent = "std/__PyGenericObject"
+        bs += self.table.add_MethodRef(parent, "<init>", "()V").to_bytes(2, 'big')
         bs += b'\xB1'
 
         bs += b'\x00\x00\x00\x00'
@@ -62,24 +67,34 @@ class Func_Class:
         code_attr += code
         code_attr += b'\x00\x00\x00\x00'
 
-        # code_attr += self.table.add_utf8("LocalVariableTable").to_bytes(2, "big")
-        # code_attr += int(10 * numParametrs + 2).to_bytes(2, 'big')
-        # code_attr += int(numParametrs).to_bytes(2, 'big')
-        #
-        # code_attr += b'\x00\x00\x00\x3A'
-        # code_attr += self.table.add_utf8("this").to_bytes(2, "big")
-        # code_attr += self.table.add_utf8("Lstd/" + self.class_name + ";").to_bytes(2, "big")
-        # code_attr += b'\x00\x00'
-        #
-        # numParametrs = 0
-        # cur = self.root.stmtList
-        # while cur is not None:
-        #     numParametrs += 1
-        #     code_attr += b'\x00\x00\x00\x3A'
-        #     code_attr += self.table.add_utf8("this").to_bytes(2, "big")
-        #     code_attr += self.table.add_utf8("Lstd/__PyGenericObject;").to_bytes(2, "big")
-        #     code_attr += numParametrs.to_bytes(2, 'big')
-        #     cur = cur.nextEl
+        bs += len(code_attr).to_bytes(4, 'big')
+        bs += code_attr
+
+        # Exception
+        bs += self.table.add_utf8("Exceptions").to_bytes(2, "big")
+        bs += b'\x00\x00\x00\x04'
+        bs += b'\x00\x01'
+        bs += self.table.add_Class("java/lang/Exception").to_bytes(2, "big")
+        return bs
+
+    def generate_main_function(self):
+        bs = bytearray()
+        bs += b'\x00\x09'
+        bs += self.table.add_utf8("main").to_bytes(2, 'big')
+        bs += self.table.add_utf8("([Ljava/lang/String;)V").to_bytes(2, 'big')
+        bs += int(2).to_bytes(2, 'big')
+
+        code, offset = start_generation(self.root.firstSuite, self.table)
+        code += b'\xB1'
+        offset += 1
+
+        bs += self.table.add_utf8("Code").to_bytes(2, 'big')
+        code_attr = bytearray()
+        code_attr += int(1000).to_bytes(2, "big")
+        code_attr += int(1).to_bytes(2, 'big')
+        code_attr += offset.to_bytes(4, "big")
+        code_attr += code
+        code_attr += b'\x00\x00\x00\x00'
 
         bs += len(code_attr).to_bytes(4, 'big')
         bs += code_attr
@@ -95,8 +110,13 @@ class Func_Class:
         self.table = table if table is not None else self.table
         if self.table is None:
             self.table = ConstantTable()
+        #self.table.add_MethodRef("std/MainClass", "main", "([Ljava/lang/String;)V")
 
         self.constructor = self.empty_constructor()
+
+        # if self.isMainClass:
+        #     self.my_code = self.generate_main_function()
+        # else:
         self.my_code = self.generate_my_function()
 
     def to_class_file(self, out_dir):
@@ -105,8 +125,11 @@ class Func_Class:
 
         class_file_2 = bytearray()
         class_file_2 += b'\x00\x21'
-        class_file_2 += self.table.add_Class("std." + self.class_name).to_bytes(2, 'big')
-        class_file_2 += self.table.add_Class("std.__PyGenericObject").to_bytes(2, 'big')
+        class_file_2 += self.table.add_Class("std/" + self.class_name).to_bytes(2, 'big')
+        # if self.isMainClass:
+        #     class_file_2 += self.table.add_Class("java/lang/Object").to_bytes(2, 'big')
+        # else:
+        class_file_2 += self.table.add_Class("std/__PyGenericObject").to_bytes(2, 'big')
         class_file_2 += b'\x00\x00'
         class_file_2 += b'\x00\x00'
         class_file_2 += b'\x00\x02'
@@ -128,11 +151,13 @@ class Func_Class:
 
 def generate_classes_for_function(root: STMT, dir_with_std_classes: str, dir_output: str):
     funcs = __get_all_func_def(root)
+    if not hasattr(root, "constant_table"):
+        root.constant_table = ConstantTable()
     for f in funcs:
         f.initial_func_class(root.constant_table)
         f.to_class_file(dir_output)
 
-    __generate_PyGenericObject(funcs, root.constant_table, dir_with_std_classes, dir_output)
+    #__generate_PyGenericObject(funcs, root.constant_table, dir_with_std_classes, dir_output)
     pass
 
 
@@ -146,7 +171,8 @@ def __get_all_func_def(root: STMT):
 
     def procces(node, funcs):
         if node.type.value == StmtType.ST_FUNCTION_DEF.value:
-            funcs.append(Func_Class(node))
+            isMainClass = node.identifier.stringVal == "<main>"
+            funcs.append(Func_Class(node, isMainClass=isMainClass))
 
         # LIST
         call(node, "stmt", funcs)
@@ -203,7 +229,7 @@ if __name__ == "__main__":
     check.find_and_output_errors(prog)
     conv.convert(prog)
     prog = convert_tree(prog)
-    create_tables(prog)
+    #create_tables(prog)
 
     generate_classes_for_function(prog, "D:\\Translator\\PythonTranslator\\Project1\\rtl\\build\\classes\\std", "D:\\Translator\\PythonTranslator\\Project1\\rtl\\build\\classes\\std")
 

@@ -9,8 +9,6 @@ package std;
  *
  * @author Arkadi
  */
-public class A extends __PyGenericObject{
-    public __PyGenericObject __call__(__PyGenericObject a, __PyGenericObject b) throws Exception{
-        return new __PyNone();
-    }
+public class __PyNone extends __PyGenericObject{
+    
 }

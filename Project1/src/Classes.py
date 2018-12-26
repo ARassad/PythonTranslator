@@ -633,6 +633,13 @@ class EXPR:
                 self.list.expr.intVal = 1
             else:
                 self.list.expr.intVal = 0
+        elif self.type.value == ExprType.ET_NONE.value:
+            num = self.stringVal
+            self.stringVal = None
+            self.type = ExprType.ET_FUNC_CALL
+            self.left = EXPR()
+            self.left.type = ExprType.ET_ID
+            self.left.stringVal = '<None>'
         else:
             if self.left is not None:
                 self.left.convert()

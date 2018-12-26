@@ -29,14 +29,14 @@ def create_main_function(root):
 
     main_funct.identifier = cl.EXPR()
     main_funct.identifier.type = ExprType.ET_ID
-    main_funct.identifier.stringVal = "main"
-    main_funct.stmtList = lt.List()
-    main_funct.stmtList.type = ListType.LT_EXPR_FUNCTION_PARAMS
-    main_funct.stmtList.expr = cl.EXPR()
-    main_funct.stmtList.expr.type = ExprType.ET_FUNC_PARAM
-    main_funct.stmtList.expr.identifier = cl.EXPR()
-    main_funct.stmtList.expr.identifier.stringVal = "args"
-    main_funct.stmtList.expr.identifier.type = ExprType.ET_ID
+    main_funct.identifier.stringVal = "<main>"
+    # main_funct.stmtList = lt.List()
+    # main_funct.stmtList.type = ListType.LT_EXPR_FUNCTION_PARAMS
+    # main_funct.stmtList.expr = cl.EXPR()
+    # main_funct.stmtList.expr.type = ExprType.ET_FUNC_PARAM
+    # main_funct.stmtList.expr.identifier = cl.EXPR()
+    # main_funct.stmtList.expr.identifier.stringVal = "args"
+    # main_funct.stmtList.expr.identifier.type = ExprType.ET_ID
     main_funct.firstSuite = root.firstSuite
     root.firstSuite = main_funct
 
