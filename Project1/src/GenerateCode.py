@@ -407,7 +407,7 @@ gen_functions = {
     ExprType.ET_ASSIGN: generate_assign,
     StmtType.ST_EXPRESSION: lambda x, y: generate_code(x.expr, y),
     StmtType.ST_RETURN: gen_return,
-    StmtType.ST_CONDITION: gen_if
+    StmtType.ST_CONDITION: gen_if,
     ExprType.ET_ID: generate_getattr,
     ExprType.ET_PLUS: generate_add,
     ExprType.ET_MINUS: generate_minus,
