@@ -126,13 +126,9 @@ class Func_Class:
         self.table = table if table is not None else self.table
         if self.table is None:
             self.table = ConstantTable()
-        #self.table.add_MethodRef("std/MainClass", "main", "([Ljava/lang/String;)V")
 
         self.constructor = self.empty_constructor()
 
-        # if self.isMainClass:
-        #     self.my_code = self.generate_main_function()
-        # else:
         self.my_code = self.generate_my_function()
 
     def to_class_file(self, out_dir):

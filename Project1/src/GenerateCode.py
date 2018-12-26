@@ -52,6 +52,22 @@ def generate_func_call(root, table, code=None):
     return code, offset
 
 
+def generate_call_from_dot(root, table, code=None):
+    if root.right.type.value == ExprType.ET_FUNC_CALL.value and root.right.left.stringVal == 'append':
+        code, offset = generate_append(root, table)
+    else:
+        raise Exception("TO4KY NELZA")
+    return code, offset
+
+
+def generate_square(root, table, code=None):
+    if True or root.list.type.value == ListType.LT_EXPR_ARRAY_INITIAL_ARGUMENTS.value:
+        code, offset = new_array(root, table)
+    else:
+        raise Exception("Unexpected square!!!")
+    return code, offset
+
+
 def generate_assign(root, table: ConstantTable, code=None):
     return gen_setAttr(root, table)
 
@@ -102,6 +118,50 @@ def new_string(root, table: ConstantTable, code=None):
     code += b"\xB7"
     code.extend(table.add_MethodRef("std/__PyString", "<init>", "(Ljava/lang/String;)V").to_bytes(2, "big"))
     return code, 10
+
+
+def new_array(root, table: ConstantTable, code=None):
+    if code is None:
+        code = bytearray()
+    my_code = bytearray()
+    # new
+    my_code += b"\xBB"
+    my_code.extend(table.add_Class("std/__PyList").to_bytes(2, "big"))
+
+    # dup
+    my_code += b"\x59"
+
+    # invokeSpecial
+    my_code += b"\xB7"
+    my_code.extend(table.add_MethodRef("std/__PyList", "<init>", "()V").to_bytes(2, "big"))
+
+    cur = root.list
+    while cur is not None and cur.expr is not None:
+        c, o = generate_code(cur.expr, table)
+        my_code += c
+        my_code += invoke_virtual(
+            table.add_MethodRef("std/__PyGenericObject", "append", "(Lstd/__PyGenericObject;)Lstd/__PyGenericObject;"))
+        cur = cur.nextEl
+
+    code += my_code
+    return code, len(my_code)
+
+
+def generate_append(root, table: ConstantTable, code=None):
+    if code is None:
+        code = bytearray()
+    my_code = bytearray()
+
+    c, o = generate_code(root.left, table)
+    my_code += c
+    c, o = generate_code(root.right.list.expr, table)
+    my_code += c
+
+    my_code += invoke_virtual(
+        table.add_MethodRef("std/__PyGenericObject", "append", "(Lstd/__PyGenericObject;)Lstd/__PyGenericObject;"))
+
+    code += my_code
+    return code, len(my_code)
 
 
 def new_none(root, table: ConstantTable, code=None):
@@ -247,6 +307,42 @@ def generate_div(root, table: ConstantTable, code=None):
     return code, len(my_code)
 
 
+def generate_array_appeal(root, table: ConstantTable, code=None):
+    if code is None:
+        code = bytearray()
+    my_code = bytearray()
+
+    c, o = generate_code(root.left, table)
+    my_code += c
+    c, o = generate_code(root.right, table)
+    my_code += c
+
+    my_code += invoke_virtual(
+        table.add_MethodRef("std/__PyGenericObject", "__getitem__", "(Lstd/__PyGenericObject;)Lstd/__PyGenericObject;"))
+
+    code += my_code
+    return code, len(my_code)
+
+
+def generate_array_setter(root, table: ConstantTable, code=None):
+    if code is None:
+        code = bytearray()
+    my_code = bytearray()
+
+    c, o = generate_code(root.left, table)
+    my_code += c
+    c, o = generate_code(root.middle, table)
+    my_code += c
+    c, o = generate_code(root.right, table)
+    my_code += c
+
+    my_code += invoke_virtual(
+        table.add_MethodRef("std/__PyGenericObject", "__replaceitem", "(Lstd/__PyGenericObject;Lstd/__PyGenericObject;)Lstd/__PyGenericObject;"))
+
+    code += my_code
+    return code, len(my_code)
+
+
 def generate_equal(root, table: ConstantTable, code=None):
     if code is None:
         code = bytearray()
@@ -383,6 +479,21 @@ def cast_to_int(root, table: ConstantTable, code=None):
     return code, len(my_code)
 
 
+def generate_uminus(root, table: ConstantTable, code=None):
+    if code is None:
+        code = bytearray()
+    my_code = bytearray()
+
+    c, offset = generate_code(root.left, table)
+    my_code.extend(c)
+
+    # invokeVirtual
+    my_code += invoke_virtual(table.add_MethodRef("std/__PyGenericObject", "__neg__", "()Lstd/__PyGenericObject;"))
+
+    code += my_code
+    return code, len(my_code)
+
+
 def cast_to_float(root, table: ConstantTable, code=None):
     if root.list.nextEl is not None:
         raise Exception("Cast to float get only one argument!!!")
@@ -511,7 +622,6 @@ def generate_print(root, table: ConstantTable, code=None):
 
     # invokeVirtual
     my_code += invoke_virtual(table.add_MethodRef("std/__PyGenericObject", "__print__", "(Lstd/__PyGenericObject;)Lstd/__PyGenericObject;"))
-    my_code += pop()
 
     code += my_code
     return code, len(my_code)
@@ -551,8 +661,12 @@ gen_functions = {
     ExprType.ET_GREATER_EQUAL: generate_great_eq,
     StmtType.ST_FUNCTION_DEF: generate_function_definition,
     ExprType.ET_NONE: new_none,
-    ExprType.ET_POW: generate_pow
-
+    ExprType.ET_POW: generate_pow,
+    ExprType.ET_SQUARE_BRACKETS: generate_square,
+    ExprType.ET_DOT: generate_call_from_dot,
+    ExprType.ET_ARRAY_APPEAL: generate_array_appeal,
+    ExprType.ET_SQUARE_BRACKETS_ASSIGN: generate_array_setter,
+    ExprType.ET_UMINUS: generate_uminus
 }
 
 

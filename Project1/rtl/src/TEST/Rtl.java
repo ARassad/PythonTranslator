@@ -7,6 +7,8 @@ package TEST;
 import std.__PyInteger;
 import std.__PyFloat;
 import std.__PyGenericObject;
+import std.__PyMethod;
+import std.__PyObject;
 import std.__PyString;
 /**
  *
@@ -19,8 +21,13 @@ public class Rtl {
      */
     public static void main(String[] args) throws Exception {
         // TODO code application logic here
+        __PyObject foo = new __PyMethod();
+        __PyGenericObject INT = new __PyInteger(123);
+        foo.__setattr__("INT", INT);
         
-        System.out.println("HI");
+        foo.__dir__.putAll(foo.__dir__);
+        
+        foo.__call__();
     }
     
 }

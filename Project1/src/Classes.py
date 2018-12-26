@@ -524,7 +524,8 @@ class EXPR:
             writefile.write(str(cur_id) + '[label=\"function_call\"]\n')
             writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')
             max_id = self.left.write(writefile, max_id, cur_id)
-            max_id = self.list.write(writefile, max_id, cur_id)
+            if self.list is not None:
+                max_id = self.list.write(writefile, max_id, cur_id)
         elif self.type == ExprType.ET_BOOL:
             writefile.write(str(cur_id) + '[label=\"bool' + str(self.intVal) + '\"]\n')
             writefile.write(str(parent_id) + '--' + str(cur_id) + '\n')

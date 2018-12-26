@@ -116,11 +116,11 @@ public class __PyFloat extends __PyGenericObject {
     }
     
     public __PyGenericObject __neg__() {
-        return new __PyFloat(this.__float__ - 1);
+        return new __PyFloat(this.__float__ * -1);
     }
     
     public __PyGenericObject __pos__() {
-        return new __PyFloat(this.__float__ + 1);
+        return this;
     }
     
     public __PyGenericObject __round__() {
