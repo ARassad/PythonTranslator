@@ -122,11 +122,11 @@ public class __PyInteger extends __PyGenericObject {
     }
     
     public __PyGenericObject __neg__() {
-        return new __PyInteger(this.__integer__ - 1);
+        return new __PyInteger(this.__integer__ * -1);
     }
     
     public __PyGenericObject __pos__() {
-        return new __PyInteger(this.__integer__ + 1);
+        return this;
     }
     
     public __PyGenericObject __round__() {

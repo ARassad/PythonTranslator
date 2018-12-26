@@ -941,12 +941,12 @@ class STMT:
             count_errors, pos_return = self.secondSuite.find_and_output_errors(count_errors, file, pos_return)
         if self.thirdSuite is not None:
             count_errors, pos_return = self.thirdSuite.find_and_output_errors(count_errors, file, pos_return)
-        if self.type.value == StmtType.ST_RETURN.value:
-            if pos_return == 0:
-                file.write('Ошибка return! Return должен быть внутри тела функции\n')
-                count_errors += 1
-            else:
-                pos_return = 0
+        # if self.type.value == StmtType.ST_RETURN.value:
+        #     if pos_return == 0:
+        #         file.write('Ошибка return! Return должен быть внутри тела функции\n')
+        #         count_errors += 1
+        #     else:
+        #         pos_return = 0
 
         return count_errors, pos_return
 

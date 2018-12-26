@@ -24,7 +24,7 @@ public class __PyList extends __PyGenericObject {
         String res = "[";
         int l = __list__.size();
         for(int i = 0; i < l; i++){
-            res = res + this.__list__.get(i).__str__();
+            res = res + this.__list__.get(i).__str__().__string__;
             if(i != l - 1)
                 res = res + ',';
         }
@@ -67,7 +67,7 @@ public class __PyList extends __PyGenericObject {
             throw new ArrayIndexOutOfBoundsException("Index must be int object");
         int ind = index.__integer__;
         if(ind < 0)
-            ind = this.__list__.size() - ind;
+            ind = this.__list__.size() + ind;
         return this.__list__.get(ind);
     }
     

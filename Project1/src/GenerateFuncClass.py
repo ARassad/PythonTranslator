@@ -1,9 +1,9 @@
 from Classes import *
 from Enums import *
-import src.fileReader as fr
-import src.printGraph as pg
-import src.checkErrors as check
-import src.convert as conv
+import fileReader as fr
+import printGraph as pg
+import checkErrors as check
+import convert as conv
 from ConstantTable import *
 import os
 from subprocess import Popen
@@ -21,6 +21,7 @@ class Func_Class:
         self.constructor = None
         self.class_name = "MainClass" if isMainClass else root.identifier.stringVal + "_" + str(uuid.uuid1())
         self.isMainClass = isMainClass
+        self.root.func_class_name = self.class_name
 
     def empty_constructor(self):
         bs = bytearray()
@@ -37,7 +38,7 @@ class Func_Class:
         # if self.isMainClass:
         #     parent = "java/lang/Object"
         # else:
-        parent = "std/__PyGenericObject"
+        parent = "std/__PyMethod"
         bs += self.table.add_MethodRef(parent, "<init>", "()V").to_bytes(2, 'big')
         bs += b'\xB1'
 
@@ -58,6 +59,21 @@ class Func_Class:
         bs += int(2).to_bytes(2, 'big')
 
         code, offset = start_generation(self.root.firstSuite, self.table)
+
+        numParam = 1
+        cur = self.root.stmtList
+        my_code = bytearray()
+        while cur is not None:
+            my_code += b'\x2A'
+            my_code += b'\x13' + self.table.add_string(cur.expr.identifier.stringVal).to_bytes(2, "big")
+            my_code += b'\x19' + numParam.to_bytes(1, 'big')
+            my_code += b"\xB6" + self.table.add_MethodRef("std/__PyGenericObject", "__setattr__", "(Ljava/lang/String;Lstd/__PyGenericObject;)Lstd/__PyGenericObject;").to_bytes(2, 'big')
+            my_code += b'\x57'
+            numParam += 1
+            cur = cur.nextEl
+
+        code = my_code + code
+        offset = offset + len(my_code)
 
         bs += self.table.add_utf8("Code").to_bytes(2, 'big')
         code_attr = bytearray()
@@ -110,13 +126,9 @@ class Func_Class:
         self.table = table if table is not None else self.table
         if self.table is None:
             self.table = ConstantTable()
-        #self.table.add_MethodRef("std/MainClass", "main", "([Ljava/lang/String;)V")
 
         self.constructor = self.empty_constructor()
 
-        # if self.isMainClass:
-        #     self.my_code = self.generate_main_function()
-        # else:
         self.my_code = self.generate_my_function()
 
     def to_class_file(self, out_dir):
@@ -129,7 +141,7 @@ class Func_Class:
         # if self.isMainClass:
         #     class_file_2 += self.table.add_Class("java/lang/Object").to_bytes(2, 'big')
         # else:
-        class_file_2 += self.table.add_Class("std/__PyGenericObject").to_bytes(2, 'big')
+        class_file_2 += self.table.add_Class("std/__PyMethod").to_bytes(2, 'big')
         class_file_2 += b'\x00\x00'
         class_file_2 += b'\x00\x00'
         class_file_2 += b'\x00\x02'
@@ -227,7 +239,6 @@ if __name__ == "__main__":
     check.find_and_output_errors(prog)
     conv.convert(prog)
     prog = convert_tree(prog)
-    #create_tables(prog)
 
     generate_classes_for_function(prog, "..\\rtl\\build\\classes\\std", "..\\rtl\\build\\classes\\std")
 
