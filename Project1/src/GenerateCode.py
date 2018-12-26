@@ -147,9 +147,81 @@ def gen_return(root, table: ConstantTable, code=None):
 def gen_if(root, table: ConstantTable, code=None):
     if code is None:
         code = bytearray()
-    c = generate_code(root.expr, table)
-    s = generate_code(root.firstSuite, table)
-    # if nextEl = root.sec
+    #Тут условие генерится
+    param = cl.EXPR()
+    param.list = cf.List()
+    param.list.expr = root.expr
+    c, offset = cast_to_int(param, table)
+    code += c
+    first_suite = root.firstSuite
+    first_suite_code = bytearray()
+    first_suite_offset = 0
+    end_if_offset = 0
+    while first_suite is not None:
+        current_code, suite_offset = generate_code(first_suite.stmt, table, first_suite_code)
+        first_suite_code += current_code
+        first_suite_offset += suite_offset
+        first_suite = first_suite.nextEl
+    code += b'\x99'
+    if root.secondSuite is not None or root.stmtList is not None:
+        first_suite_offset += 6
+    else:
+        first_suite_offset += 3
+    code += first_suite_offset.to_bytes(2, 'big')
+    offset += first_suite_offset
+    code += first_suite_code
+
+
+    stmt_list = root.stmtList
+    stmt_list_code = bytearray()
+    while stmt_list is not None:
+        current_code,suite_offset = generate_code(stmt_list.stmt, table, stmt_list_code)
+        code = 1
+
+
+
+    second_suite = root.secondSuite
+    second_suite_code = bytearray()
+    second_suite_offset = 0
+    if root.secondSuite is not None:
+        while second_suite is not None:
+            current_code, suite_offset = generate_code(second_suite.stmt, table, second_suite_code)
+            second_suite_code += current_code
+            second_suite_offset += suite_offset
+            second_suite = second_suite.nextEl
+        end_if_offset += second_suite_offset + 3
+        code += b'\xA7'
+        code += end_if_offset.to_bytes(2, byteorder='big')
+        offset += second_suite_offset
+        code += second_suite_code
+    return code, offset
+
+
+def gen_while(root, table: ConstantTable,code=None):
+    if code is None:
+        code = bytearray()
+    param = cl.EXPR()
+    param.list = cf.List()
+    param.list.expr = root.expr
+    c, offset = cast_to_int(param, table)
+    code += c
+    first_suite = root.firstSuite
+    first_suite_code = bytearray()
+    first_suite_offset = 0
+    offset += 3
+    while first_suite is not None:
+        current_code, suite_offset = generate_code(first_suite.stmt, table, first_suite_code)
+        first_suite_code += current_code
+        first_suite_offset += suite_offset
+        first_suite = first_suite.nextEl
+    first_suite_offset += 3
+    first_suite_code += b'\xA7'
+    first_suite_code += ((-1)*(first_suite_offset - 3 + offset)).to_bytes(2, byteorder='big', signed=True)
+    code += b'\x99'
+    code += (first_suite_offset + 3).to_bytes(2, byteorder='big')
+    code += first_suite_code
+    offset += first_suite_offset
+    return code, offset
 
 
 def generate_getattr(root, table: ConstantTable, code=None):
@@ -408,6 +480,7 @@ gen_functions = {
     StmtType.ST_EXPRESSION: lambda x, y: generate_code(x.expr, y),
     StmtType.ST_RETURN: gen_return,
     StmtType.ST_CONDITION: gen_if,
+    StmtType.ST_WHILE: gen_while,
     ExprType.ET_ID: generate_getattr,
     ExprType.ET_PLUS: generate_add,
     ExprType.ET_MINUS: generate_minus,
