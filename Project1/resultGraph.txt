@@ -1,0 +1,24 @@
+graph resultGraph
+{
+0 [label = "program"]
+1 [label = "stmt_list"]
+0--1
+2 [label="if"]
+1--2
+3 [label = ">"]
+2--3
+4[label = "a"]
+3--4
+5[label = "b"]
+3--5
+6 [label = "stmt_list"]
+2--6
+7 [label="expr_stmt"]
+6--7
+8 [label = "="]
+7--8
+9[label = "a"]
+8--9
+10[label = "5"]
+8--10
+}

@@ -1,0 +1,22 @@
+Program
+List
+1
+LT_STATEMENT_LIST
+Statement
+2
+ST_EXPRESSION
+3
+ET_ASSIGN
+4
+ET_ID
+a
+4
+5
+ET_INT
+5
+5
+3
+2
+1
+
+C:\Users\1\Documents\Theory of formal languages\PythonTranslator\Project1>"./graphviz/bin/dot.exe" -Tpng grammar_tree.txt -o grammar_tree.png 

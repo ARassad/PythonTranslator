@@ -22,7 +22,11 @@ public class __PyString extends __PyGenericObject{
     
     public __PyString(String str) {
         this();
-        __string__ = str;
+        String resStr = str;
+        if(str.length() >= 2 && ((str.startsWith("\"")) && (str.endsWith("\"")))){
+            resStr = str.substring(1, str.length() - 1);
+        }
+        __string__ = resStr;
     }
     
     public __PyString __add__(__PyGenericObject other) {
@@ -96,7 +100,7 @@ public class __PyString extends __PyGenericObject{
     }
     
     public __PyGenericObject __float__() {
-        throw new NotImplementedException();
+        return new __PyFloat(Float.parseFloat(this.__string__));
     }
     
     public __PyGenericObject __int__()  {

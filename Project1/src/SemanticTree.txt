@@ -1,0 +1,28 @@
+graph resultGraph
+{
+1[label = "program"]
+2[label="class"]
+1--2
+3[label="<MainClass>"]
+2--3
+4[label="def"]
+2--4
+5[label="<main>"]
+4--5
+6[label = "stmt_list"]
+4--6
+7[label="expr_stmt"]
+6--7
+8[label="="]
+7--8
+9[label="a"]
+8--9
+10[label="function_call"]
+8--10
+11[label="<int>"]
+10--11
+12[label = "ARRAY_ARGUMENTS"]
+10--12
+13[label="5"]
+12--13
+}

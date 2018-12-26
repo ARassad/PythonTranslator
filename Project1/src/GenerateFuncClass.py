@@ -156,8 +156,6 @@ def generate_classes_for_function(root: STMT, dir_with_std_classes: str, dir_out
     for f in funcs:
         f.initial_func_class(root.constant_table)
         f.to_class_file(dir_output)
-
-    #__generate_PyGenericObject(funcs, root.constant_table, dir_with_std_classes, dir_output)
     pass
 
 
@@ -233,7 +231,7 @@ if __name__ == "__main__":
 
     generate_classes_for_function(prog, "..\\rtl\\build\\classes\\std", "..\\rtl\\build\\classes\\std")
 
-    pg.print_program(prog)
-
-    # p = Popen(r"SemanticTreeImage.bat", cwd=r"..\.")
-    # stdout, stderr = p.communicate()
+    #pg.print_program(prog)
+    #p = Popen(r"SemanticTreeImage.bat", cwd=r".\.")
+    #stdout, stderr = p.communicate()
+    pass

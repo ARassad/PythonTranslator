@@ -11,6 +11,9 @@ package std;
  */
 public class A extends __PyGenericObject{
     public __PyGenericObject __call__(__PyGenericObject a, __PyGenericObject b) throws Exception{
-        return new __PyNone();
+        __PyGenericObject a1 = new __PyInteger(100);
+        __PyGenericObject a2 = new __PyFloat((float) 12);
+        
+        return a1.__add__(a2);
     }
 }
