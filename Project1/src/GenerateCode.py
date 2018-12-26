@@ -134,11 +134,19 @@ def gen_return(root, table: ConstantTable, code=None):
     return code, o + 1
 
 
+def gen_if(root, table: ConstantTable, code=None):
+    if code is None:
+        code = bytearray()
+    c = generate_code(root.expr, table)
+    s = generate_code(root.firstSuite, table)
+    # if nextEl = root.sec
+
 gen_functions = {
     ExprType.ET_FUNC_CALL: generate_func_call,
     ExprType.ET_ASSIGN: generate_assign,
     StmtType.ST_EXPRESSION: lambda x, y: generate_code(x.expr, y),
-    StmtType.ST_RETURN: gen_return
+    StmtType.ST_RETURN: gen_return,
+    StmtType.ST_CONDITION: gen_if
 }
 
 

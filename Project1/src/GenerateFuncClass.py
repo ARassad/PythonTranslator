@@ -231,9 +231,9 @@ if __name__ == "__main__":
     prog = convert_tree(prog)
     #create_tables(prog)
 
-    generate_classes_for_function(prog, "D:\\Translator\\PythonTranslator\\Project1\\rtl\\build\\classes\\std", "D:\\Translator\\PythonTranslator\\Project1\\rtl\\build\\classes\\std")
+    generate_classes_for_function(prog, "..\\rtl\\build\\classes\\std", "..\\rtl\\build\\classes\\std")
 
     pg.print_program(prog)
 
-    p = Popen(r"SemanticTreeImage.bat", cwd=r".\.")
-    stdout, stderr = p.communicate()
+    # p = Popen(r"SemanticTreeImage.bat", cwd=r"..\.")
+    # stdout, stderr = p.communicate()
