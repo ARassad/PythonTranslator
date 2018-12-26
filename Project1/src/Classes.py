@@ -13,6 +13,12 @@ forbiddenSTMTS = {StmtType.ST_WITH, StmtType.ST_FOR, StmtType.ST_BREAK, StmtType
                   StmtType.ST_ASSERT, StmtType.ST_FROM_IMPORT, StmtType.ST_IMPORT}
 
 
+class ELIF:
+    def __init__(self):
+        code = bytearray()
+        offset = 0
+
+
 class EXPR:
     def __init__(self):
         self.type = ExprType.ET_UNDEFINED
