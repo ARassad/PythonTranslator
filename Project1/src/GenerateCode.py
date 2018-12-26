@@ -43,6 +43,8 @@ def generate_func_call(root, table, code=None):
         code, offset = cast_to_float(root, table)
     elif root.type.value == ExprType.ET_FUNC_CALL.value and root.left.stringVal == 'bool':
         code, offset = cast_to_bool(root, table)
+    else:
+        code, offset = generate_custom_function_call(root, table)
     return code, offset
 
 
@@ -424,6 +426,38 @@ def generate_function_definition(root, table: ConstantTable, code=None):
     return code, len(my_code)
 
 
+def generate_custom_function_call(root, table: ConstantTable, code=None):
+    if code is None:
+        code = bytearray()
+    my_code = bytearray()
+
+    c, o = generate_getattr(root.left, table)
+    my_code += c
+
+    my_code += dup()
+
+    my_code += get_field(table.add_FieldRef("std/__PyObject", "__dir__", "Ljava/util/HashMap;"))
+
+    my_code += aload(int(0))
+
+    my_code += get_field(table.add_FieldRef("std/__PyObject", "__dir__", "Ljava/util/HashMap;"))
+
+    my_code += invoke_virtual(table.add_MethodRef("java/util/HashMap", "putAll", "(Ljava/util/Map;)V"))
+
+    numParams = 0
+    cur = root.list
+    while cur is not None and root.list.type.value != ListType.LT_UNDEFINED.value:
+        c, o = generate_code(cur.expr, table)
+        my_code += c
+        numParams += 1
+        cur = cur.nextEl
+
+    my_code += invoke_virtual(table.add_MethodRef("std/__PyGenericObject", "__call__", "({})Lstd/__PyGenericObject;".format("Lstd/__PyGenericObject;" * numParams)))
+
+    code += my_code
+    return code, len(my_code)
+
+
 gen_functions = {
     ExprType.ET_FUNC_CALL: generate_func_call,
     ExprType.ET_ASSIGN: generate_assign,
@@ -441,7 +475,7 @@ gen_functions = {
     ExprType.ET_GREATER: generate_great,
     ExprType.ET_GREATER_EQUAL: generate_great_eq,
     StmtType.ST_FUNCTION_DEF: generate_function_definition,
-    ExprType.ET_NONE: new_none
+    ExprType.ET_NONE: new_none,
 
 }
 
@@ -460,3 +494,11 @@ def invoke_virtual(indexMeth: int):
 
 def new_obj(indexCl: int):
     return b"\xBB" + indexCl.to_bytes(2, 'big')
+
+
+def dup():
+    return b"\x59"
+
+
+def get_field(indexF: int):
+    return b'\xB4' + indexF.to_bytes(2, 'big')

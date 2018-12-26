@@ -60,6 +60,21 @@ class Func_Class:
 
         code, offset = start_generation(self.root.firstSuite, self.table)
 
+        numParam = 1
+        cur = self.root.stmtList
+        my_code = bytearray()
+        while cur is not None:
+            my_code += b'\x2A'
+            my_code += b'\x13' + self.table.add_string(cur.expr.identifier.stringVal).to_bytes(2, "big")
+            my_code += b'\x19' + numParam.to_bytes(1, 'big')
+            my_code += b"\xB6" + self.table.add_MethodRef("std/__PyGenericObject", "__setattr__", "(Ljava/lang/String;Lstd/__PyGenericObject;)Lstd/__PyGenericObject;").to_bytes(2, 'big')
+            my_code += b'\x57'
+            numParam += 1
+            cur = cur.nextEl
+
+        code = my_code + code
+        offset = offset + len(my_code)
+
         bs += self.table.add_utf8("Code").to_bytes(2, 'big')
         code_attr = bytearray()
         code_attr += int(1000).to_bytes(2, "big")
