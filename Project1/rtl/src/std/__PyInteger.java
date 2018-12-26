@@ -42,7 +42,7 @@ public class __PyInteger extends __PyGenericObject {
     }
     
     public __PyGenericObject __float__() {
-        throw new NotImplementedException();
+        return new __PyFloat((float) this.__integer__);
     }
     
     public __PyGenericObject __int__() {

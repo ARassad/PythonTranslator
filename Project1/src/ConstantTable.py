@@ -9,6 +9,7 @@ import struct
 def convert_tree(root):
 
     root = cf.create_main_class(root)
+    root = cf.add_return_none_to_functions(root)
 
     return root
 
@@ -48,7 +49,11 @@ class ConstantElement:
         elif self.ctype in [ECONSTANT.Int]:
             bs.extend(self.value.to_bytes(4, "big"))
         elif self.ctype in [ECONSTANT.Float]:
-            bs += bytearray(struct.pack("f", self.value))
+            f = bytearray(struct.pack("f", self.value))
+            bs += f[3].to_bytes(1, "big")
+            bs += f[2].to_bytes(1, "big")
+            bs += f[1].to_bytes(1, "big")
+            bs += f[0].to_bytes(1, "big")
         elif self.ctype in [ECONSTANT.Utf8]:
             bs.extend(len(self.value).to_bytes(2, "big"))
             bs.extend(bytes(self.value, 'utf-8'))

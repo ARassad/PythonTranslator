@@ -26,4 +26,8 @@ public class __PyMethod extends __PyGenericObject{
     public __PyGenericObject __call__() throws Exception {
         return this;
     }
+    
+    public __PyGenericObject __str__(){
+        return new __PyString("Callable object.");
+    }
 }

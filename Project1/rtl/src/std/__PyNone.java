@@ -11,4 +11,8 @@ package std;
  */
 public class __PyNone extends __PyGenericObject{
     
+    
+    public __PyGenericObject __str__(){
+        return  new __PyString("None");
+    }
 }
