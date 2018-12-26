@@ -394,6 +394,36 @@ def cast_to_bool(root, table: ConstantTable, code=None):
     return code, len(my_code)
 
 
+def generate_function_definition(root, table: ConstantTable, code=None):
+    if code is None:
+        code = bytearray()
+    my_code = bytearray()
+
+    # aload 0
+    my_code += aload(int(0))
+
+    # ldc1
+    my_code += ldc_w(table.add_string(root.identifier.stringVal))
+
+    my_code += new_obj(table.add_Class("std/" + root.func_class_name))
+
+    # dup
+    my_code += b"\x59"
+
+    # invokeSpecial
+    my_code += b"\xB7"
+    my_code.extend(table.add_MethodRef("std/" + root.func_class_name, "<init>", "()V").to_bytes(2, "big"))
+
+    # invokeVirtual
+    my_code += invoke_virtual(table.add_MethodRef("std/__PyGenericObject", "__setattr__", "(Ljava/lang/String;Lstd/__PyGenericObject;)Lstd/__PyGenericObject;"))
+
+    # pop
+    my_code += b"\x57"
+
+    code += my_code
+    return code, len(my_code)
+
+
 gen_functions = {
     ExprType.ET_FUNC_CALL: generate_func_call,
     ExprType.ET_ASSIGN: generate_assign,
@@ -410,7 +440,8 @@ gen_functions = {
     ExprType.ET_LESSER_EQUAL: generate_less_equal,
     ExprType.ET_GREATER: generate_great,
     ExprType.ET_GREATER_EQUAL: generate_great_eq,
-
+    StmtType.ST_FUNCTION_DEF: generate_function_definition,
+    ExprType.ET_NONE: new_none
 
 }
 
@@ -425,3 +456,7 @@ def aload(indexLocal: int):
 
 def invoke_virtual(indexMeth: int):
     return b"\xB6" + indexMeth.to_bytes(2, 'big')
+
+
+def new_obj(indexCl: int):
+    return b"\xBB" + indexCl.to_bytes(2, 'big')

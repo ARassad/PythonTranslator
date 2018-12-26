@@ -21,6 +21,7 @@ class Func_Class:
         self.constructor = None
         self.class_name = "MainClass" if isMainClass else root.identifier.stringVal + "_" + str(uuid.uuid1())
         self.isMainClass = isMainClass
+        self.root.func_class_name = self.class_name
 
     def empty_constructor(self):
         bs = bytearray()
@@ -37,7 +38,7 @@ class Func_Class:
         # if self.isMainClass:
         #     parent = "java/lang/Object"
         # else:
-        parent = "std/__PyGenericObject"
+        parent = "std/__PyMethod"
         bs += self.table.add_MethodRef(parent, "<init>", "()V").to_bytes(2, 'big')
         bs += b'\xB1'
 
@@ -129,7 +130,7 @@ class Func_Class:
         # if self.isMainClass:
         #     class_file_2 += self.table.add_Class("java/lang/Object").to_bytes(2, 'big')
         # else:
-        class_file_2 += self.table.add_Class("std/__PyGenericObject").to_bytes(2, 'big')
+        class_file_2 += self.table.add_Class("std/__PyMethod").to_bytes(2, 'big')
         class_file_2 += b'\x00\x00'
         class_file_2 += b'\x00\x00'
         class_file_2 += b'\x00\x02'
