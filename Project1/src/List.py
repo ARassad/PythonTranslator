@@ -1,8 +1,8 @@
 import Classes
 from Enums import ListType
 from Enums import StmtType
-forbiddenLists = {ListType.LT_EXPR_ID_AS_LIST, ListType.LT_EXPR_WITH, ListType.LT_UNDEFINED}
-
+#forbiddenLists = {ListType.LT_EXPR_ID_AS_LIST, ListType.LT_EXPR_WITH, ListType.LT_UNDEFINED}
+forbiddenLists = {ListType.LT_EXPR_ID_AS_LIST, ListType.LT_EXPR_WITH}
 
 class List:
     def __init__(self):

@@ -1,9 +1,9 @@
 from Classes import *
 from Enums import *
-import src.fileReader as fr
-import src.printGraph as pg
-import src.checkErrors as check
-import src.convert as conv
+import fileReader as fr
+import printGraph as pg
+import checkErrors as check
+import convert as conv
 from ConstantTable import *
 import os
 from subprocess import Popen

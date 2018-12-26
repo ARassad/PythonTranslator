@@ -412,15 +412,41 @@ def generate_function_definition(root, table: ConstantTable, code=None):
     # dup
     my_code += b"\x59"
 
+
     # invokeSpecial
     my_code += b"\xB7"
     my_code.extend(table.add_MethodRef("std/" + root.func_class_name, "<init>", "()V").to_bytes(2, "big"))
+
+    # # dup2_x1
+    # my_code += b"\x5D"
+    # # dup2_x1
+    # my_code += b"\x5D"
+    # # pop
+    # my_code += b"\x57"
 
     # invokeVirtual
     my_code += invoke_virtual(table.add_MethodRef("std/__PyGenericObject", "__setattr__", "(Ljava/lang/String;Lstd/__PyGenericObject;)Lstd/__PyGenericObject;"))
 
     # pop
     my_code += b"\x57"
+    #
+    #my_code += dup()
+
+    my_code += aload(int(0))
+    my_code += ldc_w(table.add_string(root.identifier.stringVal))
+    my_code += invoke_virtual(
+        table.add_MethodRef("std/__PyGenericObject", "__getattr__", "(Ljava/lang/String;)Lstd/__PyGenericObject;"))
+
+    my_code += get_field(table.add_FieldRef("std/__PyObject", "__dir__", "Ljava/util/HashMap;"))
+
+    my_code += aload(int(0))
+
+    my_code += get_field(table.add_FieldRef("std/__PyObject", "__dir__", "Ljava/util/HashMap;"))
+
+    my_code += invoke_virtual(table.add_MethodRef("java/util/HashMap", "putAll", "(Ljava/util/Map;)V"))
+
+    # my_code += b"\x57"
+    # my_code += b"\x57"
 
     code += my_code
     return code, len(my_code)
@@ -431,18 +457,10 @@ def generate_custom_function_call(root, table: ConstantTable, code=None):
         code = bytearray()
     my_code = bytearray()
 
-    c, o = generate_getattr(root.left, table)
+    c, o = generate_code(root.left, table)
     my_code += c
 
-    my_code += dup()
 
-    my_code += get_field(table.add_FieldRef("std/__PyObject", "__dir__", "Ljava/util/HashMap;"))
-
-    my_code += aload(int(0))
-
-    my_code += get_field(table.add_FieldRef("std/__PyObject", "__dir__", "Ljava/util/HashMap;"))
-
-    my_code += invoke_virtual(table.add_MethodRef("java/util/HashMap", "putAll", "(Ljava/util/Map;)V"))
 
     numParams = 0
     cur = root.list
