@@ -239,7 +239,6 @@ if __name__ == "__main__":
     check.find_and_output_errors(prog)
     conv.convert(prog)
     prog = convert_tree(prog)
-    #create_tables(prog)
 
     generate_classes_for_function(prog, "D:\\Translator\\PythonTranslator\\Project1\\rtl\\build\\classes\\std", "D:\\Translator\\PythonTranslator\\Project1\\rtl\\build\\classes\\std")
 

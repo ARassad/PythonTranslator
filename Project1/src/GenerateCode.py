@@ -1,6 +1,8 @@
 from builtins import bytearray
 
 import Classes as cl
+from Classes import *
+from List import *
 from Enums import *
 from Enums import ExprType, ListType, StmtType
 import uuid
@@ -643,6 +645,115 @@ def generate_input(root, table: ConstantTable, code=None):
     return code, len(my_code)
 
 
+######################################################################
+
+
+def gen_if(root, table: ConstantTable, code=None):
+    if code is None:
+        code = bytearray()
+
+        # Тут условие генерится
+        param = EXPR()
+        param.list = List()
+        param.list.expr = root.expr
+        c, offset = cast_to_int(param, table)
+        code += c
+        first_suite = root.firstSuite
+        first_suite_code = bytearray()
+        first_suite_offset = 0
+        end_if_offset = 0
+        while first_suite is not None:
+            current_code, suite_offset = generate_code(first_suite.stmt, table)
+            first_suite_code += current_code
+            first_suite_offset += suite_offset
+            first_suite = first_suite.nextEl
+        code += b'\x99'
+        if root.secondSuite is not None or root.stmtList is not None:
+            first_suite_offset += 6
+        else:
+            first_suite_offset += 3
+        if root.thirdSuite is not None:
+            code += (first_suite_offset + 3).to_bytes(2, 'big')
+        else:
+            code += first_suite_offset.to_bytes(2, 'big')
+        offset += first_suite_offset
+        code += first_suite_code
+
+
+        second_suite = root.secondSuite
+        second_suite_code = bytearray()
+        second_suite_offset = 0
+        if root.secondSuite is not None:
+            while second_suite is not None:
+                current_code, suite_offset = generate_code(second_suite.stmt, table, second_suite_code)
+                second_suite_code += current_code
+                second_suite_offset += suite_offset
+                second_suite = second_suite.nextEl
+            end_if_offset += second_suite_offset + 3
+
+        # Генерация elif
+        stmt_list_code_array = []
+        stmt_list = root.stmtList
+        stmt_list_code = bytearray()
+        while stmt_list is not None:
+            if stmt_list.stmt is not None:
+                stmt_list.stmt.type = StmtType.ST_CONDITION
+                stmt_list.stmt.thirdSuite = cl.STMT()
+                current_code, suite_offset = generate_code(stmt_list.stmt, table, stmt_list_code)
+                f = cl.ELIF()
+                f.code = current_code
+                f.offset = suite_offset
+                stmt_list_code_array.append(f)
+            stmt_list = stmt_list.nextEl
+
+        for stmt in reversed(stmt_list_code_array):
+            if end_if_offset:
+                stmt.code += b'\xA7'
+                stmt.code += end_if_offset.to_bytes(2, byteorder='big')
+            end_if_offset += stmt.offset + 3
+
+        # Здесь все складываем
+        if root.secondSuite is not None or root.stmtList is not None:
+            code += b'\xA7'
+            code += end_if_offset.to_bytes(2, byteorder='big')
+            offset += end_if_offset - 3
+            for stmt in stmt_list_code_array:
+                code += stmt.code
+            if root.secondSuite is not None:
+                code += second_suite_code
+
+        return code, offset
+
+
+def gen_while(root, table: ConstantTable, code=None):
+    if code is None:
+        code = bytearray()
+    param = EXPR()
+    param.list = List()
+    param.list.expr = root.expr
+    c, offset = cast_to_int(param, table)
+    code += c
+    first_suite = root.firstSuite
+    first_suite_code = bytearray()
+    first_suite_offset = 0
+    offset += 3
+    while first_suite is not None:
+        current_code, suite_offset = generate_code(first_suite.stmt, table, first_suite_code)
+        first_suite_code += current_code
+        first_suite_offset += suite_offset
+        first_suite = first_suite.nextEl
+    first_suite_offset += 3
+    first_suite_code += b'\xA7'
+    first_suite_code += ((-1) * (first_suite_offset - 3 + offset)).to_bytes(2, byteorder='big', signed=True)
+    code += b'\x99'
+    code += (first_suite_offset + 3).to_bytes(2, byteorder='big')
+    code += first_suite_code
+    offset += first_suite_offset
+    return code, offset
+
+
+
+#######################################################################
 gen_functions = {
     ExprType.ET_FUNC_CALL: generate_func_call,
     ExprType.ET_ASSIGN: generate_assign,
@@ -666,7 +777,9 @@ gen_functions = {
     ExprType.ET_DOT: generate_call_from_dot,
     ExprType.ET_ARRAY_APPEAL: generate_array_appeal,
     ExprType.ET_SQUARE_BRACKETS_ASSIGN: generate_array_setter,
-    ExprType.ET_UMINUS: generate_uminus
+    ExprType.ET_UMINUS: generate_uminus,
+    StmtType.ST_CONDITION: gen_if,
+    StmtType.ST_WHILE: gen_while,
 }
 
 
