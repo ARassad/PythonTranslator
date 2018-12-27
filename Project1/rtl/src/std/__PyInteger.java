@@ -187,4 +187,26 @@ public class __PyInteger extends __PyGenericObject {
         
         throw new ArithmeticException("Object for equality with int must be int or float.");
     }
+    public __PyGenericObject __and__(__PyGenericObject value) throws NotImplementedException{
+        if (value instanceof __PyInteger){
+            int val;
+            if (this.__integer__ == 0)
+                val = this.__integer__;
+            else 
+                val = value.__integer__;
+            return new __PyInteger(val);
+        }
+        else throw new ArithmeticException("Supported only integer operations.");
+    }
+    public __PyGenericObject __or__(__PyGenericObject value) throws NotImplementedException{
+        if (value instanceof __PyInteger){
+            int val;
+            if (this.__integer__ != 0)
+                val = this.__integer__;
+            else
+                val = value.__integer__;
+            return new __PyInteger(val);
+        }
+        else throw new ArithmeticException("Supported only integer operations.");
+    }
 }

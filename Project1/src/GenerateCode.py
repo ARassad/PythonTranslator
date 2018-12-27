@@ -756,6 +756,37 @@ def gen_while(root, table: ConstantTable, code=None):
     return code, offset
 
 
+def gen_and(root,table,code = None):
+    if code is None:
+        code = bytearray()
+    my_code = bytearray()
+
+    c, o = generate_code(root.left, table)
+    my_code += c
+    c, o = generate_code(root.right, table)
+    my_code += c
+
+    my_code += invoke_virtual(
+        table.add_MethodRef("std/__PyGenericObject", "__and__", "(Lstd/__PyGenericObject;)Lstd/__PyGenericObject;"))
+
+    code += my_code
+    return code, len(my_code)
+
+def gen_or(root,table,code = None):
+    if code is None:
+        code = bytearray()
+    my_code = bytearray()
+
+    c, o = generate_code(root.left, table)
+    my_code += c
+    c, o = generate_code(root.right, table)
+    my_code += c
+
+    my_code += invoke_virtual(
+        table.add_MethodRef("std/__PyGenericObject", "__or__", "(Lstd/__PyGenericObject;)Lstd/__PyGenericObject;"))
+
+    code += my_code
+    return code, len(my_code)
 
 #######################################################################
 gen_functions = {
@@ -784,6 +815,8 @@ gen_functions = {
     ExprType.ET_ARRAY_APPEAL: generate_array_appeal,
     ExprType.ET_SQUARE_BRACKETS_ASSIGN: generate_array_setter,
     ExprType.ET_UMINUS: generate_uminus,
+    ExprType.ET_AND: gen_and,
+    ExprType.ET_OR: gen_or
 }
 
 
