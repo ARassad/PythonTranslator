@@ -3,5 +3,5 @@ cd src
 python GenerateFuncClass.py
 cd ../
 cd ./rtl/build/classes
-java std.Start
+java  -noverify -cp . std.Start
 cd ../../../
