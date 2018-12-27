@@ -281,7 +281,7 @@ class EXPR:
             self.type = ExprType.ET_FUNC_CALL
             self.left = EXPR()
             i = self.left.read_expr(index=i + 1, last=int(text[i + 1]), text=text)
-            if int(text[i + 1])!= last:
+            if text[i + 1] == 'List':
                 self.list = List.List()
                 i = self.list.read_list(index=i + 2, last=int(text[i+2]), text=text)
         elif string == "ET_BOOL":
